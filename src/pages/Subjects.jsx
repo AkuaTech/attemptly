@@ -1,35 +1,27 @@
+import { Link } from 'react-router-dom'
+
 const subjects = [
-  { code: 'PH-01', icon: 'bolt', name: 'Physics', desc: 'Mechanics, Electromagnetism, & Modern Physics.', progress: 64 },
-  { code: 'CH-02', icon: 'experiment', name: 'Chemistry', desc: 'Organic Synthesis, Physical Chemistry, & Inorganic.', progress: 42 },
-  { code: 'MA-03', icon: 'functions', name: 'Math', desc: 'Calculus, Algebra, & Coordinate Geometry.', progress: 81 },
-  { code: 'BI-04', icon: 'genetics', name: 'Biology', desc: 'Genetics, Human Physiology, & Ecology.', progress: 15 },
+  { slug: 'Mathematics', icon: 'functions', name: 'Mathematics', desc: 'Calculus, Algebra, Coordinate Geometry, & Trigonometry.' },
+  { slug: 'Physics', icon: 'bolt', name: 'Physics', desc: 'Mechanics, Electromagnetism, & Modern Physics.' },
+  { slug: 'Chemistry', icon: 'experiment', name: 'Chemistry', desc: 'Organic Synthesis, Physical Chemistry, & Inorganic.' },
 ]
 
 function SubjectCard({ subject }) {
   return (
-    <div className="glass-card subject-card glass-card-hover">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 32 }}>
-        <div style={{ padding: 16, background: 'rgba(231,249,92,0.1)', borderRadius: 16, color: 'var(--primary)' }}>
+    <Link to={`/subjects/${encodeURIComponent(subject.slug)}`} className="glass-card subject-card glass-card-hover" style={{ textDecoration: 'none', color: 'inherit' }}>
+      <div style={{ marginBottom: 32 }}>
+        <div style={{ display: 'inline-flex', padding: 16, background: 'rgba(231,249,92,0.1)', borderRadius: 16, color: 'var(--primary)' }}>
           <span className="material-symbols-outlined" style={{ fontSize: 36 }}>{subject.icon}</span>
         </div>
-        <span className="text-sm">{subject.code}</span>
       </div>
 
       <h3>{subject.name}</h3>
       <p>{subject.desc}</p>
 
       <div style={{ marginTop: 'auto' }}>
-        <div className="row" style={{ marginBottom: 4 }}>
-          <span className="text-xs" style={{ textTransform: 'uppercase', letterSpacing: '0.1em' }}>Progress</span>
-          <div className="spacer" />
-          <span style={{ fontSize: 11, fontFamily: 'var(--fh)', fontWeight: 700, color: 'var(--primary)' }}>{subject.progress}%</span>
-        </div>
-        <div className="neon-progress-track">
-          <div className="neon-progress-fill" style={{ width: `${subject.progress}%` }} />
-        </div>
-        <button className="subject-enter-btn">Enter Module</button>
+        <button className="subject-enter-btn">Browse Chapters</button>
       </div>
-    </div>
+    </Link>
   )
 }
 
@@ -51,7 +43,7 @@ export default function Subjects() {
       </header>
 
       <div className="bento-4">
-        {subjects.map(s => <SubjectCard key={s.code} subject={s} />)}
+        {subjects.map(s => <SubjectCard key={s.slug} subject={s} />)}
       </div>
 
       <section style={{ marginTop: 64, position: 'relative', borderRadius: 16, overflow: 'hidden', height: 256, display: 'flex', alignItems: 'center' }}>

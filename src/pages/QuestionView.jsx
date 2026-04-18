@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import MathText from '../components/MathText'
-import { questions } from '../data/questions'
+import { useQuestions } from '../hooks/useQuestions'
 
 const diffColor = { easy: 'var(--primary)', medium: '#f4a261', hard: 'var(--error)' }
 
@@ -35,7 +36,7 @@ function OptionButton({ opt, selected, submitted, correctId, onSelect }) {
         {opt.identifier}
       </span>
       <span style={{ fontFamily: 'monospace', fontSize: 14, color: textColor, flex: 1 }}>
-        <MathText>{opt.content}</MathText>
+        <MathText inline>{opt.content}</MathText>
       </span>
       {isRight && <span className="material-symbols-outlined" style={{ color: '#000', fontSize: 20, flexShrink: 0 }}>check_circle</span>}
       {isWrong && <span className="material-symbols-outlined" style={{ color: 'var(--error)', fontSize: 20, flexShrink: 0 }}>cancel</span>}
@@ -44,15 +45,59 @@ function OptionButton({ opt, selected, submitted, correctId, onSelect }) {
 }
 
 export default function QuestionView() {
+  const [searchParams] = useSearchParams()
+  const subject = searchParams.get('subject')
+  const chapter = searchParams.get('chapter')
+  const topic = searchParams.get('topic')
+  const { questions, loading, error } = useQuestions({ subject, chapter, topic })
+
   const [qIdx, setQIdx] = useState(0)
   const [selected, setSelected] = useState(null)
   const [submitted, setSubmitted] = useState(false)
   const [showExplanation, setShowExplanation] = useState(false)
   const [answers, setAnswers] = useState({})
 
-  const q = questions[qIdx]
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 'calc(100vh - 64px)', color: 'var(--on-sv)' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div className="material-symbols-outlined" style={{ fontSize: 32, color: 'var(--primary)', marginBottom: 8 }}>hourglass_top</div>
+          <div style={{ fontSize: 14 }}>Loading questions…</div>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 'calc(100vh - 64px)', color: 'var(--on-sv)' }}>
+        <div style={{ textAlign: 'center', maxWidth: 360 }}>
+          <div className="material-symbols-outlined" style={{ fontSize: 32, color: 'var(--error)', marginBottom: 8 }}>error</div>
+          <div style={{ fontSize: 14, marginBottom: 4 }}>Couldn't load questions.</div>
+          <div style={{ fontSize: 12, color: 'var(--muted)' }}>{error.message}</div>
+        </div>
+      </div>
+    )
+  }
+
+  if (!questions.length) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 'calc(100vh - 64px)', color: 'var(--on-sv)' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div className="material-symbols-outlined" style={{ fontSize: 32, marginBottom: 8 }}>quiz</div>
+          <div style={{ fontSize: 14 }}>
+            No questions available
+            {topic ? ` for "${topic}"` : chapter ? ` in "${chapter}"` : subject ? ` for ${subject}` : ''}.
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const safeIdx = Math.min(qIdx, questions.length - 1)
+  const q = questions[safeIdx]
   const totalQ = questions.length
-  const correctId = q.correct_options[0]
+  const correctId = q.correct_options?.[0]
   const isCorrect = submitted && selected === correctId
 
   function handleSubmit() {

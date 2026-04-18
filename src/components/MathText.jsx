@@ -1,10 +1,10 @@
 import katex from 'katex'
 import 'katex/dist/katex.min.css'
 
-function renderLatex(src, displayMode = false) {
+function renderLatex(src) {
   try {
     return katex.renderToString(src, {
-      displayMode,
+      displayMode: false,
       throwOnError: false,
       trust: true,
     })
@@ -13,8 +13,16 @@ function renderLatex(src, displayMode = false) {
   }
 }
 
+const ALLOWED_TAGS = new Set(['br', 'sup', 'sub', 'b', 'i', 'em', 'strong', 'u', 'span', 'img'])
+
+function sanitizeHtml(raw) {
+  return raw.replace(/<\/?([a-zA-Z][a-zA-Z0-9]*)\b[^>]*>/g, (match, tag) => {
+    return ALLOWED_TAGS.has(tag.toLowerCase()) ? match : ''
+  })
+}
+
 export default function MathText({ children, className, style }) {
-  if (!children) return null
+  if (children === null || children === undefined) return null
 
   const raw = String(children)
 
@@ -27,11 +35,7 @@ export default function MathText({ children, className, style }) {
     if (match.index > cursor) {
       parts.push({ type: 'text', val: raw.slice(cursor, match.index) })
     }
-    if (match[1] !== undefined) {
-      parts.push({ type: 'display', val: match[1] })
-    } else {
-      parts.push({ type: 'inline', val: match[2] })
-    }
+    parts.push({ type: 'math', val: match[1] !== undefined ? match[1] : match[2] })
     cursor = match.index + match[0].length
   }
 
@@ -42,15 +46,8 @@ export default function MathText({ children, className, style }) {
   return (
     <span className={className} style={style}>
       {parts.map((p, i) => {
-        if (p.type === 'text') return <span key={i}>{p.val}</span>
-        const html = renderLatex(p.val, p.type === 'display')
-        return (
-          <span
-            key={i}
-            dangerouslySetInnerHTML={{ __html: html }}
-            style={p.type === 'display' ? { display: 'block', textAlign: 'center', margin: '8px 0' } : {}}
-          />
-        )
+        const html = p.type === 'text' ? sanitizeHtml(p.val) : renderLatex(p.val)
+        return <span key={i} dangerouslySetInnerHTML={{ __html: html }} />
       })}
     </span>
   )

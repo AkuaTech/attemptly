@@ -8,6 +8,8 @@ import QuestionView from './pages/QuestionView'
 import Analytics from './pages/Analytics'
 import MockTests from './pages/MockTests'
 import Subjects from './pages/Subjects'
+import ChaptersList from './pages/ChaptersList'
+import TopicsList from './pages/TopicsList'
 import Login from './pages/Login'
 import Onboarding from './pages/Onboarding'
 
@@ -45,6 +47,8 @@ function AppLayout() {
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/tests" element={<MockTests />} />
           <Route path="/subjects" element={<Subjects />} />
+          <Route path="/subjects/:subject" element={<ChaptersList />} />
+          <Route path="/subjects/:subject/:chapter" element={<TopicsList />} />
         </Routes>
       </div>
       <BottomNav />
