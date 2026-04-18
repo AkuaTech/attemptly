@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { useAuth } from '../contexts/AuthContext'
 
 const notifications = [
   { id: 1, icon: 'local_fire_department', tone: 'primary', title: '5-day streak unlocked', body: 'Keep it going — 2 more days for the Bronze badge.', time: '2h ago', unread: true },
@@ -14,9 +15,17 @@ const accountItems = [
   { icon: 'help', label: 'Help & Support', path: '/help' },
 ]
 
+function getInitials(user) {
+  if (!user) return '?'
+  const name = user.user_metadata?.full_name || user.email || ''
+  if (name.includes('@')) return name[0].toUpperCase()
+  return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
+}
+
 export default function TopNav() {
   const location = useLocation()
   const navigate = useNavigate()
+  const { user, signOut } = useAuth()
   const [open, setOpen] = useState(null)
   const [unreadIds, setUnreadIds] = useState(() => new Set(notifications.filter(n => n.unread).map(n => n.id)))
   const wrapRef = useRef(null)
@@ -110,17 +119,17 @@ export default function TopNav() {
           aria-label="Account menu"
           aria-expanded={open === 'account'}
         >
-          <span className="account-initials">AP</span>
+          <span className="account-initials">{getInitials(user)}</span>
         </button>
 
         {open === 'account' && (
           <div className="topnav-panel account-panel" role="menu" aria-label="Account">
             <header className="account-head">
-              <div className="account-avatar-lg">AP</div>
+              <div className="account-avatar-lg">{getInitials(user)}</div>
               <div style={{ minWidth: 0 }}>
-                <div className="account-name">Aspirant Pro</div>
-                <div className="account-email">aspirant@prepper.app</div>
-                <div className="account-tag">JEE Main 2026 · 112-day streak</div>
+                <div className="account-name">{user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}</div>
+                <div className="account-email">{user?.email || ''}</div>
+                <div className="account-tag">JEE Main 2026</div>
               </div>
             </header>
             <ul className="account-menu">
@@ -140,7 +149,7 @@ export default function TopNav() {
               <li>
                 <button
                   className="account-menu-item danger"
-                  onClick={() => { setOpen(null); navigate('/login') }}
+                  onClick={async () => { setOpen(null); await signOut(); navigate('/login') }}
                   role="menuitem"
                 >
                   <span className="material-symbols-outlined">logout</span>

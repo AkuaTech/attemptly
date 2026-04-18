@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
+import { useAuth } from './contexts/AuthContext'
 import TopNav from './components/TopNav'
 import Sidebar from './components/Sidebar'
 import BottomNav from './components/BottomNav'
@@ -11,11 +12,22 @@ import Login from './pages/Login'
 import Onboarding from './pages/Onboarding'
 
 export default function App() {
+  const { user, loading } = useAuth()
+
+  if (loading) {
+    return (
+      <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)' }}>
+        <span style={{ fontFamily: 'var(--fh)', fontWeight: 700, fontSize: 18, color: 'var(--muted)', letterSpacing: '0.1em' }}>Loading...</span>
+      </div>
+    )
+  }
+
   return (
     <Routes>
+      <Route path="/" element={<Login />} />
       <Route path="/login" element={<Login />} />
       <Route path="/onboarding" element={<Onboarding />} />
-      <Route path="/*" element={<AppLayout />} />
+      <Route path="/*" element={user ? <AppLayout /> : <Navigate to="/login" replace />} />
     </Routes>
   )
 }
