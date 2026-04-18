@@ -61,7 +61,7 @@ export default function Subjects() {
           alt=""
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', filter: 'grayscale(1)', opacity: 0.5 }}
         />
-        <div style={{ position: 'relative', zIndex: 2, padding: '0 40px' }}>
+        <div style={{ position: 'relative', zIndex: 2, padding: '0 24px' }}>
           <h4 style={{ fontFamily: 'var(--fh)', fontWeight: 900, fontSize: 28, color: 'var(--primary)', marginBottom: 8, letterSpacing: '-0.02em' }}>Diagnostic Test</h4>
           <p className="text-sm" style={{ maxWidth: 440 }}>Figure out your strengths and weak areas in 15 minutes. We'll build a study plan from there.</p>
           <button className="btn-ghost" style={{ marginTop: 24, display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, padding: '8px 16px' }}>

@@ -91,7 +91,7 @@ export default function QuestionView() {
           <span style={{ fontSize: 11, fontWeight: 700, color: diffColor[q.difficulty] ?? 'var(--muted)', padding: '2px 8px', borderRadius: 4, background: `${diffColor[q.difficulty] ?? 'var(--muted)'}18` }}>
             {q.difficulty[0].toUpperCase() + q.difficulty.slice(1)}
           </span>
-          <span className="chip">{q.paper_title}</span>
+          <span className="chip hide-on-mobile">{q.paper_title}</span>
         </div>
         <div className="row">
           <button

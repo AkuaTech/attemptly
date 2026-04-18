@@ -2,9 +2,10 @@ import { useLocation, useNavigate } from 'react-router-dom'
 
 const items = [
   { icon: 'home', label: 'Home', path: '/dashboard' },
+  { icon: 'edit_square', label: 'Practice', path: '/practice' },
   { icon: 'assignment', label: 'Tests', path: '/tests' },
-  { icon: 'auto_stories', label: 'Library', path: '/subjects' },
-  { icon: 'person', label: 'Profile', path: '/profile' },
+  { icon: 'auto_stories', label: 'Subjects', path: '/subjects' },
+  { icon: 'analytics', label: 'Analysis', path: '/analytics' },
 ]
 
 export default function BottomNav() {
@@ -18,10 +19,10 @@ export default function BottomNav() {
           key={item.path}
           className={`bnav-item ${location.pathname === item.path ? 'active' : ''}`}
           onClick={() => navigate(item.path)}
-          style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+          aria-label={item.label}
         >
-          <span className="material-symbols-outlined" style={{ fontSize: 22 }}>{item.icon}</span>
-          {location.pathname !== item.path && <span>{item.label}</span>}
+          <span className="material-symbols-outlined">{item.icon}</span>
+          <span>{item.label}</span>
         </button>
       ))}
     </nav>

@@ -35,7 +35,7 @@ export default function Analytics() {
         <p className="page-sub">Detailed breakdown of your performance across subjects, speed, and consistency.</p>
       </header>
 
-      <div className="bento-2" style={{ gridTemplateColumns: '2fr 2fr', marginBottom: 24 }}>
+      <div className="bento-2" style={{ marginBottom: 24 }}>
         <div className="section-panel" style={{ position: 'relative', overflow: 'hidden' }}>
           <div className="row" style={{ marginBottom: 32 }}>
             <h3 className="section-label" style={{ flex: 1 }}>Skill Breakdown</h3>

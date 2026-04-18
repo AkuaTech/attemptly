@@ -21,7 +21,7 @@ export default function MockTests() {
         <p className="page-sub">Full-length simulations and chapter tests for JEE / NEET.</p>
       </header>
 
-      <div className="row" style={{ marginBottom: 32 }}>
+      <div className="row" style={{ marginBottom: 32, flexWrap: 'wrap', rowGap: 12 }}>
         {['all', 'upcoming', 'completed'].map(f => (
           <button
             key={f}
