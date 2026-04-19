@@ -60,10 +60,10 @@ export default function Sidebar() {
       <div className="sidebar-footer">
         {!user ? (
           <div className="sidebar-auth-card">
-            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginBottom: 10 }}>100% free — forever.</p>
+            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginBottom: 10 }}>100% free, forever.</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               <button className="sidebar-signin-btn" onClick={() => navigate('/login')}>Sign In</button>
-              <button className="sidebar-signup-btn" onClick={() => navigate('/onboarding')}>Create Account</button>
+              <button className="sidebar-signup-btn" onClick={() => navigate('/signup')}>Create Account</button>
             </div>
           </div>
         ) : (

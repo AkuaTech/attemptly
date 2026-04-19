@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 
 export default function Login() {
@@ -10,6 +10,8 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState(null)
   const [busy, setBusy] = useState(false)
+
+  if (user) return <Navigate to="/dashboard" replace />
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -36,25 +38,6 @@ export default function Login() {
 
   return (
     <main className="login-wrap">
-      <div style={{ position: 'fixed', top: 24, right: 32, zIndex: 30 }}>
-        {user ? (
-          <button
-            onClick={() => navigate('/dashboard')}
-            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 24px', background: 'var(--primary)', color: 'var(--on-primary)', borderRadius: 10, fontFamily: 'var(--fh)', fontWeight: 700, fontSize: 13, cursor: 'pointer', transition: 'filter 150ms ease' }}
-          >
-            Continue to Dashboard
-            <span className="material-symbols-outlined" style={{ fontSize: 16 }}>arrow_forward</span>
-          </button>
-        ) : (
-          <button
-            onClick={() => { document.getElementById('login-form')?.scrollIntoView({ behavior: 'smooth' }) }}
-            style={{ padding: '10px 24px', border: '1px solid rgba(231,249,92,0.3)', background: 'rgba(231,249,92,0.08)', color: 'var(--primary)', borderRadius: 10, fontFamily: 'var(--fh)', fontWeight: 700, fontSize: 13, cursor: 'pointer', backdropFilter: 'blur(12px)', transition: 'background 150ms ease' }}
-          >
-            Sign In
-          </button>
-        )}
-      </div>
-
       <section className="login-left">
         <div style={{ position: 'absolute', inset: 0, opacity: 0.2, pointerEvents: 'none', background: 'radial-gradient(circle at top left, #e7f95c 0%, transparent 40%)' }} />
         <div style={{ position: 'absolute', bottom: -96, left: -96, width: 384, height: 384, background: 'rgba(231,249,92,0.05)', borderRadius: '50%', filter: 'blur(3rem)' }} />
@@ -72,7 +55,7 @@ export default function Login() {
             <span style={{ color: 'var(--primary)', fontStyle: 'italic' }}>actually works.</span>
           </h1>
           <p style={{ color: 'var(--on-sv)', fontSize: 16, maxWidth: 420, lineHeight: 1.6 }}>
-            Practice real PYQs, take mock tests, and track your progress — all in one place. Free forever.
+            Practice real PYQs, take mock tests: all in one place. Free forever.
           </p>
         </div>
       </section>
@@ -133,7 +116,7 @@ export default function Login() {
             <p className="text-sm">
               New here?{' '}
               <button style={{ color: 'var(--primary)', fontWeight: 700, cursor: 'pointer', background: 'none', fontFamily: 'inherit', fontSize: 14 }}
-                onClick={() => navigate('/onboarding')}
+                onClick={() => navigate('/signup')}
               >Create an account</button>
             </p>
           </div>

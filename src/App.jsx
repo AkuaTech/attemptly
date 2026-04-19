@@ -11,6 +11,7 @@ import Subjects from './pages/Subjects'
 import ChaptersList from './pages/ChaptersList'
 import TopicsList from './pages/TopicsList'
 import Login from './pages/Login'
+import Signup from './pages/Signup'
 import Onboarding from './pages/Onboarding'
 
 export default function App() {
@@ -26,9 +27,9 @@ export default function App() {
 
   return (
     <Routes>
-      <Route path="/" element={<Login />} />
+      <Route path="/" element={<Onboarding />} />
       <Route path="/login" element={<Login />} />
-      <Route path="/onboarding" element={<Onboarding />} />
+      <Route path="/signup" element={<Signup />} />
       <Route path="/*" element={user ? <AppLayout /> : <Navigate to="/login" replace />} />
     </Routes>
   )

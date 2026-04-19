@@ -3,10 +3,10 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 
 const notifications = [
-  { id: 1, icon: 'local_fire_department', tone: 'primary', title: '5-day streak unlocked', body: 'Keep it going — 2 more days for the Bronze badge.', time: '2h ago', unread: true },
+  { id: 1, icon: 'local_fire_department', tone: 'primary', title: '5-day streak unlocked', body: 'Keep it going, 2 more days for the Bronze badge.', time: '2h ago', unread: true },
   { id: 2, icon: 'warning', tone: 'error', title: 'Thermodynamics accuracy dropped', body: 'Your accuracy fell 12% this week. Want a targeted drill?', time: '6h ago', unread: true },
   { id: 3, icon: 'assignment_add', tone: 'primary', title: 'New PYQ set: JEE Main 2024 Shift 1', body: '30 fresh questions added to your queue.', time: '1d ago', unread: false },
-  { id: 4, icon: 'event', tone: 'muted', title: 'Mock #8 scheduled for tomorrow', body: 'Full-length JEE Main Pattern · 9:00 AM.', time: '2d ago', unread: false },
+  { id: 4, icon: 'event', tone: 'muted', title: 'Mock #8 scheduled for tomorrow', body: 'Full-length JEE Main Pattern : 9:00 AM.', time: '2d ago', unread: false },
 ]
 
 const accountItems = [
@@ -58,7 +58,7 @@ export default function TopNav() {
 
   return (
     <header className="topnav">
-      <span className="topnav-brand">Prepper</span>
+      <span className="topnav-brand" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>Prepper</span>
 
       <div className="topnav-right" ref={wrapRef}>
         <button
