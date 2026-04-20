@@ -13,6 +13,7 @@ import TopicsList from './pages/TopicsList'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
 import Onboarding from './pages/Onboarding'
+import Profile from './pages/Profile'
 
 export default function App() {
   const { user, loading } = useAuth()
@@ -50,6 +51,7 @@ function AppLayout() {
           <Route path="/subjects" element={<Subjects />} />
           <Route path="/subjects/:subject" element={<ChaptersList />} />
           <Route path="/subjects/:subject/:chapter" element={<TopicsList />} />
+          <Route path="/profile" element={<Profile />} />
         </Routes>
       </div>
       <BottomNav />

@@ -258,8 +258,8 @@ input, textarea { font-family: inherit; }
 }
 .sidebar-signup-btn:hover { background: var(--hover-white); color: #fff; }
 
-.layout { display: flex; min-height: 100vh; }
-.main-area { margin-left: 256px; padding-top: 64px; min-height: 100vh; flex: 1; min-width: 0; }
+.layout { display: block; min-height: 100vh; }
+.main-area { margin-left: 256px; padding-top: 64px; min-height: 100vh; min-width: 0; }
 
 .bottom-nav {
   display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
@@ -355,9 +355,9 @@ h1.page-title {
 }
 .btn-outline:hover { background: var(--hover-white); }
 
-.subject-card { padding: 32px; display: flex; flex-direction: column; }
-.subject-card h3 { font-family: var(--fh); font-weight: 700; font-size: 22px; margin-bottom: 8px; }
-.subject-card p { color: var(--on-sv); font-size: 13px; line-height: 1.6; margin-bottom: 32px; flex: 1; }
+.subject-card { padding: 32px; display: flex; flex-direction: column; min-width: 0; }
+.subject-card h3 { font-family: var(--fh); font-weight: 700; font-size: 22px; margin-bottom: 8px; overflow-wrap: break-word; word-wrap: break-word; hyphens: auto; }
+.subject-card p { color: var(--on-sv); font-size: 13px; line-height: 1.6; margin-bottom: 32px; flex: 1; overflow-wrap: break-word; }
 .subject-enter-btn {
   width: 100%; padding: 16px; margin-top: 24px;
   border-radius: 8px; background: var(--hover-white);
@@ -533,6 +533,12 @@ h1.page-title {
   transition: filter 150ms ease;
 }
 .btn-start:hover { filter: brightness(1.1); }
+
+@media (max-width: 1366px) {
+  .bento-4 { grid-template-columns: repeat(2, 1fr); }
+  .bento-5 { grid-template-columns: 1fr; }
+  .page-canvas { padding: 32px 24px 80px; }
+}
 
 @media (max-width: 1024px) {
   .sidebar { display: none; }
