@@ -4,7 +4,6 @@ import TopNav from './components/TopNav'
 import Sidebar from './components/Sidebar'
 import BottomNav from './components/BottomNav'
 import Dashboard from './pages/Dashboard'
-import QuestionView from './pages/QuestionView'
 import Analytics from './pages/Analytics'
 import MockTests from './pages/MockTests'
 import Subjects from './pages/Subjects'
@@ -45,7 +44,6 @@ function AppLayout() {
         <Routes>
           <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/practice" element={<QuestionView />} />
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/tests" element={<MockTests />} />
           <Route path="/subjects" element={<Subjects />} />

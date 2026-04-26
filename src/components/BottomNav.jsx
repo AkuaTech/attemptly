@@ -2,7 +2,6 @@ import { useLocation, useNavigate } from 'react-router-dom'
 
 const items = [
   { icon: 'home', label: 'Home', path: '/dashboard' },
-  { icon: 'edit_square', label: 'Practice', path: '/practice' },
   { icon: 'assignment', label: 'Tests', path: '/tests' },
   { icon: 'auto_stories', label: 'Subjects', path: '/subjects' },
   { icon: 'analytics', label: 'Analysis', path: '/analytics' },
