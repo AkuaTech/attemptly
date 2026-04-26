@@ -41,9 +41,13 @@ function StatCard({ stat }) {
 export default function Dashboard() {
   return (
     <div className="page-canvas">
-      <header style={{ marginBottom: 40 }}>
+      <header className="editorial-header">
+        <div className="editorial-tag">
+          <div className="line" />
+          <span>Performance Overview</span>
+        </div>
         <h1 className="page-title">Dashboard</h1>
-        <p className="page-sub">Here's how you're doing across 1,240 questions this month.</p>
+        <p className="page-sub">Comprehensive overview of your JEE preparation performance.</p>
       </header>
 
       <div className="bento-3">
@@ -51,11 +55,11 @@ export default function Dashboard() {
       </div>
 
       <div className="bento-5">
-        <div className="glass-card" style={{ padding: 32 }}>
-          <h3 className="section-title" style={{ marginBottom: 4 }}>Weekly Progress</h3>
-          <p className="text-sm" style={{ marginBottom: 32 }}>Based on daily questions solved.</p>
+        <div className="glass-card editorial-card" style={{ overflow: 'visible' }}>
+          <h3 className="section-title">Weekly Progress</h3>
+          <p className="text-micro mb-24">Questions solved per day</p>
 
-          <svg width="100%" height="180" viewBox="0 0 400 100" style={{ filter: 'drop-shadow(0 0 15px rgba(231,249,92,0.5))' }}>
+          <svg width="100%" height="180" viewBox="-10 0 420 100" className="chart-svg overflow-visible">
             <defs>
               <linearGradient id="chartGrad" x1="0%" y1="0%" x2="0%" y2="100%">
                 <stop offset="0%" stopColor="#e7f95c" stopOpacity="0.2" />
@@ -66,37 +70,39 @@ export default function Dashboard() {
             <path d="M0,80 Q50,90 80,60 T150,40 T220,70 T300,20 T400,35" fill="none" stroke="#e7f95c" strokeWidth="4" strokeLinecap="round" />
           </svg>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 16, padding: '0 8px' }}>
+          <div className="flex justify-between mt-16 px-8">
             {['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map((d, i) => (
-              <span key={d} className="text-micro" style={i === 5 ? { color: 'var(--primary)' } : undefined}>{d}</span>
+              <span key={d} className={`text-micro ${i === 5 ? 'text-primary' : ''}`}>{d}</span>
             ))}
           </div>
         </div>
 
-        <div className="glass-card" style={{ padding: 0, overflow: 'hidden', position: 'relative', minHeight: 350 }}>
-          <div style={{ position: 'absolute', inset: 0, backgroundImage: "url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&q=80')", backgroundSize: 'cover', backgroundPosition: 'center', filter: 'grayscale(1)', opacity: 0.3 }} />
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, #000 0%, rgba(0,0,0,0.4) 50%, transparent 100%)' }} />
-          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: 32, zIndex: 1 }}>
+        <div className="glass-card editorial-card-flush relative overflow-hidden" style={{ minHeight: 300 }}>
+          <div className="absolute-inset-0 chart-bg-image" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&q=80')", opacity: 'var(--hero-opacity)' }} />
+          <div className="absolute-inset-0 chart-overlay" />
+          <div className="absolute-inset-0 flex-col justify-end editorial-card z-10" style={{ padding: 24 }}>
             <span className="badge-resume">Resume</span>
-            <h2 style={{ fontFamily: 'var(--fh)', fontWeight: 900, fontSize: 24, color: '#fff', lineHeight: 1.2, marginBottom: 16 }}>
-              Rotational Mechanics &amp; Moment of Inertia
+            <h2 className="text-white text-heavy mb-4" style={{ fontFamily: 'var(--fh)', fontSize: 18, lineHeight: 1.2 }}>
+              Rotational Mechanics
             </h2>
-            <p className="text-sm" style={{ marginBottom: 20, color: 'rgba(255,255,255,0.6)' }}>Section 4 of 12</p>
-            <button className="submit-btn" style={{ letterSpacing: '0.05em', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-              Continue
-              <span className="material-symbols-outlined" style={{ fontSize: 18 }}>play_arrow</span>
-            </button>
+            <p className="text-micro text-muted mb-8">Moment of Inertia · Part 4</p>
+            <div style={{ maxWidth: 160 }}>
+              <button className="submit-btn" style={{ padding: '10px 16px' }}>
+                Continue
+                <span className="material-symbols-outlined" style={{ fontSize: 18 }}>play_arrow</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
       <div className="bento-2">
-        <div className="section-panel">
-          <div className="row" style={{ marginBottom: 24 }}>
-            <h3 className="section-title" style={{ flex: 1 }}>Weak Topics</h3>
-            <span style={{ color: 'var(--error)', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em' }}>3 flagged</span>
+        <div className="glass-card editorial-card">
+          <div className="row mb-12">
+            <h3 className="section-title flex-1">Weak Topics</h3>
+            <span className="text-error text-micro">3 Flagged</span>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div className="flex-col gap-12">
             {weaknesses.map(w => (
               <div key={w.topic} className="weakness-row">
                 <div className="row">
@@ -114,25 +120,25 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="glass-card" style={{ padding: 32 }}>
-          <div className="row" style={{ marginBottom: 24 }}>
-            <h3 className="section-title" style={{ flex: 1 }}>Today's Plan</h3>
-            <span className="text-xs" style={{ textTransform: 'uppercase', letterSpacing: '0.1em' }}>Next Up</span>
+        <div className="glass-card editorial-card">
+          <div className="row mb-12">
+            <h3 className="section-title flex-1">Today's Plan</h3>
+            <span className="text-micro text-primary">Next Up</span>
           </div>
-          <div className="row" style={{ alignItems: 'flex-start', gap: 24 }}>
-            <div style={{ textAlign: 'center', flexShrink: 0 }}>
-              <div style={{ fontFamily: 'var(--fh)', fontWeight: 900, fontSize: 36, color: 'var(--primary)', lineHeight: 1 }}>14</div>
-              <div className="text-micro">Oct</div>
+          <div className="row items-start gap-24">
+            <div className="text-center flex-shrink-0" style={{ paddingTop: 8 }}>
+              <div className="text-primary text-black" style={{ fontFamily: 'var(--fh)', fontSize: 28, lineHeight: 1 }}>14</div>
+              <div className="text-micro mt-4">Oct</div>
             </div>
             <div style={{ flex: 1 }}>
               {schedule.map((s, i) => (
-                <div key={s.title} style={{ paddingLeft: 24, borderLeft: `2px solid ${s.primary ? 'rgba(231,249,92,0.3)' : 'rgba(255,255,255,0.05)'}`, position: 'relative', marginBottom: i < schedule.length - 1 ? 24 : 0 }}>
-                  {s.primary && <div style={{ position: 'absolute', left: -5, top: 4, width: 8, height: 8, borderRadius: '50%', background: 'var(--primary)' }} />}
-                  <div className="row" style={{ marginBottom: 4 }}>
-                    <div style={{ fontWeight: 700, fontSize: 13, flex: 1 }}>{s.title}</div>
-                    <div className="text-micro">{s.time}</div>
+                <div key={s.title} className={`relative mb-24 pl-24 schedule-item ${s.primary ? 'active' : ''}`}>
+                  {s.primary && <div className="schedule-dot" />}
+                  <div className="row mb-4">
+                    <div className="text-bold flex-1" style={{ fontSize: 12 }}>{s.title}</div>
+                    <div className="text-micro text-muted">{s.time}</div>
                   </div>
-                  <div className="text-sm">{s.meta}</div>
+                  <div className="text-micro text-on-sv">{s.meta}</div>
                 </div>
               ))}
             </div>

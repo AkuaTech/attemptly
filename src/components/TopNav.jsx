@@ -22,7 +22,7 @@ function getInitials(user) {
   return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
 }
 
-export default function TopNav() {
+export default function TopNav({ theme, toggleTheme }) {
   const location = useLocation()
   const navigate = useNavigate()
   const { user, signOut } = useAuth()
@@ -61,6 +61,16 @@ export default function TopNav() {
       <span className="topnav-brand" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>Prepper</span>
 
       <div className="topnav-right" ref={wrapRef}>
+        <button
+          className="topnav-icon-btn"
+          onClick={toggleTheme}
+          aria-label="Toggle theme"
+        >
+          <span className="material-symbols-outlined">
+            {theme === 'dark' ? 'light_mode' : 'dark_mode'}
+          </span>
+        </button>
+
         <button
           className={`topnav-icon-btn ${open === 'notif' ? 'is-open' : ''}`}
           onClick={() => toggle('notif')}

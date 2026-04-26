@@ -8,7 +8,7 @@ export default function ChaptersList() {
 
   return (
     <div className="page-canvas">
-      <header style={{ marginBottom: 48 }}>
+      <header className="editorial-header">
         <div className="editorial-tag">
           <div className="line" />
           <span>
@@ -17,11 +17,10 @@ export default function ChaptersList() {
           </span>
         </div>
         <h1 className="page-title">
-          {subject}{' '}
-          <span style={{ color: 'var(--primary)' }}>Chapters.</span>
+          {subject} <span style={{ color: 'var(--primary)' }}>Chapters.</span>
         </h1>
         <p className="page-sub">
-          {loading ? 'Loading chapters…' : `${chapters.length} chapters available.`}
+          {loading ? 'Loading chapters…' : `${chapters.length} chapters available for review.`}
         </p>
       </header>
 
@@ -43,18 +42,18 @@ export default function ChaptersList() {
             key={c.slug}
             to={`/subjects/${encodeURIComponent(subject)}/${encodeURIComponent(c.slug)}`}
             className="glass-card subject-card glass-card-hover"
-            style={{ textDecoration: 'none', color: 'inherit' }}
+            style={{ textDecoration: 'none', color: 'inherit', padding: 20 }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 32 }}>
-              <div style={{ padding: 16, background: 'rgba(231,249,92,0.1)', borderRadius: 16, color: 'var(--primary)' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: 36 }}>menu_book</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
+              <div style={{ padding: 12, background: 'rgba(231,249,92,0.06)', borderRadius: 12, color: 'var(--primary)' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: 24 }}>menu_book</span>
               </div>
-              <span className="text-sm">{String(i + 1).padStart(2, '0')}</span>
+              <span className="text-micro">{String(i + 1).padStart(2, '0')}</span>
             </div>
-            <h3>{slugToTitle(c.slug)}</h3>
-            <p>{c.count} question{c.count === 1 ? '' : 's'}</p>
+            <h3 style={{ fontSize: 16, marginBottom: 8 }}>{slugToTitle(c.slug)}</h3>
+            <p className="text-micro" style={{ opacity: 0.6 }}>{c.count} question{c.count === 1 ? '' : 's'}</p>
             <div style={{ marginTop: 'auto' }}>
-              <button className="subject-enter-btn">Open Chapter</button>
+              <button className="subject-enter-btn" style={{ padding: 10, fontSize: 11 }}>View</button>
             </div>
           </Link>
         ))}

@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 import { useAuth } from './contexts/AuthContext'
 import TopNav from './components/TopNav'
 import Sidebar from './components/Sidebar'
@@ -19,8 +20,8 @@ export default function App() {
 
   if (loading) {
     return (
-      <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)' }}>
-        <span style={{ fontFamily: 'var(--fh)', fontWeight: 700, fontSize: 18, color: 'var(--muted)', letterSpacing: '0.1em' }}>Loading...</span>
+      <div className="h-full flex items-center justify-center" style={{ background: 'var(--bg)' }}>
+        <span className="text-bold text-muted" style={{ fontFamily: 'var(--fh)', fontSize: 18, letterSpacing: '0.1em' }}>Loading...</span>
       </div>
     )
   }
@@ -36,9 +37,18 @@ export default function App() {
 }
 
 function AppLayout() {
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark')
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+    localStorage.setItem('theme', theme)
+  }, [theme])
+
+  const toggleTheme = () => setTheme(prev => prev === 'dark' ? 'light' : 'dark')
+
   return (
     <div className="layout">
-      <TopNav />
+      <TopNav theme={theme} toggleTheme={toggleTheme} />
       <Sidebar />
       <div className="main-area">
         <Routes>

@@ -16,24 +16,29 @@ export default function MockTests() {
 
   return (
     <div className="page-canvas">
-      <header style={{ marginBottom: 40 }}>
+      <header className="editorial-header">
+        <div className="editorial-tag">
+          <div className="line" />
+          <span>Simulated Exams</span>
+        </div>
         <h1 className="page-title">Mock Tests</h1>
-        <p className="page-sub">Full-length simulations and chapter tests for JEE / NEET.</p>
+        <p className="page-sub">Standardized simulations for JEE & NEET preparation.</p>
       </header>
 
-      <div className="row" style={{ marginBottom: 32, flexWrap: 'wrap', rowGap: 12 }}>
+      <div className="row mb-24 flex-wrap gap-8">
         {['all', 'upcoming', 'completed'].map(f => (
           <button
             key={f}
             className={`filter-pill ${filter === f ? 'active' : ''}`}
             onClick={() => setFilter(f)}
+            style={{ fontSize: 11, padding: '4px 12px' }}
           >
             {f[0].toUpperCase() + f.slice(1)}
           </button>
         ))}
         <div className="spacer" />
-        <button className="btn-primary">
-          <span className="material-symbols-outlined" style={{ fontSize: 16 }}>add</span>
+        <button className="btn-primary" style={{ padding: '6px 12px', borderRadius: 8 }}>
+          <span className="material-symbols-outlined" style={{ fontSize: 14 }}>add</span>
           Custom Test
         </button>
       </div>
@@ -41,36 +46,36 @@ export default function MockTests() {
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         {shown.map(test => (
           <div key={test.id} className="glass-card test-row">
-            <div className="test-icon-box" style={{ background: !test.score ? 'rgba(231,249,92,0.08)' : 'rgba(72,72,71,0.25)' }}>
-              <span className="material-symbols-outlined" style={{ color: !test.score ? 'var(--primary)' : 'var(--on-sv)', fontSize: 22 }}>
+            <div className="test-icon-box" style={{ background: !test.score ? 'rgba(231,249,92,0.06)' : 'rgba(255,255,255,0.03)' }}>
+              <span className="material-symbols-outlined" style={{ color: !test.score ? 'var(--primary)' : 'var(--muted)', fontSize: 20 }}>
                 {!test.score ? 'quiz' : 'task_alt'}
               </span>
             </div>
 
-            <div style={{ flex: 1 }}>
-              <div style={{ fontFamily: 'var(--fh)', fontWeight: 700, fontSize: 16, marginBottom: 8 }}>{test.title}</div>
-              <div className="row" style={{ gap: 8, flexWrap: 'wrap' }}>
-                <span className="text-sm">{test.type}</span>
-                <span style={{ color: 'var(--outline)', fontSize: 12 }}>·</span>
-                <span className="text-sm">{test.qs} Questions</span>
-                <span style={{ color: 'var(--outline)', fontSize: 12 }}>·</span>
-                <span className="text-sm">{test.dur}</span>
-                <span style={{ color: 'var(--outline)', fontSize: 12 }}>·</span>
-                <span style={{ fontSize: 12, color: diffColor[test.diff], fontWeight: 600 }}>{test.diff}</span>
+            <div className="flex-1">
+              <div className="text-bold mb-4" style={{ fontFamily: 'var(--fh)', fontSize: 14 }}>{test.title}</div>
+              <div className="row gap-8 flex-wrap">
+                <span className="text-micro">{test.type}</span>
+                <span className="text-muted" style={{ fontSize: 10 }}>·</span>
+                <span className="text-micro">{test.qs} Qs</span>
+                <span className="text-muted" style={{ fontSize: 10 }}>·</span>
+                <span className="text-micro">{test.dur}</span>
+                <span className="text-muted" style={{ fontSize: 10 }}>·</span>
+                <span style={{ fontSize: 10, color: diffColor[test.diff], fontWeight: 700, textTransform: 'uppercase' }}>{test.diff}</span>
               </div>
             </div>
 
-            <div style={{ textAlign: 'right', flexShrink: 0 }}>
+            <div className="text-right flex-shrink-0">
               {test.score ? (
                 <div>
-                  <div style={{ fontFamily: 'var(--fh)', fontWeight: 900, fontSize: 30, letterSpacing: '-0.04em', color: test.score >= 70 ? 'var(--primary)' : 'var(--error)' }}>
+                  <div className="text-black mb-4" style={{ fontFamily: 'var(--fh)', fontSize: 24, letterSpacing: '-0.02em', color: test.score >= 70 ? 'var(--primary)' : 'var(--error)' }}>
                     {test.score}%
                   </div>
-                  <button className="btn-outline" style={{ marginTop: 6 }}>Review</button>
+                  <button className="btn-outline text-micro" style={{ padding: '4px 10px' }}>Review</button>
                 </div>
               ) : (
-                <button className="btn-start">
-                  Start <span className="material-symbols-outlined" style={{ fontSize: 15 }}>arrow_forward</span>
+                <button className="btn-start" style={{ padding: '6px 12px', fontSize: 11 }}>
+                  Start <span className="material-symbols-outlined" style={{ fontSize: 14 }}>arrow_forward</span>
                 </button>
               )}
             </div>

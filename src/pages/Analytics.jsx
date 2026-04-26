@@ -30,19 +30,23 @@ function HeatmapGrid() {
 export default function Analytics() {
   return (
     <div className="page-canvas">
-      <header style={{ marginBottom: 40 }}>
+      <header className="editorial-header">
+        <div className="editorial-tag">
+          <div className="line" />
+          <span>Deep Analytics</span>
+        </div>
         <h1 className="page-title">Analysis</h1>
-        <p className="page-sub">Detailed breakdown of your performance across subjects, speed, and consistency.</p>
+        <p className="page-sub">Comprehensive performance breakdown and rank projections.</p>
       </header>
 
-      <div className="bento-2" style={{ marginBottom: 24 }}>
-        <div className="section-panel" style={{ position: 'relative', overflow: 'hidden' }}>
-          <div className="row" style={{ marginBottom: 32 }}>
-            <h3 className="section-label" style={{ flex: 1 }}>Skill Breakdown</h3>
+      <div className="bento-2 mb-24">
+        <div className="glass-card editorial-card relative overflow-hidden">
+          <div className="row mb-12">
+            <h3 className="section-label flex-1">Skill Breakdown</h3>
             <span className="material-symbols-outlined" style={{ color: 'var(--primary)' }}>analytics</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 240 }}>
-            <svg width="240" height="240" viewBox="0 0 200 200" style={{ filter: 'drop-shadow(0 0 15px rgba(231,249,92,0.15))' }}>
+          <div className="flex items-center justify-center" style={{ height: 240 }}>
+            <svg width="240" height="240" viewBox="0 0 200 200" className="chart-svg overflow-visible">
               <polygon points="100,20 180,100 100,180 20,100" fill="none" stroke="var(--outline-v)" strokeWidth="0.5" strokeDasharray="2 2" />
               <polygon points="100,50 150,100 100,150 50,100" fill="none" stroke="var(--outline-v)" strokeWidth="0.5" />
               <circle cx="100" cy="100" r="2" fill="var(--outline-v)" />
@@ -53,42 +57,42 @@ export default function Analytics() {
               <text x="5" y="103" fill="var(--on-sv)" fontSize="8" textAnchor="end" fontFamily="Space Grotesk" fontWeight="700">LOGIC</text>
             </svg>
           </div>
-          <div className="row" style={{ justifyContent: 'space-around', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: 24, marginTop: 24 }}>
-            <div style={{ textAlign: 'center' }}>
-              <p className="text-sm">Percentile</p>
-              <p style={{ fontFamily: 'var(--fh)', fontWeight: 900, fontSize: 28, color: 'var(--primary)' }}>98.4</p>
+          <div className="row justify-around border-t border-glass pt-24 mt-24">
+            <div className="text-center">
+              <p className="text-micro">Percentile</p>
+              <p className="text-primary text-black" style={{ fontFamily: 'var(--fh)', fontSize: 24 }}>98.4</p>
             </div>
-            <div style={{ textAlign: 'center' }}>
-              <p className="text-sm">Rank Estimate</p>
-              <p style={{ fontFamily: 'var(--fh)', fontWeight: 900, fontSize: 28 }}>#1,242</p>
+            <div className="text-center">
+              <p className="text-micro">Rank Estimate</p>
+              <p className="text-white text-black" style={{ fontFamily: 'var(--fh)', fontSize: 24 }}>#1,242</p>
             </div>
           </div>
         </div>
 
-        <div style={{ background: 'var(--sc-high)', borderRadius: 16, padding: 24, border: '1px solid rgba(255,255,255,0.1)' }}>
-          <h3 className="section-label" style={{ marginBottom: 16 }}>Subject Split</h3>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 32, padding: '16px 0', flex: 1 }}>
-            <div style={{ position: 'relative', width: 160, height: 160 }}>
-              <svg width="160" height="160" style={{ transform: 'rotate(-90deg)' }}>
+        <div className="glass-card editorial-card">
+          <h3 className="section-label mb-16">Subject Split</h3>
+          <div className="flex items-center justify-center gap-32 py-16 flex-1">
+            <div className="relative" style={{ width: 160, height: 160 }}>
+              <svg className="absolute-inset-0" viewBox="0 0 160 160" style={{ transform: 'rotate(-90deg)' }}>
                 <circle cx="80" cy="80" r="70" fill="transparent" stroke="var(--sc-bright)" strokeWidth="12" />
                 <circle cx="80" cy="80" r="70" fill="transparent" stroke="var(--primary)" strokeWidth="12" strokeDasharray="440" strokeDashoffset="110" />
                 <circle cx="80" cy="80" r="70" fill="transparent" stroke="var(--tertiary)" strokeWidth="12" strokeDasharray="440" strokeDashoffset="330" />
               </svg>
-              <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                <span style={{ fontFamily: 'var(--fh)', fontWeight: 900, fontSize: 28 }}>74%</span>
+              <div className="absolute-inset-0 flex-col items-center justify-center">
+                <span className="text-black" style={{ fontFamily: 'var(--fh)', fontSize: 24 }}>74%</span>
                 <span className="text-micro">Mastered</span>
               </div>
             </div>
-            <ul style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <ul className="flex-col gap-16">
               {[
                 { color: 'var(--primary)', label: 'Physics', pct: '42%' },
                 { color: 'var(--tertiary)', label: 'Chemistry', pct: '31%' },
                 { color: 'rgba(255,255,255,0.2)', label: 'Mathematics', pct: '27%' },
               ].map(item => (
-                <li key={item.label} className="row" style={{ gap: 12 }}>
-                  <div style={{ width: 8, height: 8, borderRadius: '50%', background: item.color, flexShrink: 0 }} />
+                <li key={item.label} className="row gap-12">
+                  <div className="flex-shrink-0" style={{ width: 8, height: 8, borderRadius: '50%', background: item.color }} />
                   <div>
-                    <p style={{ fontFamily: 'var(--fh)', fontSize: 11, fontWeight: 700 }}>{item.label}</p>
+                    <p className="text-bold" style={{ fontFamily: 'var(--fh)', fontSize: 11 }}>{item.label}</p>
                     <p className="text-micro">{item.pct}</p>
                   </div>
                 </li>
@@ -98,11 +102,11 @@ export default function Analytics() {
         </div>
       </div>
 
-      <div className="section-panel" style={{ marginBottom: 24 }}>
-        <div className="row" style={{ marginBottom: 24 }}>
-          <div style={{ flex: 1 }}>
+      <div className="glass-card editorial-card mb-24">
+        <div className="row mb-12">
+          <div className="flex-1">
             <h3 className="section-label">Consistency</h3>
-            <p className="text-sm" style={{ marginTop: 4 }}>112 day streak</p>
+            <p className="text-micro mt-4">112 Day Streak</p>
           </div>
           <div className="row" style={{ gap: 8 }}>
             <span className="text-micro">Less</span>
@@ -116,8 +120,8 @@ export default function Analytics() {
       </div>
 
       <div className="bento-2">
-        <div className="section-panel">
-          <div className="row" style={{ marginBottom: 32 }}>
+        <div className="glass-card editorial-card">
+          <div className="row" style={{ marginBottom: 24 }}>
             <h3 className="section-label" style={{ flex: 1 }}>Accuracy Trend</h3>
             <div className="row" style={{ gap: 16 }}>
               <span className="row" style={{ gap: 4, fontSize: 11, fontFamily: 'var(--fh)', fontWeight: 700 }}>
@@ -140,9 +144,9 @@ export default function Analytics() {
               <path d="M0,150 Q150,140 250,110 T500,130 T750,60 T1000,80" fill="none" stroke="#e7f95c" strokeWidth="4" strokeLinecap="round" />
               <path d="M0,180 Q100,170 300,185 T600,170 T900,190 T1000,185" fill="none" stroke="#ff7351" strokeWidth="2" strokeDasharray="4 4" />
             </svg>
-            <div style={{ position: 'absolute', top: 8, right: '25%', padding: '8px 12px', background: 'var(--sc-bright)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, backdropFilter: 'blur(8px)' }}>
-              <p className="text-micro" style={{ letterSpacing: '0.1em' }}>Current Peak</p>
-              <p style={{ fontFamily: 'var(--fh)', fontSize: 13, fontWeight: 700, color: 'var(--primary)' }}>94.2%</p>
+            <div className="absolute top-8 right-1/4 py-6 px-10 bg-glass-bright border border-glass rounded-lg backdrop-blur-md">
+              <p className="text-micro" style={{ letterSpacing: '0.08em', fontSize: 9 }}>Current Peak</p>
+              <p className="text-primary text-bold" style={{ fontFamily: 'var(--fh)', fontSize: 12 }}>94.2%</p>
             </div>
           </div>
           <div className="row" style={{ justifyContent: 'space-between', marginTop: 16 }}>
@@ -150,25 +154,25 @@ export default function Analytics() {
           </div>
         </div>
 
-        <div style={{ background: 'linear-gradient(135deg, var(--sc-high), var(--sc-low))', borderRadius: 16, padding: 32, border: '1px solid rgba(255,255,255,0.1)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
-          <div style={{ position: 'absolute', top: -40, right: -40, width: 160, height: 160, background: 'rgba(231,249,92,0.1)', filter: 'blur(60px)', borderRadius: '50%' }} />
-          <span className="material-symbols-outlined" style={{ fontSize: 48, color: 'var(--primary)', marginBottom: 16 }}>timer</span>
-          <p className="section-label" style={{ marginBottom: 8, fontSize: 12 }}>Speed</p>
-          <div className="row" style={{ alignItems: 'baseline', gap: 8, marginBottom: 16 }}>
-            <span style={{ fontFamily: 'var(--fh)', fontWeight: 900, fontSize: 52, letterSpacing: '-0.04em' }}>1.8</span>
-            <span style={{ fontFamily: 'var(--fh)', fontWeight: 700, fontSize: 18, color: 'var(--primary)' }}>min/q</span>
+        <div className="glass-card editorial-card flex-col items-center justify-center text-center relative overflow-hidden" style={{ background: 'linear-gradient(135deg, var(--sc-high), var(--sc-low))' }}>
+          <div className="absolute -top-10 -right-10 w-40 h-40 bg-primary-glow rounded-full blur-3xl" />
+          <span className="material-symbols-outlined text-primary mb-12" style={{ fontSize: 36 }}>timer</span>
+          <p className="text-micro mb-6">Speed</p>
+          <div className="row items-baseline gap-8 mb-12">
+            <span className="text-black" style={{ fontFamily: 'var(--fh)', fontSize: 42, letterSpacing: '-0.02em' }}>1.8</span>
+            <span className="text-primary text-bold" style={{ fontFamily: 'var(--fh)', fontSize: 14 }}>min/q</span>
           </div>
-          <p className="text-sm" style={{ lineHeight: 1.6, maxWidth: 260 }}>
-            <strong style={{ color: '#fff' }}>12% faster</strong> than the top-500 cohort average.
+          <p className="text-micro max-w-xs leading-relaxed" style={{ textTransform: 'none', letterSpacing: '0' }}>
+            <strong className="text-white">12% faster</strong> than the top-500 cohort average.
           </p>
-          <div className="neon-progress-track" style={{ marginTop: 24, width: '100%' }}>
+          <div className="neon-progress-track mt-24 w-full">
             <div className="neon-progress-fill" style={{ width: '88%' }} />
           </div>
         </div>
       </div>
 
-      <section style={{ marginTop: 48 }}>
-        <h2 style={{ fontFamily: 'var(--fh)', fontWeight: 900, fontSize: 24, letterSpacing: '-0.02em', marginBottom: 32 }}>
+      <section style={{ marginTop: 40 }}>
+        <h2 style={{ fontFamily: 'var(--fh)', fontWeight: 800, fontSize: 20, letterSpacing: '-0.01em', marginBottom: 24 }}>
           Insights
         </h2>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
