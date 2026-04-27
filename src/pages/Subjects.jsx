@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 const subjects = [
   { slug: 'Mathematics', icon: 'functions', name: 'Mathematics', desc: 'Calculus, Algebra, Coordinate Geometry, & Trigonometry.' },
@@ -26,6 +26,7 @@ function SubjectCard({ subject }) {
 }
 
 export default function Subjects() {
+  const navigate = useNavigate()
   return (
     <div className="page-canvas">
       <header className="editorial-header">
@@ -55,7 +56,11 @@ export default function Subjects() {
         <div style={{ position: 'relative', zIndex: 2, padding: '0 24px' }}>
           <h4 style={{ fontFamily: 'var(--fh)', fontWeight: 800, fontSize: 20, color: 'var(--primary)', marginBottom: 8, letterSpacing: '-0.01em' }}>Diagnostic Test</h4>
           <p className="text-micro" style={{ maxWidth: 380, textTransform: 'none', letterSpacing: '0', opacity: 0.7 }}>Assess your readiness in 15 minutes. We'll build a custom study plan based on your results.</p>
-          <button className="btn-ghost" style={{ marginTop: 16, display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, padding: '6px 12px' }}>
+          <button
+            className="btn-ghost"
+            style={{ marginTop: 16, display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, padding: '6px 12px' }}
+            onClick={() => navigate('/practice?diagnostic=1')}
+          >
             Start
             <span className="material-symbols-outlined" style={{ fontSize: 14 }}>arrow_forward</span>
           </button>

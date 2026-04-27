@@ -14,6 +14,12 @@ import Login from './pages/Login'
 import Signup from './pages/Signup'
 import Onboarding from './pages/Onboarding'
 import Profile from './pages/Profile'
+import Settings from './pages/Settings'
+import Schedule from './pages/Schedule'
+import Help from './pages/Help'
+import Practice from './pages/Practice'
+import TestReview from './pages/TestReview'
+import CustomTest from './pages/CustomTest'
 
 export default function App() {
   const { user, loading } = useAuth()
@@ -60,6 +66,12 @@ function AppLayout() {
           <Route path="/subjects/:subject" element={<ChaptersList />} />
           <Route path="/subjects/:subject/:chapter" element={<TopicsList />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/schedule" element={<Schedule />} />
+          <Route path="/help" element={<Help />} />
+          <Route path="/practice" element={<Practice />} />
+          <Route path="/tests/custom" element={<CustomTest />} />
+          <Route path="/tests/:id/review" element={<TestReview />} />
         </Routes>
       </div>
       <BottomNav />

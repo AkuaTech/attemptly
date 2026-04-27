@@ -1,22 +1,8 @@
-import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useDashboardStats } from '../hooks/useUserStats'
+import { slugToTitle } from '../lib/slug'
 
-const weaknesses = [
-  { icon: 'psychology', topic: 'Thermodynamics', meta: 'Accuracy: 42% · Avg time: 110s' },
-  { icon: 'functions', topic: 'Integral Calculus', meta: 'Accuracy: 51% · Avg time: 95s' },
-  { icon: 'science', topic: 'Organic Synthesis', meta: 'Accuracy: 55% · Avg time: 88s' },
-]
-
-const schedule = [
-  { time: '09:00 AM', title: 'Full Length Mock #8', meta: '3 Hours · JEE Main Pattern', primary: true },
-  { time: '02:30 PM', title: 'Revision Session', meta: 'Thermodynamics weak topics', primary: false },
-  { time: '05:00 PM', title: 'PYQ Practice', meta: '45 questions · Vector Algebra', primary: false },
-]
-
-const stats = [
-  { label: 'Total Solved', value: '3,492', delta: '+12% vs last week', up: true },
-  { label: 'Accuracy', value: '88.4', suffix: '%', primary: true },
-  { label: 'Avg Time / Q', value: '42', suffix: 's', delta: 'Slowing down', up: false },
-]
+const SUBJECT_ICON = { Physics: 'bolt', Mathematics: 'functions', Chemistry: 'science' }
 
 function StatCard({ stat }) {
   return (
@@ -38,7 +24,116 @@ function StatCard({ stat }) {
   )
 }
 
+function WeeklyChart({ weekly }) {
+  const max = Math.max(1, ...weekly.map(d => d.count))
+  const points = weekly.map((d, i) => {
+    const x = (i / (weekly.length - 1)) * 400
+    const y = 100 - (d.count / max) * 80
+    return [x, y]
+  })
+  const path = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p[0]},${p[1]}`).join(' ')
+  const area = `${path} L400,100 L0,100 Z`
+  const peakIdx = weekly.reduce((acc, d, i) => d.count > weekly[acc].count ? i : acc, 0)
+  const dayLabels = weekly.map(d => new Date(d.date).toLocaleDateString('en-US', { weekday: 'short' }))
+
+  return (
+    <>
+      <svg width="100%" height="180" viewBox="-10 0 420 100" className="chart-svg overflow-visible">
+        <defs>
+          <linearGradient id="chartGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#e7f95c" stopOpacity="0.2" />
+            <stop offset="100%" stopColor="#e7f95c" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        <path d={area} fill="url(#chartGrad)" />
+        <path d={path} fill="none" stroke="#e7f95c" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+      <div className="flex justify-between mt-16 px-8">
+        {dayLabels.map((d, i) => (
+          <span key={i} className={`text-micro ${i === peakIdx ? 'text-primary' : ''}`}>{d}</span>
+        ))}
+      </div>
+    </>
+  )
+}
+
+function todaysPlan({ inProgressMock, weakTopics, resume }) {
+  const items = []
+  if (inProgressMock) {
+    items.push({
+      title: inProgressMock.mock_tests?.title || 'Resume Mock Test',
+      meta: `${inProgressMock.mock_tests?.duration_minutes || 60} min · ${inProgressMock.mock_tests?.pattern || 'Mock'}`,
+      time: 'Now',
+      primary: true,
+      onClick: nav => nav(`/practice?mock=${inProgressMock.mock_test_id}`),
+    })
+  }
+  for (const w of weakTopics.slice(0, 2)) {
+    items.push({
+      title: `Drill: ${slugToTitle(w.topic)}`,
+      meta: `${w.subject} · accuracy ${Math.round(w.accuracy * 100)}%`,
+      time: '15 min',
+      primary: items.length === 0,
+      onClick: nav => nav(`/practice?subject=${encodeURIComponent(w.subject)}&chapter=${encodeURIComponent(w.chapter)}&topic=${encodeURIComponent(w.topic)}`),
+    })
+  }
+  if (resume && items.length < 3) {
+    items.push({
+      title: `PYQ: ${slugToTitle(resume.topic)}`,
+      meta: `${resume.subject} · continue`,
+      time: '20 min',
+      primary: false,
+      onClick: nav => nav(`/practice?subject=${encodeURIComponent(resume.subject)}&chapter=${encodeURIComponent(resume.chapter)}&topic=${encodeURIComponent(resume.topic)}`),
+    })
+  }
+  return items
+}
+
 export default function Dashboard() {
+  const navigate = useNavigate()
+  const { totals, weekly, weekDelta, weakTopics, resume, inProgressMock, loading } = useDashboardStats()
+
+  const accuracy = totals.solved > 0 ? (totals.correct / totals.solved) * 100 : 0
+  const avgTimeSec = totals.solved > 0 ? Math.round(totals.totalTimeMs / totals.solved / 1000) : 0
+  const stats = [
+    {
+      label: 'Total Solved',
+      value: totals.solved.toLocaleString(),
+      delta: totals.solved > 0
+        ? `${weekDelta >= 0 ? '+' : ''}${weekDelta}% vs last week`
+        : 'Start practicing',
+      up: weekDelta >= 0,
+    },
+    {
+      label: 'Accuracy',
+      value: totals.solved > 0 ? accuracy.toFixed(1) : '—',
+      suffix: totals.solved > 0 ? '%' : '',
+      primary: true,
+    },
+    {
+      label: 'Avg Time / Q',
+      value: avgTimeSec > 0 ? avgTimeSec : '—',
+      suffix: avgTimeSec > 0 ? 's' : '',
+    },
+  ]
+
+  const plan = todaysPlan({ inProgressMock, weakTopics, resume })
+  const today = new Date()
+  const dateNum = today.getDate()
+  const monthLabel = today.toLocaleDateString('en-US', { month: 'short' })
+
+  function continueResume() {
+    if (resume) {
+      navigate(`/practice?subject=${encodeURIComponent(resume.subject)}&chapter=${encodeURIComponent(resume.chapter)}&topic=${encodeURIComponent(resume.topic)}`)
+    } else {
+      navigate('/subjects')
+    }
+  }
+
+  function drill(w) {
+    navigate(`/practice?subject=${encodeURIComponent(w.subject)}&chapter=${encodeURIComponent(w.chapter)}&topic=${encodeURIComponent(w.topic)}`)
+  }
+
   return (
     <div className="page-canvas">
       <header className="editorial-header">
@@ -58,37 +153,23 @@ export default function Dashboard() {
         <div className="glass-card editorial-card" style={{ overflow: 'visible' }}>
           <h3 className="section-title">Weekly Progress</h3>
           <p className="text-micro mb-24">Questions solved per day</p>
-
-          <svg width="100%" height="180" viewBox="-10 0 420 100" className="chart-svg overflow-visible">
-            <defs>
-              <linearGradient id="chartGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor="#e7f95c" stopOpacity="0.2" />
-                <stop offset="100%" stopColor="#e7f95c" stopOpacity="0" />
-              </linearGradient>
-            </defs>
-            <path d="M0,80 Q50,90 80,60 T150,40 T220,70 T300,20 T400,35 L400,100 L0,100 Z" fill="url(#chartGrad)" />
-            <path d="M0,80 Q50,90 80,60 T150,40 T220,70 T300,20 T400,35" fill="none" stroke="#e7f95c" strokeWidth="4" strokeLinecap="round" />
-          </svg>
-
-          <div className="flex justify-between mt-16 px-8">
-            {['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map((d, i) => (
-              <span key={d} className={`text-micro ${i === 5 ? 'text-primary' : ''}`}>{d}</span>
-            ))}
-          </div>
+          <WeeklyChart weekly={weekly.length ? weekly : Array.from({ length: 7 }, (_, i) => ({ date: new Date(Date.now() - (6 - i) * 86400000).toISOString(), count: 0 }))} />
         </div>
 
         <div className="glass-card editorial-card-flush relative overflow-hidden" style={{ minHeight: 300 }}>
           <div className="absolute-inset-0 chart-bg-image" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&q=80')", opacity: 'var(--hero-opacity)' }} />
           <div className="absolute-inset-0 chart-overlay" />
           <div className="absolute-inset-0 flex-col justify-end editorial-card z-10" style={{ padding: 24 }}>
-            <span className="badge-resume">Resume</span>
+            <span className="badge-resume">{resume ? 'Resume' : 'Get Started'}</span>
             <h2 className="text-white text-heavy mb-4" style={{ fontFamily: 'var(--fh)', fontSize: 18, lineHeight: 1.2 }}>
-              Rotational Mechanics
+              {resume ? slugToTitle(resume.topic) : 'Pick a subject'}
             </h2>
-            <p className="text-micro text-muted mb-8">Moment of Inertia · Part 4</p>
+            <p className="text-micro text-muted mb-8">
+              {resume ? `${resume.subject} · ${slugToTitle(resume.chapter)}` : 'Start with PYQs from any subject'}
+            </p>
             <div style={{ maxWidth: 160 }}>
-              <button className="submit-btn" style={{ padding: '10px 16px' }}>
-                Continue
+              <button className="submit-btn" style={{ padding: '10px 16px' }} onClick={continueResume}>
+                {resume ? 'Continue' : 'Browse'}
                 <span className="material-symbols-outlined" style={{ fontSize: 18 }}>play_arrow</span>
               </button>
             </div>
@@ -100,21 +181,29 @@ export default function Dashboard() {
         <div className="glass-card editorial-card">
           <div className="row mb-12">
             <h3 className="section-title flex-1">Weak Topics</h3>
-            <span className="text-error text-micro">3 Flagged</span>
+            {weakTopics.length > 0 && <span className="text-error text-micro">{weakTopics.length} Flagged</span>}
           </div>
           <div className="flex-col gap-12">
-            {weaknesses.map(w => (
-              <div key={w.topic} className="weakness-row">
+            {loading ? (
+              <div className="text-micro text-muted">Loading…</div>
+            ) : weakTopics.length === 0 ? (
+              <div className="text-micro text-muted" style={{ textTransform: 'none', letterSpacing: 0, fontSize: 13 }}>
+                No weak topics yet — solve at least 5 questions in a topic to see analysis here.
+              </div>
+            ) : weakTopics.map(w => (
+              <div key={`${w.subject}-${w.topic}`} className="weakness-row">
                 <div className="row">
                   <div className="weakness-icon">
-                    <span className="material-symbols-outlined">{w.icon}</span>
+                    <span className="material-symbols-outlined">{SUBJECT_ICON[w.subject] || 'psychology'}</span>
                   </div>
                   <div>
-                    <div style={{ fontWeight: 700, fontSize: 14 }}>{w.topic}</div>
-                    <div className="text-sm" style={{ marginTop: 2 }}>{w.meta}</div>
+                    <div style={{ fontWeight: 700, fontSize: 14 }}>{slugToTitle(w.topic)}</div>
+                    <div className="text-sm" style={{ marginTop: 2 }}>
+                      Accuracy: {Math.round(w.accuracy * 100)}% · Avg time: {Math.round(w.avgTimeSec)}s
+                    </div>
                   </div>
                 </div>
-                <button className="btn-ghost">Drill</button>
+                <button className="btn-ghost" onClick={() => drill(w)}>Drill</button>
               </div>
             ))}
           </div>
@@ -123,23 +212,32 @@ export default function Dashboard() {
         <div className="glass-card editorial-card">
           <div className="row mb-12">
             <h3 className="section-title flex-1">Today's Plan</h3>
-            <span className="text-micro text-primary">Next Up</span>
+            {plan.length > 0 && <span className="text-micro text-primary">Next Up</span>}
           </div>
           <div className="row items-start gap-24">
             <div className="text-center flex-shrink-0" style={{ paddingTop: 8 }}>
-              <div className="text-primary text-black" style={{ fontFamily: 'var(--fh)', fontSize: 28, lineHeight: 1 }}>14</div>
-              <div className="text-micro mt-4">Oct</div>
+              <div className="text-primary text-black" style={{ fontFamily: 'var(--fh)', fontSize: 28, lineHeight: 1 }}>{dateNum}</div>
+              <div className="text-micro mt-4">{monthLabel}</div>
             </div>
             <div style={{ flex: 1 }}>
-              {schedule.map((s, i) => (
-                <div key={s.title} className={`relative mb-24 pl-24 schedule-item ${s.primary ? 'active' : ''}`}>
+              {plan.length === 0 ? (
+                <div className="text-micro text-muted" style={{ textTransform: 'none', letterSpacing: 0, fontSize: 13 }}>
+                  Nothing on the plan. Pick a subject to start practicing.
+                </div>
+              ) : plan.map((s, i) => (
+                <button
+                  key={i}
+                  onClick={() => s.onClick(navigate)}
+                  className={`relative mb-24 pl-24 schedule-item ${s.primary ? 'active' : ''}`}
+                  style={{ display: 'block', width: '100%', textAlign: 'left', background: 'transparent', border: 0, color: 'inherit', cursor: 'pointer' }}
+                >
                   {s.primary && <div className="schedule-dot" />}
                   <div className="row mb-4">
                     <div className="text-bold flex-1" style={{ fontSize: 12 }}>{s.title}</div>
                     <div className="text-micro text-muted">{s.time}</div>
                   </div>
                   <div className="text-micro text-on-sv">{s.meta}</div>
-                </div>
+                </button>
               ))}
             </div>
           </div>

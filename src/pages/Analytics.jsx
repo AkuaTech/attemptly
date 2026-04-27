@@ -1,33 +1,222 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { supabase } from '../supabase'
+import { useAuth } from '../contexts/AuthContext'
 
-const insights = [
-  { type: 'primary', icon: 'bolt', title: 'Rotational Dynamics', body: 'Performance has plateaued over the last 3 tests. Revisit Moment of Inertia derivations for deeper understanding.' },
-  { type: 'error', icon: 'warning', title: 'Late-test accuracy drop', body: 'Accuracy drops 14% after the 2-hour mark. Try timed sprints to build exam stamina.' },
-]
+const HEATMAP_DAYS = 364
+const HEATMAP_WEEKS = HEATMAP_DAYS / 7
 
-function HeatmapGrid() {
-  const cells = useMemo(() => {
-    return Array.from({ length: 364 }, (_, i) => {
-      const r = Math.random()
-      let bg = '#18181b'
-      if (r > 0.85) bg = 'var(--primary)'
-      else if (r > 0.6) bg = 'rgba(231,249,92,0.4)'
-      return bg
-    })
-  }, [])
+function dayKey(date) { return date.toISOString().slice(0, 10) }
 
+function buildHeatmapCells(attempts) {
+  const counts = new Map()
+  for (const a of attempts) {
+    const k = a.attempted_at.slice(0, 10)
+    counts.set(k, (counts.get(k) || 0) + 1)
+  }
+  const cells = []
+  const today = new Date()
+  for (let i = HEATMAP_DAYS - 1; i >= 0; i--) {
+    const d = new Date(today); d.setDate(today.getDate() - i)
+    cells.push({ date: dayKey(d), count: counts.get(dayKey(d)) || 0 })
+  }
+  return cells
+}
+
+function streak(cells) {
+  let s = 0
+  for (let i = cells.length - 1; i >= 0; i--) {
+    if (cells[i].count > 0) s++
+    else break
+  }
+  return s
+}
+
+function bucketColor(count, peak) {
+  if (count === 0) return '#18181b'
+  const ratio = count / Math.max(1, peak)
+  if (ratio > 0.66) return 'var(--primary)'
+  if (ratio > 0.33) return 'rgba(231,249,92,0.5)'
+  return 'rgba(231,249,92,0.2)'
+}
+
+function HeatmapGrid({ cells }) {
+  const peak = cells.reduce((m, c) => Math.max(m, c.count), 0)
   return (
     <div style={{ overflowX: 'auto', paddingBottom: 8 }}>
       <div style={{ display: 'grid', gridTemplateRows: 'repeat(7, 12px)', gridAutoFlow: 'column', gap: 4, width: 'max-content' }}>
-        {cells.map((bg, i) => (
-          <div key={i} className="heatmap-cell" style={{ background: bg }} />
+        {cells.map((c, i) => (
+          <div
+            key={i}
+            className="heatmap-cell"
+            style={{ background: bucketColor(c.count, peak) }}
+            title={`${c.date} · ${c.count} question${c.count === 1 ? '' : 's'}`}
+          />
         ))}
       </div>
     </div>
   )
 }
 
+function buildMonthlyAccuracy(attempts) {
+  const buckets = new Map()
+  for (const a of attempts) {
+    const k = a.attempted_at.slice(0, 7)
+    if (!buckets.has(k)) buckets.set(k, { total: 0, correct: 0 })
+    const b = buckets.get(k)
+    b.total++
+    if (a.is_correct) b.correct++
+  }
+  const months = [...buckets.entries()]
+    .map(([k, v]) => ({ month: k, accuracy: v.correct / v.total, total: v.total }))
+    .sort((a, b) => a.month.localeCompare(b.month))
+    .slice(-6)
+  return months
+}
+
+function buildSubjectSplit(progressRows) {
+  const totals = { Physics: 0, Chemistry: 0, Mathematics: 0 }
+  let grand = 0
+  for (const r of progressRows) {
+    if (totals[r.subject] != null) {
+      totals[r.subject] += r.questions_solved || 0
+      grand += r.questions_solved || 0
+    }
+  }
+  const split = ['Physics', 'Chemistry', 'Mathematics'].map(s => ({
+    label: s,
+    pct: grand > 0 ? totals[s] / grand : 0,
+  }))
+  const masteredCorrect = progressRows.reduce((s, r) => s + (r.questions_correct || 0), 0)
+  const masteredTotal = progressRows.reduce((s, r) => s + (r.questions_solved || 0), 0)
+  return { split, masteryPct: masteredTotal > 0 ? masteredCorrect / masteredTotal : 0 }
+}
+
+function deriveInsights({ attempts, progress, monthly }) {
+  const insights = []
+  // 1) plateau / dropping topic
+  const weak = progress
+    .filter(r => (r.questions_solved || 0) >= 5)
+    .map(r => ({ ...r, accuracy: r.questions_correct / r.questions_solved }))
+    .sort((a, b) => a.accuracy - b.accuracy)[0]
+  if (weak && weak.accuracy < 0.6) {
+    insights.push({
+      type: 'primary',
+      icon: 'bolt',
+      title: weak.topic.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+      body: `Accuracy ${Math.round(weak.accuracy * 100)}% across ${weak.questions_solved} attempts. Drill this topic to recover ground.`,
+    })
+  }
+  // 2) accuracy trend
+  if (monthly.length >= 2) {
+    const last = monthly[monthly.length - 1]
+    const prev = monthly[monthly.length - 2]
+    const delta = last.accuracy - prev.accuracy
+    if (delta < -0.05) {
+      insights.push({
+        type: 'error',
+        icon: 'warning',
+        title: 'Monthly accuracy dropping',
+        body: `Accuracy fell ${Math.round(-delta * 100)}% from last month. Slow down and review explanations before moving on.`,
+      })
+    } else if (delta > 0.05) {
+      insights.push({
+        type: 'primary',
+        icon: 'trending_up',
+        title: 'Accuracy trending up',
+        body: `+${Math.round(delta * 100)}% versus last month. Keep the cadence steady.`,
+      })
+    }
+  }
+  // 3) volume nudge
+  if (attempts.length === 0) {
+    insights.push({
+      type: 'primary',
+      icon: 'flag',
+      title: 'No data yet',
+      body: 'Solve questions in the Subjects section to start building analytics.',
+    })
+  }
+  return insights
+}
+
 export default function Analytics() {
+  const { user } = useAuth()
+  const [data, setData] = useState({ attempts: [], progress: [], loading: true, error: null })
+
+  useEffect(() => {
+    if (!user) { setData(d => ({ ...d, loading: false })); return }
+    let cancelled = false
+    async function load() {
+      const sinceYear = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString()
+      const [attemptsRes, progressRes] = await Promise.all([
+        supabase
+          .from('user_attempts')
+          .select('attempted_at, is_correct, time_spent_ms, subject')
+          .eq('user_id', user.id)
+          .gte('attempted_at', sinceYear)
+          .order('attempted_at', { ascending: true }),
+        supabase
+          .from('user_progress')
+          .select('subject, chapter, topic, questions_solved, questions_correct, total_time_ms')
+          .eq('user_id', user.id),
+      ])
+      if (cancelled) return
+      setData({
+        attempts: attemptsRes.data || [],
+        progress: progressRes.data || [],
+        loading: false,
+        error: attemptsRes.error || progressRes.error,
+      })
+    }
+    load()
+    return () => { cancelled = true }
+  }, [user])
+
+  const cells = useMemo(() => buildHeatmapCells(data.attempts), [data.attempts])
+  const dayStreak = useMemo(() => streak(cells), [cells])
+  const monthly = useMemo(() => buildMonthlyAccuracy(data.attempts), [data.attempts])
+  const { split, masteryPct } = useMemo(() => buildSubjectSplit(data.progress), [data.progress])
+  const insights = useMemo(() => deriveInsights({ attempts: data.attempts, progress: data.progress, monthly }), [data])
+
+  const overallTotal = data.attempts.length
+  const overallCorrect = data.attempts.filter(a => a.is_correct).length
+  const overallAccuracy = overallTotal > 0 ? overallCorrect / overallTotal : 0
+  const avgTimeSec = overallTotal > 0
+    ? data.attempts.reduce((s, a) => s + (a.time_spent_ms || 0), 0) / overallTotal / 1000
+    : 0
+  const avgTimeMin = avgTimeSec / 60
+  const peakAccuracy = monthly.length ? Math.max(...monthly.map(m => m.accuracy)) : 0
+
+  // Radar polygon: accuracy / speed / volume / consistency, each 0..1
+  const speedScore = avgTimeSec > 0 ? Math.min(1, 90 / Math.max(30, avgTimeSec)) : 0 // 90s/q => 1.0, slower → less
+  const volumeScore = Math.min(1, overallTotal / 500)
+  const activeDays = cells.filter(c => c.count > 0).length
+  const consistencyScore = Math.min(1, activeDays / 90)
+  const radarVals = [overallAccuracy, speedScore, consistencyScore, volumeScore]
+  const radarPoints = [
+    [100, 100 - 80 * radarVals[0]],   // top - accuracy
+    [100 + 80 * radarVals[1], 100],   // right - speed
+    [100, 100 + 80 * radarVals[2]],   // bottom - consistency
+    [100 - 80 * radarVals[3], 100],   // left - volume
+  ].map(p => p.join(',')).join(' ')
+
+  // accuracy trend chart
+  const trendPath = monthly.length >= 2
+    ? monthly.map((m, i) => {
+        const x = (i / (monthly.length - 1)) * 1000
+        const y = 200 - m.accuracy * 180
+        return `${i === 0 ? 'M' : 'L'}${x},${y}`
+      }).join(' ')
+    : null
+
+  if (data.loading) {
+    return (
+      <div className="page-canvas">
+        <p className="text-muted text-sm">Loading analytics…</p>
+      </div>
+    )
+  }
+
   return (
     <div className="page-canvas">
       <header className="editorial-header">
@@ -50,21 +239,25 @@ export default function Analytics() {
               <polygon points="100,20 180,100 100,180 20,100" fill="none" stroke="var(--outline-v)" strokeWidth="0.5" strokeDasharray="2 2" />
               <polygon points="100,50 150,100 100,150 50,100" fill="none" stroke="var(--outline-v)" strokeWidth="0.5" />
               <circle cx="100" cy="100" r="2" fill="var(--outline-v)" />
-              <polygon points="100,40 160,110 110,160 40,90" fill="rgba(231,249,92,0.15)" stroke="#e7f95c" strokeWidth="2" />
+              {overallTotal > 0 && (
+                <polygon points={radarPoints} fill="rgba(231,249,92,0.15)" stroke="#e7f95c" strokeWidth="2" />
+              )}
               <text x="100" y="15" fill="var(--on-sv)" fontSize="8" textAnchor="middle" fontFamily="Space Grotesk" fontWeight="700">ACCURACY</text>
               <text x="195" y="103" fill="var(--on-sv)" fontSize="8" textAnchor="start" fontFamily="Space Grotesk" fontWeight="700">SPEED</text>
-              <text x="100" y="195" fill="var(--on-sv)" fontSize="8" textAnchor="middle" fontFamily="Space Grotesk" fontWeight="700">MEMORY</text>
-              <text x="5" y="103" fill="var(--on-sv)" fontSize="8" textAnchor="end" fontFamily="Space Grotesk" fontWeight="700">LOGIC</text>
+              <text x="100" y="195" fill="var(--on-sv)" fontSize="8" textAnchor="middle" fontFamily="Space Grotesk" fontWeight="700">CONSISTENCY</text>
+              <text x="5" y="103" fill="var(--on-sv)" fontSize="8" textAnchor="end" fontFamily="Space Grotesk" fontWeight="700">VOLUME</text>
             </svg>
           </div>
           <div className="row justify-around border-t border-glass pt-24 mt-24">
             <div className="text-center">
-              <p className="text-micro">Percentile</p>
-              <p className="text-primary text-black" style={{ fontFamily: 'var(--fh)', fontSize: 24 }}>98.4</p>
+              <p className="text-micro">Accuracy</p>
+              <p className="text-primary text-black" style={{ fontFamily: 'var(--fh)', fontSize: 24 }}>
+                {overallTotal > 0 ? `${(overallAccuracy * 100).toFixed(1)}` : '—'}
+              </p>
             </div>
             <div className="text-center">
-              <p className="text-micro">Rank Estimate</p>
-              <p className="text-white text-black" style={{ fontFamily: 'var(--fh)', fontSize: 24 }}>#1,242</p>
+              <p className="text-micro">Total Solved</p>
+              <p className="text-white text-black" style={{ fontFamily: 'var(--fh)', fontSize: 24 }}>{overallTotal.toLocaleString()}</p>
             </div>
           </div>
         </div>
@@ -75,25 +268,41 @@ export default function Analytics() {
             <div className="relative" style={{ width: 160, height: 160 }}>
               <svg className="absolute-inset-0" viewBox="0 0 160 160" style={{ transform: 'rotate(-90deg)' }}>
                 <circle cx="80" cy="80" r="70" fill="transparent" stroke="var(--sc-bright)" strokeWidth="12" />
-                <circle cx="80" cy="80" r="70" fill="transparent" stroke="var(--primary)" strokeWidth="12" strokeDasharray="440" strokeDashoffset="110" />
-                <circle cx="80" cy="80" r="70" fill="transparent" stroke="var(--tertiary)" strokeWidth="12" strokeDasharray="440" strokeDashoffset="330" />
+                {overallTotal > 0 && (() => {
+                  const C = 2 * Math.PI * 70
+                  let offset = 0
+                  return split.map((s, i) => {
+                    const len = s.pct * C
+                    const dasharray = `${len} ${C - len}`
+                    const dashoffset = -offset
+                    offset += len
+                    const color = i === 0 ? 'var(--primary)' : i === 1 ? 'var(--tertiary)' : 'rgba(255,255,255,0.2)'
+                    return (
+                      <circle
+                        key={s.label}
+                        cx="80" cy="80" r="70" fill="transparent"
+                        stroke={color} strokeWidth="12"
+                        strokeDasharray={dasharray}
+                        strokeDashoffset={dashoffset}
+                      />
+                    )
+                  })
+                })()}
               </svg>
               <div className="absolute-inset-0 flex-col items-center justify-center">
-                <span className="text-black" style={{ fontFamily: 'var(--fh)', fontSize: 24 }}>74%</span>
+                <span className="text-black" style={{ fontFamily: 'var(--fh)', fontSize: 24 }}>
+                  {overallTotal > 0 ? `${Math.round(masteryPct * 100)}%` : '—'}
+                </span>
                 <span className="text-micro">Mastered</span>
               </div>
             </div>
             <ul className="flex-col gap-16">
-              {[
-                { color: 'var(--primary)', label: 'Physics', pct: '42%' },
-                { color: 'var(--tertiary)', label: 'Chemistry', pct: '31%' },
-                { color: 'rgba(255,255,255,0.2)', label: 'Mathematics', pct: '27%' },
-              ].map(item => (
-                <li key={item.label} className="row gap-12">
-                  <div className="flex-shrink-0" style={{ width: 8, height: 8, borderRadius: '50%', background: item.color }} />
+              {split.map((s, i) => (
+                <li key={s.label} className="row gap-12">
+                  <div className="flex-shrink-0" style={{ width: 8, height: 8, borderRadius: '50%', background: i === 0 ? 'var(--primary)' : i === 1 ? 'var(--tertiary)' : 'rgba(255,255,255,0.2)' }} />
                   <div>
-                    <p className="text-bold" style={{ fontFamily: 'var(--fh)', fontSize: 11 }}>{item.label}</p>
-                    <p className="text-micro">{item.pct}</p>
+                    <p className="text-bold" style={{ fontFamily: 'var(--fh)', fontSize: 11 }}>{s.label}</p>
+                    <p className="text-micro">{Math.round(s.pct * 100)}%</p>
                   </div>
                 </li>
               ))}
@@ -106,7 +315,7 @@ export default function Analytics() {
         <div className="row mb-12">
           <div className="flex-1">
             <h3 className="section-label">Consistency</h3>
-            <p className="text-micro mt-4">112 Day Streak</p>
+            <p className="text-micro mt-4">{dayStreak} Day Streak</p>
           </div>
           <div className="row" style={{ gap: 8 }}>
             <span className="text-micro">Less</span>
@@ -116,7 +325,7 @@ export default function Analytics() {
             <span className="text-micro">More</span>
           </div>
         </div>
-        <HeatmapGrid />
+        <HeatmapGrid cells={cells} />
       </div>
 
       <div className="bento-2">
@@ -125,10 +334,7 @@ export default function Analytics() {
             <h3 className="section-label" style={{ flex: 1 }}>Accuracy Trend</h3>
             <div className="row" style={{ gap: 16 }}>
               <span className="row" style={{ gap: 4, fontSize: 11, fontFamily: 'var(--fh)', fontWeight: 700 }}>
-                <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--primary)', display: 'inline-block' }} /> Mocks
-              </span>
-              <span className="row" style={{ gap: 4, fontSize: 11, fontFamily: 'var(--fh)', fontWeight: 700 }}>
-                <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--error)', display: 'inline-block' }} /> Errors
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--primary)', display: 'inline-block' }} /> Monthly
               </span>
             </div>
           </div>
@@ -140,17 +346,26 @@ export default function Analytics() {
                   <stop offset="100%" stopColor="#e7f95c" stopOpacity="0" />
                 </linearGradient>
               </defs>
-              <path d="M0,150 Q150,140 250,110 T500,130 T750,60 T1000,80 V200 H0 Z" fill="url(#accGrad)" />
-              <path d="M0,150 Q150,140 250,110 T500,130 T750,60 T1000,80" fill="none" stroke="#e7f95c" strokeWidth="4" strokeLinecap="round" />
-              <path d="M0,180 Q100,170 300,185 T600,170 T900,190 T1000,185" fill="none" stroke="#ff7351" strokeWidth="2" strokeDasharray="4 4" />
+              {trendPath && (
+                <>
+                  <path d={`${trendPath} L1000,200 L0,200 Z`} fill="url(#accGrad)" />
+                  <path d={trendPath} fill="none" stroke="#e7f95c" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+                </>
+              )}
             </svg>
-            <div className="absolute top-8 right-1/4 py-6 px-10 bg-glass-bright border border-glass rounded-lg backdrop-blur-md">
-              <p className="text-micro" style={{ letterSpacing: '0.08em', fontSize: 9 }}>Current Peak</p>
-              <p className="text-primary text-bold" style={{ fontFamily: 'var(--fh)', fontSize: 12 }}>94.2%</p>
-            </div>
+            {peakAccuracy > 0 && (
+              <div className="absolute top-8 right-1/4 py-6 px-10 bg-glass-bright border border-glass rounded-lg backdrop-blur-md">
+                <p className="text-micro" style={{ letterSpacing: '0.08em', fontSize: 9 }}>Peak</p>
+                <p className="text-primary text-bold" style={{ fontFamily: 'var(--fh)', fontSize: 12 }}>{(peakAccuracy * 100).toFixed(1)}%</p>
+              </div>
+            )}
           </div>
           <div className="row" style={{ justifyContent: 'space-between', marginTop: 16 }}>
-            {['Jan','Feb','Mar','Apr','May','Jun'].map(m => <span key={m} className="text-micro">{m}</span>)}
+            {monthly.length > 0 ? monthly.map(m => (
+              <span key={m.month} className="text-micro">
+                {new Date(m.month + '-01').toLocaleDateString('en-US', { month: 'short' })}
+              </span>
+            )) : <span className="text-micro text-muted">No data yet</span>}
           </div>
         </div>
 
@@ -159,14 +374,18 @@ export default function Analytics() {
           <span className="material-symbols-outlined text-primary mb-12" style={{ fontSize: 36 }}>timer</span>
           <p className="text-micro mb-6">Speed</p>
           <div className="row items-baseline gap-8 mb-12">
-            <span className="text-black" style={{ fontFamily: 'var(--fh)', fontSize: 42, letterSpacing: '-0.02em' }}>1.8</span>
+            <span className="text-black" style={{ fontFamily: 'var(--fh)', fontSize: 42, letterSpacing: '-0.02em' }}>
+              {avgTimeMin > 0 ? avgTimeMin.toFixed(1) : '—'}
+            </span>
             <span className="text-primary text-bold" style={{ fontFamily: 'var(--fh)', fontSize: 14 }}>min/q</span>
           </div>
           <p className="text-micro max-w-xs leading-relaxed" style={{ textTransform: 'none', letterSpacing: '0' }}>
-            <strong className="text-white">12% faster</strong> than the top-500 cohort average.
+            {overallTotal > 0
+              ? <>Across <strong className="text-white">{overallTotal.toLocaleString()}</strong> attempts.</>
+              : <>Start practicing to see your average solve time.</>}
           </p>
           <div className="neon-progress-track mt-24 w-full">
-            <div className="neon-progress-fill" style={{ width: '88%' }} />
+            <div className="neon-progress-fill" style={{ width: `${Math.round(speedScore * 100)}%` }} />
           </div>
         </div>
       </div>
@@ -176,8 +395,12 @@ export default function Analytics() {
           Insights
         </h2>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          {insights.map(item => (
-            <div key={item.title} className={`insight-card ${item.type}`}>
+          {insights.length === 0 ? (
+            <div className="text-muted text-sm" style={{ padding: 24 }}>
+              Insights will appear here as you build up practice history.
+            </div>
+          ) : insights.map((item, i) => (
+            <div key={i} className={`insight-card ${item.type}`}>
               <span className="material-symbols-outlined" style={{ color: item.type === 'primary' ? 'var(--primary)' : 'var(--error)', flexShrink: 0 }}>{item.icon}</span>
               <div>
                 <h4 style={{ fontFamily: 'var(--fh)', fontWeight: 700, color: '#fff', marginBottom: 6 }}>{item.title}</h4>

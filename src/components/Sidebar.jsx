@@ -38,7 +38,7 @@ export default function Sidebar() {
           <div className="sidebar-avatar">{getInitials(user)}</div>
           <div>
             <div className="sidebar-user-name">{getDisplayName(user)}</div>
-            <div className="sidebar-user-sub">JEE Main 2026</div>
+            <div className="sidebar-user-sub">{user?.user_metadata?.target_exam || 'JEE Main 2026'}</div>
           </div>
         </div>
       </div>
@@ -70,7 +70,10 @@ export default function Sidebar() {
             <p className="text-micro text-muted" style={{ textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email}</p>
           </div>
         )}
-        <button className="sidebar-item" onClick={() => {}}>
+        <button
+          className={`sidebar-item ${location.pathname === '/settings' ? 'active' : ''}`}
+          onClick={() => navigate('/settings')}
+        >
           <span className="material-symbols-outlined">settings</span>
           Settings
         </button>

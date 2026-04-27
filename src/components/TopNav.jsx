@@ -118,7 +118,9 @@ export default function TopNav({ theme, toggleTheme }) {
               })}
             </ul>
             <footer className="topnav-panel-foot">
-              <button className="panel-link-btn">View all activity</button>
+              <button className="panel-link-btn" onClick={() => { setOpen(null); navigate('/analytics') }}>
+                View all activity
+              </button>
             </footer>
           </div>
         )}
@@ -139,7 +141,7 @@ export default function TopNav({ theme, toggleTheme }) {
               <div style={{ minWidth: 0 }}>
                 <div className="account-name">{user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}</div>
                 <div className="account-email">{user?.email || ''}</div>
-                <div className="account-tag">JEE Main 2026</div>
+                <div className="account-tag">{user?.user_metadata?.target_exam || 'JEE Main 2026'}</div>
               </div>
             </header>
             <ul className="account-menu">
