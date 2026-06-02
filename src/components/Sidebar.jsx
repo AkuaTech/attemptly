@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
+import { getUserDisplayName, getUserInitials } from '../lib/userProfile'
 
 const navItems = [
   { icon: 'dashboard', label: 'Dashboard', path: '/dashboard' },
@@ -8,18 +9,6 @@ const navItems = [
   { icon: 'auto_stories', label: 'Subjects', path: '/subjects' },
   { icon: 'event', label: 'Schedule', path: '/schedule' },
 ]
-
-function getInitials(user) {
-  if (!user) return '?'
-  const name = user.user_metadata?.full_name || user.email || ''
-  if (name.includes('@')) return name[0].toUpperCase()
-  return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
-}
-
-function getDisplayName(user) {
-  if (!user) return 'Guest'
-  return user.user_metadata?.full_name || user.email?.split('@')[0] || 'User'
-}
 
 export default function Sidebar() {
   const location = useLocation()
@@ -35,9 +24,9 @@ export default function Sidebar() {
     <aside className="sidebar">
       <div className="sidebar-user">
         <div className="sidebar-user-card">
-          <div className="sidebar-avatar">{getInitials(user)}</div>
+          <div className="sidebar-avatar">{getUserInitials(user)}</div>
           <div>
-            <div className="sidebar-user-name">{getDisplayName(user)}</div>
+            <div className="sidebar-user-name">{getUserDisplayName(user)}</div>
             <div className="sidebar-user-sub">{user?.user_metadata?.target_exam || 'JEE Main 2026'}</div>
           </div>
         </div>

@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../supabase'
 import { useAuth } from '../contexts/AuthContext'
+import { displayDifficulty } from '../lib/mockContract'
 
-const diffColor = { Hard: 'var(--error)', Medium: '#f4a261', Easy: 'var(--primary)' }
+const diffColor = { hard: 'var(--error)', medium: '#f4a261', easy: 'var(--primary)' }
 
 function formatDuration(min) {
   if (min >= 60) {
@@ -106,10 +107,10 @@ export default function MockTests() {
       <header className="editorial-header">
         <div className="editorial-tag">
           <div className="line" />
-          <span>Simulated Exams</span>
-        </div>
-        <h1 className="page-title">Mock Tests</h1>
-        <p className="page-sub">Standardized simulations for JEE & NEET preparation.</p>
+        <span>Custom Exams</span>
+      </div>
+      <h1 className="page-title">Mock Tests</h1>
+      <p className="page-sub">Build focused practice tests from the question bank.</p>
       </header>
 
       <div className="row mb-24 flex-wrap gap-8">
@@ -144,7 +145,7 @@ export default function MockTests() {
         <div className="text-muted text-sm">Loading tests…</div>
       ) : shown.length === 0 ? (
         <div className="text-muted text-sm" style={{ padding: 32, textAlign: 'center' }}>
-          {filter === 'completed' ? 'No completed tests yet.' : 'No tests available.'}
+          {filter === 'completed' ? 'No completed tests yet.' : 'No custom tests yet. Create one to get started.'}
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -165,7 +166,7 @@ export default function MockTests() {
                   <span className="text-muted" style={{ fontSize: 10 }}>·</span>
                   <span className="text-micro">{formatDuration(test.duration_minutes)}</span>
                   <span className="text-muted" style={{ fontSize: 10 }}>·</span>
-                  <span style={{ fontSize: 10, color: diffColor[test.difficulty], fontWeight: 700, textTransform: 'uppercase' }}>{test.difficulty}</span>
+                  <span style={{ fontSize: 10, color: diffColor[String(test.difficulty).toLowerCase()], fontWeight: 700, textTransform: 'uppercase' }}>{displayDifficulty(test.difficulty)}</span>
                 </div>
               </div>
 

@@ -43,7 +43,7 @@ create table if not exists public.mock_tests (
   subject text,
   chapter text,
   topic text,
-  is_official boolean not null default true,
+  is_official boolean not null default false,
   created_by uuid references auth.users(id) on delete set null,
   created_at timestamptz not null default now()
 );
@@ -70,6 +70,24 @@ alter table public.user_attempts
   references public.mock_test_attempts(id) on delete cascade;
 create index if not exists user_attempts_mock_attempt_idx
   on public.user_attempts(mock_attempt_id);
+delete from public.user_attempts a
+using (
+  select id
+  from (
+    select
+      id,
+      row_number() over (
+        partition by mock_attempt_id, question_id
+        order by attempted_at desc, id desc
+      ) as rn
+    from public.user_attempts
+    where mock_attempt_id is not null
+  ) ranked
+  where rn > 1
+) duplicates
+where a.id = duplicates.id;
+create unique index if not exists user_attempts_mock_question_unique_idx
+  on public.user_attempts(mock_attempt_id, question_id);
 
 create table if not exists public.notification_preferences (
   user_id uuid primary key references auth.users(id) on delete cascade,
@@ -104,6 +122,9 @@ alter table public.user_attempts enable row level security;
 alter table public.mock_tests enable row level security;
 alter table public.mock_test_attempts enable row level security;
 alter table public.notification_preferences enable row level security;
+
+alter table public.mock_tests
+  alter column is_official set default false;
 
 drop policy if exists user_progress_owner on public.user_progress;
 create policy user_progress_owner on public.user_progress
@@ -159,13 +180,7 @@ $$;
 revoke all on function public.delete_my_account() from public;
 grant execute on function public.delete_my_account() to authenticated;
 
--- Seed sample official mock tests (idempotent on title).
-insert into public.mock_tests (title, pattern, num_questions, duration_minutes, difficulty, subject, chapter, is_official)
-select * from (values
-  ('Full Length Mock #8',          'JEE Main Pattern',     90, 180, 'Hard',   null::text, null::text, true),
-  ('Full Length Mock #7',          'JEE Advanced Pattern', 54, 180, 'Hard',   null::text, null::text, true),
-  ('Physics — EM Induction',       'Chapter Test',         30,  45, 'Medium', 'Physics',  'electromagnetic-induction', true),
-  ('Chemistry — Organic Part 2',   'Chapter Test',         40,  60, 'Hard',   'Chemistry','aldehydes-ketones-and-carboxylic-acids', true),
-  ('Math — Calculus Intensive',    'Topic Drill',          50,  75, 'Medium', 'Mathematics', 'integral-calculus', true)
-) as v(title, pattern, num_questions, duration_minutes, difficulty, subject, chapter, is_official)
-where not exists (select 1 from public.mock_tests m where m.title = v.title);
+-- Remove legacy sample official mocks. Mock tests are user-created from the UI.
+delete from public.mock_tests
+where is_official = true
+  and created_by is null;

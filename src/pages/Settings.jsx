@@ -7,9 +7,9 @@ const PREF_FIELDS = [
   { key: 'email_daily_summary',     label: 'Daily summary',           sub: 'Yesterday\'s practice and accuracy at 8 AM.', channel: 'email' },
   { key: 'email_streak_reminder',   label: 'Streak reminder',         sub: 'Email when your streak is about to break.',   channel: 'email' },
   { key: 'email_weak_topic_alerts', label: 'Weak-topic alerts',       sub: 'When accuracy drops below 60% on a topic.',   channel: 'email' },
-  { key: 'email_new_pyqs',          label: 'New PYQ sets',            sub: 'When fresh question sets are published.',     channel: 'email' },
+  { key: 'email_new_pyqs',          label: 'Question-bank updates',   sub: 'When new questions are available.',           channel: 'email' },
   { key: 'push_streak_reminder',    label: 'Push: streak reminder',   sub: 'In-app reminder when your streak is at risk.', channel: 'push' },
-  { key: 'push_test_reminders',     label: 'Push: test reminders',    sub: 'Notify before scheduled mock tests.',         channel: 'push' },
+  { key: 'push_test_reminders',     label: 'Push: test reminders',    sub: 'Notify before scheduled custom tests.',       channel: 'push' },
 ]
 
 const DEFAULT_PREFS = {

@@ -4,6 +4,13 @@ import { supabase } from '../supabase'
 import { useAuth } from '../contexts/AuthContext'
 import MathText from '../components/MathText'
 import { slugToTitle } from '../lib/slug'
+import {
+  dedupeAttemptsByQuestion,
+  displayDifficulty,
+  getMockQuestionLimit,
+  normalizeDifficulty,
+  shouldFilterMockDifficulty,
+} from '../lib/mockContract'
 
 const DIAGNOSTIC_COUNT = 15
 const DEFAULT_PRACTICE_LIMIT = 20
@@ -35,19 +42,21 @@ async function loadMockTest(mockId) {
 async function loadExistingMockAnswers(mockAttemptId) {
   const { data, error } = await supabase
     .from('user_attempts')
-    .select('question_id, selected_option, is_correct, time_spent_ms, subject, chapter, topic')
+    .select('question_id, selected_option, is_correct, time_spent_ms, subject, chapter, topic, attempted_at')
     .eq('mock_attempt_id', mockAttemptId)
+    .order('attempted_at', { ascending: true })
   if (error) throw error
-  return data || []
+  return dedupeAttemptsByQuestion(data || [])
 }
 
 async function finalizeMockAttempt(attemptId, totalCount) {
   const { data: rows, error: rErr } = await supabase
     .from('user_attempts')
-    .select('is_correct, time_spent_ms')
+    .select('question_id, is_correct, time_spent_ms, attempted_at')
     .eq('mock_attempt_id', attemptId)
+    .order('attempted_at', { ascending: true })
   if (rErr) throw rErr
-  const all = rows || []
+  const all = dedupeAttemptsByQuestion(rows || [])
   const correctCount = all.filter(a => a.is_correct).length
   const score = totalCount > 0 ? (correctCount / totalCount) * 100 : 0
   const timeSpentMs = all.reduce((s, a) => s + (Number(a.time_spent_ms) || 0), 0)
@@ -68,16 +77,35 @@ async function finalizeMockAttempt(attemptId, totalCount) {
   return updated
 }
 
-async function loadOrCreateAttempt({ mockId, attemptId, userId, totalCount }) {
-  if (attemptId) {
-    const { data, error } = await supabase
-      .from('mock_test_attempts')
-      .select('*')
-      .eq('id', attemptId)
-      .maybeSingle()
-    if (error) throw error
-    if (data) return data
+async function syncAttemptTotal(attempt, totalCount) {
+  if (!attempt || attempt.status !== 'started' || attempt.total_count === totalCount) {
+    return attempt
   }
+  const { data, error } = await supabase
+    .from('mock_test_attempts')
+    .update({ total_count: totalCount })
+    .eq('id', attempt.id)
+    .select('*')
+    .single()
+  if (error) throw error
+  return data
+}
+
+async function loadAttemptById({ attemptId, mockId, userId }) {
+  if (!attemptId) return null
+  const { data, error } = await supabase
+    .from('mock_test_attempts')
+    .select('*')
+    .eq('id', attemptId)
+    .eq('mock_test_id', mockId)
+    .eq('user_id', userId)
+    .maybeSingle()
+  if (error) throw error
+  return data
+}
+
+async function loadOrCreateAttempt({ mockId, userId, totalCount }) {
+  const actualTotal = Math.max(1, Number(totalCount) || 0)
   const { data: existing } = await supabase
     .from('mock_test_attempts')
     .select('*')
@@ -87,14 +115,21 @@ async function loadOrCreateAttempt({ mockId, attemptId, userId, totalCount }) {
     .order('started_at', { ascending: false })
     .limit(1)
     .maybeSingle()
-  if (existing) return existing
+  if (existing) return syncAttemptTotal(existing, actualTotal)
   const { data, error } = await supabase
     .from('mock_test_attempts')
-    .insert({ user_id: userId, mock_test_id: mockId, total_count: totalCount })
+    .insert({ user_id: userId, mock_test_id: mockId, total_count: actualTotal })
     .select('*')
     .single()
   if (error) throw error
   return data
+}
+
+async function createOrUpdateMockAnswer(answer) {
+  const { error } = await supabase
+    .from('user_attempts')
+    .upsert(answer, { onConflict: 'mock_attempt_id,question_id' })
+  if (error) throw error
 }
 
 async function loadQuestions({ mode, mock, subject, chapter, topic }) {
@@ -108,7 +143,10 @@ async function loadQuestions({ mode, mock, subject, chapter, topic }) {
     if (mock.subject) query = query.eq('subject', mock.subject)
     if (mock.chapter) query = query.eq('chapter', mock.chapter)
     if (mock.topic) query = query.eq('topic', mock.topic)
-    query = query.order('id', { ascending: true }).limit(mock.num_questions || 30)
+    if (shouldFilterMockDifficulty(mock)) {
+      query = query.eq('difficulty', normalizeDifficulty(mock.difficulty))
+    }
+    query = query.order('id', { ascending: true }).limit(getMockQuestionLimit(mock))
   } else if (mode === 'diagnostic') {
     query = query.order('id', { ascending: true }).limit(2000)
   } else {
@@ -178,22 +216,29 @@ export default function Practice() {
       try {
         let mockRow = null
         let attemptRow = null
+        let qs = []
         if (mode === 'mock') {
           mockRow = await loadMockTest(mockId)
           if (!mockRow) throw new Error('Mock test not found.')
-          attemptRow = await loadOrCreateAttempt({
-            mockId, attemptId: attemptIdParam, userId: user.id, totalCount: mockRow.num_questions,
-          })
-          if (attemptRow.status === 'completed') {
+          attemptRow = await loadAttemptById({ attemptId: attemptIdParam, mockId, userId: user.id })
+          if (attemptRow?.status === 'completed') {
             if (!cancelled) {
               setMock(mockRow); setAttempt(attemptRow); setShowSummary(true)
               setLoadState({ loading: false, error: null })
             }
             return
           }
+          qs = await loadQuestions({ mode, mock: mockRow, subject, chapter, topic })
+          if (qs.length === 0) {
+            throw new Error('No questions match this mock test. Try a broader custom test or choose another mock.')
+          }
+          attemptRow = attemptRow
+            ? await syncAttemptTotal(attemptRow, qs.length)
+            : await loadOrCreateAttempt({ mockId, userId: user.id, totalCount: qs.length })
           startedAtRef.current = new Date(attemptRow.started_at).getTime()
+        } else {
+          qs = await loadQuestions({ mode, mock: mockRow, subject, chapter, topic })
         }
-        const qs = await loadQuestions({ mode, mock: mockRow, subject, chapter, topic })
         if (cancelled) return
 
         let resumedAnswers = {}
@@ -362,17 +407,18 @@ export default function Practice() {
     // Persist this answer immediately so a refresh / tab-close can resume from
     // here, and so attempted_at reflects when the work actually happened
     // rather than when the whole mock is submitted.
-    const { error } = await supabase.from('user_attempts').insert({
-      user_id: user.id,
-      mock_attempt_id: attempt.id,
-      question_id: q.id,
-      subject: q.subject, chapter: q.chapter, topic: q.topic,
-      selected_option: selected,
-      is_correct: isCorrect,
-      time_spent_ms: elapsed,
-      attempted_at: attemptedAt,
-    })
-    if (error) {
+    try {
+      await createOrUpdateMockAnswer({
+        user_id: user.id,
+        mock_attempt_id: attempt.id,
+        question_id: q.id,
+        subject: q.subject, chapter: q.chapter, topic: q.topic,
+        selected_option: selected,
+        is_correct: isCorrect,
+        time_spent_ms: elapsed,
+        attempted_at: attemptedAt,
+      })
+    } catch (error) {
       setLoadState({ loading: false, error })
       setSubmitting(false)
       return
@@ -420,7 +466,7 @@ export default function Practice() {
 
       <div className="practice-meta">
         {headerLabel}
-        {q.difficulty && <span style={{ marginLeft: 12, color: 'var(--primary)' }}>· {q.difficulty}</span>}
+        {q.difficulty && <span style={{ marginLeft: 12, color: 'var(--primary)' }}>· {displayDifficulty(q.difficulty)}</span>}
       </div>
 
       <div className="question-card">

@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { supabase } from '../supabase'
 import { useAuth } from '../contexts/AuthContext'
 import MathText from '../components/MathText'
+import { dedupeAttemptsByQuestion } from '../lib/mockContract'
 
 function correctIdentifier(q) {
   const arr = Array.isArray(q.correct_options) ? q.correct_options : []
@@ -43,7 +44,8 @@ export default function TestReview() {
           .order('attempted_at', { ascending: true })
         if (uErr) throw uErr
 
-        const ids = [...new Set((attempts || []).map(a => a.question_id))]
+        const dedupedAttempts = dedupeAttemptsByQuestion(attempts || [])
+        const ids = [...new Set(dedupedAttempts.map(a => a.question_id))]
         let questions = []
         if (ids.length > 0) {
           const { data: qData, error: qErr } = await supabase
@@ -54,7 +56,7 @@ export default function TestReview() {
           questions = qData || []
         }
         const qById = new Map(questions.map(q => [q.id, q]))
-        const items = (attempts || [])
+        const items = dedupedAttempts
           .map(a => ({ attempt: a, question: qById.get(a.question_id) }))
           .filter(x => x.question)
 

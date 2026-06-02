@@ -55,7 +55,7 @@ export default function Login() {
             <span style={{ color: 'var(--primary)', fontStyle: 'italic' }}>actually works.</span>
           </h1>
           <p style={{ color: 'var(--on-sv)', fontSize: 16, maxWidth: 420, lineHeight: 1.6 }}>
-            Practice real PYQs, take mock tests: all in one place. Free forever.
+            Practice real PYQs, build custom tests, and track progress. Free forever.
           </p>
         </div>
       </section>

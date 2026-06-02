@@ -4,18 +4,17 @@ import { supabase } from '../supabase'
 import { useAuth } from '../contexts/AuthContext'
 import { useChapters } from '../hooks/useTaxonomy'
 import { slugToTitle } from '../lib/slug'
+import { MOCK_DIFFICULTIES, displayDifficulty, normalizeDifficulty } from '../lib/mockContract'
 
 const SUBJECTS = ['Physics', 'Chemistry', 'Mathematics']
 const SIZES = [10, 20, 30]
-const DIFFICULTIES = ['Easy', 'Medium', 'Hard']
-
 export default function CustomTest() {
   const navigate = useNavigate()
   const { user } = useAuth()
   const [subject, setSubject] = useState('Physics')
   const [chapter, setChapter] = useState('')
   const [size, setSize] = useState(20)
-  const [difficulty, setDifficulty] = useState('Medium')
+  const [difficulty, setDifficulty] = useState('medium')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState(null)
   const { chapters, loading: chaptersLoading } = useChapters(subject)
@@ -25,6 +24,22 @@ export default function CustomTest() {
   async function handleStart() {
     if (!user) return
     setBusy(true); setError(null)
+    const normalizedDifficulty = normalizeDifficulty(difficulty)
+    let countQuery = supabase
+      .from('jee_mains')
+      .select('id', { count: 'exact', head: true })
+      .eq('subject', subject)
+      .eq('type', 'mcq')
+      .eq('is_out_of_syllabus', false)
+      .eq('difficulty', normalizedDifficulty)
+    if (chapter) countQuery = countQuery.eq('chapter', chapter)
+    const { count, error: countErr } = await countQuery
+    if (countErr) { setError(countErr); setBusy(false); return }
+    if ((count || 0) < size) {
+      setError(new Error(`Only ${count || 0} ${displayDifficulty(normalizedDifficulty)} questions match this selection. Choose a smaller or broader test.`))
+      setBusy(false)
+      return
+    }
     const duration = Math.max(15, Math.round(size * 1.5))
     const title = `Custom · ${subject}${chapter ? ` · ${slugToTitle(chapter)}` : ''} · ${size}q`
     const { data: test, error: tErr } = await supabase
@@ -32,7 +47,7 @@ export default function CustomTest() {
       .insert({
         title, pattern: 'Custom Test',
         num_questions: size, duration_minutes: duration,
-        difficulty, subject, chapter: chapter || null,
+        difficulty: normalizedDifficulty, subject, chapter: chapter || null,
         is_official: false, created_by: user.id,
       })
       .select('id')
@@ -93,14 +108,14 @@ export default function CustomTest() {
         <div className="form-row">
           <label className="text-micro">Difficulty</label>
           <div className="row gap-8">
-            {DIFFICULTIES.map(d => (
+            {MOCK_DIFFICULTIES.map(d => (
               <button
-                key={d}
+                key={d.value}
                 type="button"
-                className={`filter-pill ${difficulty === d ? 'active' : ''}`}
-                onClick={() => setDifficulty(d)}
+                className={`filter-pill ${difficulty === d.value ? 'active' : ''}`}
+                onClick={() => setDifficulty(d.value)}
               >
-                {d}
+                {d.label}
               </button>
             ))}
           </div>

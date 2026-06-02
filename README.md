@@ -1,6 +1,6 @@
 # Prepper
 
-JEE / NEET exam preparation platform. Practice PYQs, take mock tests, track your progress.
+JEE / NEET exam preparation platform. Practice PYQs, build custom tests, track your progress.
 
 ## Stack
 
@@ -45,7 +45,7 @@ Schema lives in `supabase/migrations/`. Tables (all with RLS enabled):
 | `jee_mains`                 | Question bank (read-only for all authenticated users)      |
 | `user_progress`             | Per-user, per-topic aggregates (solved, correct, time)     |
 | `user_attempts`             | Per-question attempt log                                   |
-| `mock_tests`                | Catalog of official + user-created mock tests              |
+| `mock_tests`                | User-created custom mock tests                             |
 | `mock_test_attempts`        | User attempts of mock tests                                |
 | `notification_preferences`  | Per-user email/push notification settings                  |
 

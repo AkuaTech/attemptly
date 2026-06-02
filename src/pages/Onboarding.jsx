@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext'
 
 const features = [
   { icon: 'menu_book', title: 'Real PYQs', desc: 'Practice actual past-year questions from JEE and NEET with step-by-step solutions.' },
-  { icon: 'quiz', title: 'Mock Tests', desc: 'Full-length simulated exams calibrated to real paper patterns and difficulty.' },
+  { icon: 'quiz', title: 'Custom Tests', desc: 'Build focused tests from any subject, chapter, and difficulty in the question bank.' },
   { icon: 'insights', title: 'Performance Tracking', desc: 'See your strengths, weaknesses, accuracy trends, and consistency heatmaps.' },
   { icon: 'functions', title: 'Math Rendering', desc: 'Every equation rendered beautifully with LaTeX, just like your textbooks.' },
 ]
@@ -63,7 +63,7 @@ export default function Onboarding() {
           <span style={{ color: 'var(--primary)', fontStyle: 'italic' }}>that actually works.</span>
         </h1>
         <p style={{ color: 'var(--on-sv)', fontSize: 18, maxWidth: 640, margin: '0 auto 40px', fontWeight: 300, lineHeight: 1.6 }}>
-          Real PYQs, full-length mocks, and detailed analytics: everything you need to crack your exam. No fluff.
+          Real PYQs, custom tests, and detailed analytics: everything you need to crack your exam. No fluff.
         </p>
         <button
           className="submit-btn"
