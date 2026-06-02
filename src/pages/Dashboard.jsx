@@ -61,6 +61,7 @@ function todaysPlan({ inProgressMock, weakTopics, resume }) {
   const items = []
   if (inProgressMock) {
     items.push({
+      kind: 'mock',
       title: inProgressMock.mock_tests?.title || 'Resume Mock Test',
       meta: `${inProgressMock.mock_tests?.duration_minutes || 60} min · ${inProgressMock.mock_tests?.pattern || 'Mock'}`,
       time: 'Now',
@@ -70,6 +71,7 @@ function todaysPlan({ inProgressMock, weakTopics, resume }) {
   }
   for (const w of weakTopics.slice(0, 2)) {
     items.push({
+      kind: 'drill',
       title: `Drill: ${slugToTitle(w.topic)}`,
       meta: `${w.subject} · accuracy ${Math.round(w.accuracy * 100)}%`,
       time: '15 min',
@@ -79,6 +81,7 @@ function todaysPlan({ inProgressMock, weakTopics, resume }) {
   }
   if (resume && items.length < 3) {
     items.push({
+      kind: 'pyq',
       title: `PYQ: ${slugToTitle(resume.topic)}`,
       meta: `${resume.subject} · continue`,
       time: '20 min',
@@ -156,24 +159,23 @@ export default function Dashboard() {
           <WeeklyChart weekly={weekly.length ? weekly : Array.from({ length: 7 }, (_, i) => ({ date: new Date(Date.now() - (6 - i) * 86400000).toISOString(), count: 0 }))} />
         </div>
 
-        <div className="glass-card editorial-card-flush relative overflow-hidden" style={{ minHeight: 300 }}>
-          <div className="absolute-inset-0 chart-bg-image" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&q=80')", opacity: 'var(--hero-opacity)' }} />
-          <div className="absolute-inset-0 chart-overlay" />
-          <div className="absolute-inset-0 flex-col justify-end editorial-card z-10" style={{ padding: 24 }}>
+        <div className="glass-card editorial-card dashboard-resume-card">
+          <div className="dashboard-resume-icon">
+            <span className="material-symbols-outlined">{resume ? 'play_arrow' : 'explore'}</span>
+          </div>
+          <div>
             <span className="badge-resume">{resume ? 'Resume' : 'Get Started'}</span>
-            <h2 className="text-white text-heavy mb-4" style={{ fontFamily: 'var(--fh)', fontSize: 18, lineHeight: 1.2 }}>
+            <h2 className="dashboard-resume-title">
               {resume ? slugToTitle(resume.topic) : 'Pick a subject'}
             </h2>
-            <p className="text-micro text-muted mb-8">
+            <p className="text-sm" style={{ marginTop: 6 }}>
               {resume ? `${resume.subject} · ${slugToTitle(resume.chapter)}` : 'Start with PYQs from any subject'}
             </p>
-            <div style={{ maxWidth: 160 }}>
-              <button className="submit-btn" style={{ padding: '10px 16px' }} onClick={continueResume}>
-                {resume ? 'Continue' : 'Browse'}
-                <span className="material-symbols-outlined" style={{ fontSize: 18 }}>play_arrow</span>
-              </button>
-            </div>
           </div>
+          <button className="submit-btn dashboard-resume-action" onClick={continueResume}>
+            {resume ? 'Continue' : 'Browse'}
+            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>play_arrow</span>
+          </button>
         </div>
       </div>
 
@@ -228,15 +230,21 @@ export default function Dashboard() {
                 <button
                   key={i}
                   onClick={() => s.onClick(navigate)}
-                  className={`relative mb-24 pl-24 schedule-item ${s.primary ? 'active' : ''}`}
-                  style={{ display: 'block', width: '100%', textAlign: 'left', background: 'transparent', border: 0, color: 'inherit', cursor: 'pointer' }}
+                  className={`weakness-row dashboard-plan-row ${s.primary ? 'active' : ''}`}
+                  style={{ width: '100%', textAlign: 'left', cursor: 'pointer', marginBottom: i === plan.length - 1 ? 0 : 12 }}
                 >
-                  {s.primary && <div className="schedule-dot" />}
-                  <div className="row mb-4">
-                    <div className="text-bold flex-1" style={{ fontSize: 12 }}>{s.title}</div>
-                    <div className="text-micro text-muted">{s.time}</div>
+                  <div className="row" style={{ flex: 1, minWidth: 0 }}>
+                    <div className="dashboard-plan-icon">
+                      <span className="material-symbols-outlined">
+                        {s.kind === 'drill' ? 'fitness_center' : s.kind === 'mock' ? 'quiz' : 'menu_book'}
+                      </span>
+                    </div>
+                    <div style={{ minWidth: 0 }}>
+                      <div className="text-bold" style={{ fontSize: 13 }}>{s.title}</div>
+                      <div className="text-micro text-on-sv" style={{ marginTop: 4 }}>{s.meta}</div>
+                    </div>
                   </div>
-                  <div className="text-micro text-on-sv">{s.meta}</div>
+                  <div className="text-micro text-muted">{s.time}</div>
                 </button>
               ))}
             </div>
