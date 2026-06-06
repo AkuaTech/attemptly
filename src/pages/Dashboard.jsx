@@ -41,12 +41,12 @@ function WeeklyChart({ weekly }) {
       <svg width="100%" height="180" viewBox="-10 0 420 100" className="chart-svg overflow-visible">
         <defs>
           <linearGradient id="chartGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="#e7f95c" stopOpacity="0.2" />
-            <stop offset="100%" stopColor="#e7f95c" stopOpacity="0" />
+            <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.2" />
+            <stop offset="100%" stopColor="var(--primary)" stopOpacity="0" />
           </linearGradient>
         </defs>
         <path d={area} fill="url(#chartGrad)" />
-        <path d={path} fill="none" stroke="#e7f95c" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+        <path d={path} fill="none" stroke="var(--primary)" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
       <div className="flex justify-between mt-16 px-8">
         {dayLabels.map((d, i) => (

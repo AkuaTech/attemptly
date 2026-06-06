@@ -38,8 +38,9 @@ export default function Login() {
 
   return (
     <main className="login-wrap">
+      <a href="#login-form" className="sr-only">Skip to content</a>
       <section className="login-left">
-        <div style={{ position: 'absolute', inset: 0, opacity: 0.2, pointerEvents: 'none', background: 'radial-gradient(circle at top left, #e7f95c 0%, transparent 40%)' }} />
+        <div style={{ position: 'absolute', inset: 0, opacity: 0.2, pointerEvents: 'none', background: 'radial-gradient(circle at top left, var(--primary) 0%, transparent 40%)' }} />
         <div style={{ position: 'absolute', bottom: -96, left: -96, width: 384, height: 384, background: 'rgba(231,249,92,0.05)', borderRadius: '50%', filter: 'blur(3rem)' }} />
 
         <div style={{ position: 'relative', zIndex: 1 }}>
@@ -47,7 +48,7 @@ export default function Login() {
             <div style={{ width: 40, height: 40, background: 'var(--primary)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <span className="material-symbols-outlined" style={{ color: 'var(--on-primary)', fontWeight: 700 }}>bolt</span>
             </div>
-            <span style={{ fontFamily: 'var(--fh)', fontWeight: 900, fontSize: 22, letterSpacing: '0.05em', color: '#fff' }}>Prepper</span>
+            <span style={{ fontFamily: 'var(--fh)', fontWeight: 900, fontSize: 22, letterSpacing: '0.05em', color: 'var(--on-surface)' }}>Prepper</span>
           </div>
 
           <h1 style={{ fontFamily: 'var(--fh)', fontWeight: 700, fontSize: 52, lineHeight: 1.05, letterSpacing: '-0.03em', marginBottom: 24 }}>

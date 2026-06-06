@@ -42,17 +42,12 @@ export default function Subjects() {
         </p>
       </header>
 
-      <div className="bento-4">
+      <div className="bento-3">
         {subjects.map(s => <SubjectCard key={s.slug} subject={s} />)}
       </div>
 
-      <section style={{ marginTop: 40, position: 'relative', borderRadius: 12, overflow: 'hidden', height: 200, display: 'flex', alignItems: 'center', border: '1px solid var(--glass-border)' }}>
-        <div style={{ position: 'absolute', inset: 0, background: 'var(--overlay-h)', zIndex: 1 }} />
-        <img
-          src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&q=80"
-          alt=""
-          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', filter: 'grayscale(1)', opacity: 'var(--hero-opacity)' }}
-        />
+      <section style={{ marginTop: 40, position: 'relative', borderRadius: 12, overflow: 'hidden', height: 200, display: 'flex', alignItems: 'center', background: 'linear-gradient(135deg, var(--sc-high), var(--sc-low))' }}>
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(231,249,92,0.04) 1px, transparent 1px)', backgroundSize: '20px 20px', zIndex: 0 }} />
         <div style={{ position: 'relative', zIndex: 2, padding: '0 24px' }}>
           <h4 style={{ fontFamily: 'var(--fh)', fontWeight: 800, fontSize: 20, color: 'var(--primary)', marginBottom: 8, letterSpacing: '-0.01em' }}>Diagnostic Test</h4>
           <p className="text-micro" style={{ maxWidth: 380, textTransform: 'none', letterSpacing: '0', opacity: 0.7 }}>Assess your readiness in 15 minutes. We'll build a custom study plan based on your results.</p>

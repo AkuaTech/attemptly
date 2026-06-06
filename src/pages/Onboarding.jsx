@@ -21,39 +21,30 @@ export default function Onboarding() {
 
   return (
     <div className="onboarding-wrap">
+      <a href="#onboarding-main" className="sr-only">Skip to content</a>
       <div style={{ position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none' }}>
         <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 0% 0%, rgba(231,249,92,0.08) 0%, transparent 40%), radial-gradient(circle at 100% 100%, rgba(231,249,92,0.05) 0%, transparent 40%)' }} />
-        <img
-          src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=1600&q=60"
-          alt=""
-          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.15, filter: 'grayscale(1) brightness(0.5)' }}
-        />
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(231,249,92,0.03) 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
       </div>
 
       <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 32px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{ width: 40, height: 40, background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8 }}>
-            <span className="material-symbols-outlined" style={{ color: '#000', fontWeight: 900 }}>layers</span>
+            <span className="material-symbols-outlined" style={{ color: 'var(--on-primary)', fontWeight: 900 }}>layers</span>
           </div>
-          <span style={{ fontFamily: 'var(--fh)', fontWeight: 900, fontSize: 22, color: '#fff', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Prepper</span>
+          <span style={{ fontFamily: 'var(--fh)', fontWeight: 900, fontSize: 22, color: 'var(--on-surface)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Prepper</span>
         </div>
         <div style={{ display: 'flex', gap: 12 }}>
           <button
             onClick={() => navigate('/login')}
-            style={{ padding: '10px 24px', border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.05)', color: '#fff', borderRadius: 10, fontFamily: 'var(--fh)', fontWeight: 700, fontSize: 13, cursor: 'pointer', backdropFilter: 'blur(12px)', transition: 'background 150ms ease' }}
+            style={{ padding: '10px 24px', border: '1px solid var(--glass-border)', background: 'var(--hover-white)', color: 'var(--on-surface)', borderRadius: 10, fontFamily: 'var(--fh)', fontWeight: 700, fontSize: 13, cursor: 'pointer', backdropFilter: 'blur(12px)', transition: 'background 150ms ease' }}
           >
             Sign In
-          </button>
-          <button
-            onClick={() => navigate('/signup')}
-            style={{ padding: '10px 24px', background: 'var(--primary)', color: 'var(--on-primary)', borderRadius: 10, fontFamily: 'var(--fh)', fontWeight: 700, fontSize: 13, cursor: 'pointer', transition: 'filter 150ms ease' }}
-          >
-            Sign Up Free
           </button>
         </div>
       </div>
 
-      <header style={{ width: '100%', maxWidth: 896, textAlign: 'center', marginBottom: 64, position: 'relative', zIndex: 1 }}>
+      <header id="onboarding-main" style={{ width: '100%', maxWidth: 896, textAlign: 'center', marginBottom: 64, position: 'relative', zIndex: 1 }}>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 32, background: 'var(--sc)', padding: '6px 16px', borderRadius: 9999, border: '1px solid rgba(72,72,71,0.1)' }}>
           <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--primary)', animation: 'pulse 2s infinite' }} />
           <span style={{ fontSize: 11, fontFamily: 'var(--fb)', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--on-sv)' }}>Free forever for Aspirants</span>
@@ -75,9 +66,9 @@ export default function Onboarding() {
         </button>
       </header>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20, width: '100%', maxWidth: 1000, marginBottom: 80, position: 'relative', zIndex: 1 }}>
-        {features.map(f => (
-          <div key={f.title} style={{ background: 'rgba(26,25,25,0.5)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 14, padding: 28, textAlign: 'left' }}>
+      <div className="onboarding-features" style={{ width: '100%', maxWidth: 1000, marginBottom: 80, position: 'relative', zIndex: 1 }}>
+        {features.map((f, i) => (
+          <div key={f.title} style={{ background: 'rgba(26,25,25,0.5)', backdropFilter: 'blur(16px)', border: '1px solid var(--glass-border)', borderRadius: 14, padding: 28, textAlign: 'left', gridColumn: i === 0 ? 'span 2' : undefined }}>
             <div style={{ width: 44, height: 44, borderRadius: 10, background: 'rgba(231,249,92,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
               <span className="material-symbols-outlined" style={{ color: 'var(--primary)', fontSize: 22 }}>{f.icon}</span>
             </div>
@@ -108,7 +99,7 @@ export default function Onboarding() {
       </div>
 
       <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', paddingBottom: 48 }}>
-        <div style={{ width: 96, height: 1, background: 'linear-gradient(90deg, transparent, #e7f95c, transparent)', opacity: 0.4, margin: '0 auto 32px' }} />
+        <div style={{ width: 96, height: 1, background: 'linear-gradient(90deg, transparent, var(--primary), transparent)', opacity: 0.4, margin: '0 auto 32px' }} />
         <p style={{ color: 'var(--muted)', fontSize: 13 }}>Built for aspirants, by aspirants.</p>
       </div>
     </div>

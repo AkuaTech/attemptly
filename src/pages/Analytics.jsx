@@ -32,7 +32,7 @@ function streak(cells) {
 }
 
 function bucketColor(count, peak) {
-  if (count === 0) return '#18181b'
+  if (count === 0) return 'var(--sc-high)'
   const ratio = count / Math.max(1, peak)
   if (ratio > 0.66) return 'var(--primary)'
   if (ratio > 0.33) return 'rgba(231,249,92,0.5)'
@@ -240,7 +240,7 @@ export default function Analytics() {
               <polygon points="100,50 150,100 100,150 50,100" fill="none" stroke="var(--outline-v)" strokeWidth="0.5" />
               <circle cx="100" cy="100" r="2" fill="var(--outline-v)" />
               {overallTotal > 0 && (
-                <polygon points={radarPoints} fill="rgba(231,249,92,0.15)" stroke="#e7f95c" strokeWidth="2" />
+                <polygon points={radarPoints} fill="rgba(231,249,92,0.15)" stroke="var(--primary)" strokeWidth="2" />
               )}
               <text x="100" y="15" fill="var(--on-sv)" fontSize="8" textAnchor="middle" fontFamily="Space Grotesk" fontWeight="700">ACCURACY</text>
               <text x="195" y="103" fill="var(--on-sv)" fontSize="8" textAnchor="start" fontFamily="Space Grotesk" fontWeight="700">SPEED</text>
@@ -319,7 +319,7 @@ export default function Analytics() {
           </div>
           <div className="row" style={{ gap: 8 }}>
             <span className="text-micro">Less</span>
-            {['#18181b', 'rgba(231,249,92,0.2)', 'rgba(231,249,92,0.5)', '#e7f95c'].map(c => (
+            {['var(--sc-high)', 'rgba(231,249,92,0.2)', 'rgba(231,249,92,0.5)', 'var(--primary)'].map(c => (
               <div key={c} style={{ width: 12, height: 12, borderRadius: 2, background: c }} />
             ))}
             <span className="text-micro">More</span>
@@ -342,14 +342,14 @@ export default function Analytics() {
             <svg width="100%" height="100%" viewBox="0 0 1000 200" preserveAspectRatio="none">
               <defs>
                 <linearGradient id="accGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stopColor="#e7f95c" stopOpacity="0.2" />
-                  <stop offset="100%" stopColor="#e7f95c" stopOpacity="0" />
+                  <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.2" />
+                  <stop offset="100%" stopColor="var(--primary)" stopOpacity="0" />
                 </linearGradient>
               </defs>
               {trendPath && (
                 <>
                   <path d={`${trendPath} L1000,200 L0,200 Z`} fill="url(#accGrad)" />
-                  <path d={trendPath} fill="none" stroke="#e7f95c" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d={trendPath} fill="none" stroke="var(--primary)" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
                 </>
               )}
             </svg>
@@ -403,7 +403,7 @@ export default function Analytics() {
             <div key={i} className={`insight-card ${item.type}`}>
               <span className="material-symbols-outlined" style={{ color: item.type === 'primary' ? 'var(--primary)' : 'var(--error)', flexShrink: 0 }}>{item.icon}</span>
               <div>
-                <h4 style={{ fontFamily: 'var(--fh)', fontWeight: 700, color: '#fff', marginBottom: 6 }}>{item.title}</h4>
+                <h4 style={{ fontFamily: 'var(--fh)', fontWeight: 700, color: 'var(--on-surface)', marginBottom: 6 }}>{item.title}</h4>
                 <p className="text-sm" style={{ lineHeight: 1.6 }}>{item.body}</p>
               </div>
             </div>

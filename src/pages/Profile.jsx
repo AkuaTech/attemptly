@@ -228,7 +228,7 @@ export default function Profile() {
             <button className="btn-outline" style={{ padding: '10px 16px', borderRadius: 10 }} onClick={() => setDelOpen(false)}>Cancel</button>
             <button
               className="login-enter-btn"
-              style={{ padding: '10px 20px', margin: 0, width: 'auto', background: 'var(--error)', color: '#fff' }}
+              style={{ padding: '10px 20px', margin: 0, width: 'auto', background: 'var(--error)', color: 'var(--on-primary)' }}
               onClick={handleDelete}
               disabled={delBusy || delConfirm !== 'DELETE'}
             >

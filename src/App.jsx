@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { useAuth } from './contexts/AuthContext'
 import TopNav from './components/TopNav'
@@ -42,6 +42,12 @@ export default function App() {
   )
 }
 
+function ScrollToTop() {
+  const { pathname } = useLocation()
+  useEffect(() => { window.scrollTo(0, 0) }, [pathname])
+  return null
+}
+
 function AppLayout() {
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark')
 
@@ -54,9 +60,11 @@ function AppLayout() {
 
   return (
     <div className="layout">
+      <a href="#main-content" className="sr-only">Skip to content</a>
+      <ScrollToTop />
       <TopNav theme={theme} toggleTheme={toggleTheme} />
       <Sidebar />
-      <div className="main-area">
+      <div className="main-area" id="main-content">
         <Routes>
           <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<Dashboard />} />

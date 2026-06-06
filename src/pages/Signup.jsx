@@ -44,6 +44,7 @@ export default function Signup() {
 
   return (
     <div className="onboarding-wrap">
+      <a href="#signup-form" className="sr-only">Skip to content</a>
       <div style={{ position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none' }}>
         <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 0% 0%, rgba(231,249,92,0.06) 0%, transparent 40%)' }} />
       </div>
@@ -51,14 +52,14 @@ export default function Signup() {
       <div style={{ position: 'fixed', top: 32, left: 32, zIndex: 20 }}>
         <button onClick={() => navigate('/')} style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', background: 'none' }}>
           <div style={{ width: 40, height: 40, background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8 }}>
-            <span className="material-symbols-outlined" style={{ color: '#000', fontWeight: 900 }}>layers</span>
+            <span className="material-symbols-outlined" style={{ color: 'var(--on-primary)', fontWeight: 900 }}>layers</span>
           </div>
-          <span style={{ fontFamily: 'var(--fh)', fontWeight: 900, fontSize: 22, color: '#fff', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Prepper</span>
+          <span style={{ fontFamily: 'var(--fh)', fontWeight: 900, fontSize: 22, color: 'var(--on-surface)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Prepper</span>
         </button>
       </div>
 
       {step === 'form' && (
-        <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: 420 }}>
+        <div id="signup-form" style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: 420 }}>
           <h1 style={{ fontFamily: 'var(--fh)', fontWeight: 900, fontSize: 'clamp(32px, 5vw, 48px)', letterSpacing: '-0.04em', lineHeight: 1, marginBottom: 12, textAlign: 'center' }}>
             Create your <span style={{ color: 'var(--primary)', fontStyle: 'italic' }}>account</span>
           </h1>
