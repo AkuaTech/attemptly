@@ -52,11 +52,11 @@ export default function TopicsList() {
           <Link
             key={t.slug}
             to={`/practice?subject=${encodeURIComponent(subject)}&chapter=${encodeURIComponent(chapter)}&topic=${encodeURIComponent(t.slug)}`}
-            className="glass-card subject-card glass-card-hover"
+            className="glass-card subject-card glass-card-hover curriculum-card"
             style={{ textDecoration: 'none', color: 'inherit' }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 32 }}>
-              <div style={{ padding: 16, background: 'rgba(231,249,92,0.1)', borderRadius: 16, color: 'var(--primary)' }}>
+              <div className="curriculum-icon curriculum-icon-lg">
                 <span className="material-symbols-outlined" style={{ fontSize: 36 }}>label</span>
               </div>
               <span className="text-sm">{String(i + 1).padStart(2, '0')}</span>

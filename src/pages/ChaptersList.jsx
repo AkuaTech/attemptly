@@ -41,11 +41,11 @@ export default function ChaptersList() {
           <Link
             key={c.slug}
             to={`/subjects/${encodeURIComponent(subject)}/${encodeURIComponent(c.slug)}`}
-            className="glass-card subject-card glass-card-hover"
-            style={{ textDecoration: 'none', color: 'inherit', padding: 20 }}
+            className="glass-card subject-card glass-card-hover curriculum-card"
+            style={{ textDecoration: 'none', color: 'inherit' }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
-              <div style={{ padding: 12, background: 'rgba(231,249,92,0.06)', borderRadius: 12, color: 'var(--primary)' }}>
+              <div className="curriculum-icon">
                 <span className="material-symbols-outlined" style={{ fontSize: 24 }}>menu_book</span>
               </div>
               <span className="text-micro">{String(i + 1).padStart(2, '0')}</span>

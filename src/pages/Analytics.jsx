@@ -229,7 +229,7 @@ export default function Analytics() {
       </header>
 
       <div className="bento-2 mb-24">
-        <div className="glass-card editorial-card relative overflow-hidden">
+        <div className="glass-card editorial-card accent-card">
           <div className="row mb-12">
             <h3 className="section-label flex-1">Skill Breakdown</h3>
             <span className="material-symbols-outlined" style={{ color: 'var(--primary)' }}>analytics</span>
@@ -248,23 +248,23 @@ export default function Analytics() {
               <text x="5" y="103" fill="var(--on-sv)" fontSize="8" textAnchor="end" fontFamily="Space Grotesk" fontWeight="700">VOLUME</text>
             </svg>
           </div>
-          <div className="row justify-around border-t border-glass pt-24 mt-24">
-            <div className="text-center">
+          <div className="analytics-metric-grid">
+            <div className="analytics-metric">
               <p className="text-micro">Accuracy</p>
-              <p className="text-primary text-black" style={{ fontFamily: 'var(--fh)', fontSize: 24 }}>
+              <p className="analytics-metric-value text-primary">
                 {overallTotal > 0 ? `${(overallAccuracy * 100).toFixed(1)}` : '—'}
               </p>
             </div>
-            <div className="text-center">
+            <div className="analytics-metric">
               <p className="text-micro">Total Solved</p>
-              <p className="text-white text-black" style={{ fontFamily: 'var(--fh)', fontSize: 24 }}>{overallTotal.toLocaleString()}</p>
+              <p className="analytics-metric-value">{overallTotal.toLocaleString()}</p>
             </div>
           </div>
         </div>
 
-        <div className="glass-card editorial-card">
+        <div className="glass-card editorial-card accent-card analytics-subject-card">
           <h3 className="section-label mb-16">Subject Split</h3>
-          <div className="flex items-center justify-center gap-32 py-16 flex-1">
+          <div className="analytics-subject-body">
             <div className="relative" style={{ width: 160, height: 160 }}>
               <svg className="absolute-inset-0" viewBox="0 0 160 160" style={{ transform: 'rotate(-90deg)' }}>
                 <circle cx="80" cy="80" r="70" fill="transparent" stroke="var(--sc-bright)" strokeWidth="12" />
@@ -311,13 +311,13 @@ export default function Analytics() {
         </div>
       </div>
 
-      <div className="glass-card editorial-card mb-24">
-        <div className="row mb-12">
+      <div className="glass-card editorial-card accent-card mb-24">
+        <div className="analytics-heatmap-head">
           <div className="flex-1">
             <h3 className="section-label">Consistency</h3>
             <p className="text-micro mt-4">{dayStreak} Day Streak</p>
           </div>
-          <div className="row" style={{ gap: 8 }}>
+          <div className="analytics-heatmap-legend">
             <span className="text-micro">Less</span>
             {['var(--sc-high)', 'rgba(231,249,92,0.2)', 'rgba(231,249,92,0.5)', 'var(--primary)'].map(c => (
               <div key={c} style={{ width: 12, height: 12, borderRadius: 2, background: c }} />
@@ -329,7 +329,7 @@ export default function Analytics() {
       </div>
 
       <div className="bento-2">
-        <div className="glass-card editorial-card">
+        <div className="glass-card editorial-card accent-card">
           <div className="row" style={{ marginBottom: 24 }}>
             <h3 className="section-label" style={{ flex: 1 }}>Accuracy Trend</h3>
             <div className="row" style={{ gap: 16 }}>
@@ -369,8 +369,7 @@ export default function Analytics() {
           </div>
         </div>
 
-        <div className="glass-card editorial-card flex-col items-center justify-center text-center relative overflow-hidden" style={{ background: 'linear-gradient(135deg, var(--sc-high), var(--sc-low))' }}>
-          <div className="absolute -top-10 -right-10 w-40 h-40 bg-primary-glow rounded-full blur-3xl" />
+        <div className="glass-card editorial-card accent-card flex-col items-center justify-center text-center">
           <span className="material-symbols-outlined text-primary mb-12" style={{ fontSize: 36 }}>timer</span>
           <p className="text-micro mb-6">Speed</p>
           <div className="row items-baseline gap-8 mb-12">

@@ -87,7 +87,7 @@ export default function Schedule() {
                   style={{ width: '100%', textAlign: 'left', cursor: 'pointer' }}
                 >
                   <div className="row" style={{ flex: 1, minWidth: 0 }}>
-                    <div className="weakness-icon">
+                    <div className={`schedule-plan-icon ${it.kind === 'drill' ? 'drill' : 'resume'}`}>
                       <span className="material-symbols-outlined">{it.kind === 'drill' ? 'fitness_center' : 'play_arrow'}</span>
                     </div>
                     <div style={{ minWidth: 0 }}>
@@ -120,7 +120,7 @@ export default function Schedule() {
               {recentMocks.map(a => (
                 <div key={a.id} className="weakness-row">
                   <div className="row" style={{ flex: 1, minWidth: 0 }}>
-                    <div className="weakness-icon">
+                    <div className={`schedule-mock-icon ${a.status === 'completed' ? 'completed' : 'active'}`}>
                       <span className="material-symbols-outlined">{a.status === 'completed' ? 'task_alt' : 'quiz'}</span>
                     </div>
                     <div style={{ minWidth: 0 }}>

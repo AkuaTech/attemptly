@@ -49,7 +49,7 @@ export default function Signup() {
         <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 0% 0%, rgba(231,249,92,0.06) 0%, transparent 40%)' }} />
       </div>
 
-      <div style={{ position: 'fixed', top: 32, left: 32, zIndex: 20 }}>
+      <div className="auth-brand-link">
         <button onClick={() => navigate('/')} style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', background: 'none' }}>
           <div style={{ width: 40, height: 40, background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8 }}>
             <span className="material-symbols-outlined" style={{ color: 'var(--on-primary)', fontWeight: 900 }}>layers</span>
@@ -114,7 +114,7 @@ export default function Signup() {
 
       {step === 'confirm' && (
         <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: 480, textAlign: 'center' }}>
-          <div style={{ width: 72, height: 72, borderRadius: 16, background: 'rgba(231,249,92,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
+          <div style={{ width: 72, height: 72, borderRadius: 8, background: 'rgba(231,249,92,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
             <span className="material-symbols-outlined" style={{ fontSize: 36, color: 'var(--primary)' }}>mark_email_read</span>
           </div>
           <h1 style={{ fontFamily: 'var(--fh)', fontWeight: 900, fontSize: 36, letterSpacing: '-0.03em', marginBottom: 16 }}>

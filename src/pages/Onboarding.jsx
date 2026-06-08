@@ -27,14 +27,14 @@ export default function Onboarding() {
         <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(231,249,92,0.03) 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
       </div>
 
-      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 32px' }}>
+      <div className="onboarding-nav">
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{ width: 40, height: 40, background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8 }}>
             <span className="material-symbols-outlined" style={{ color: 'var(--on-primary)', fontWeight: 900 }}>layers</span>
           </div>
           <span style={{ fontFamily: 'var(--fh)', fontWeight: 900, fontSize: 22, color: 'var(--on-surface)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Prepper</span>
         </div>
-        <div style={{ display: 'flex', gap: 12 }}>
+        <div className="onboarding-actions">
           <button
             onClick={() => navigate('/login')}
             style={{ padding: '10px 24px', border: '1px solid var(--glass-border)', background: 'var(--hover-white)', color: 'var(--on-surface)', borderRadius: 10, fontFamily: 'var(--fh)', fontWeight: 700, fontSize: 13, cursor: 'pointer', backdropFilter: 'blur(12px)', transition: 'background 150ms ease' }}
@@ -82,7 +82,7 @@ export default function Onboarding() {
         <h2 style={{ fontFamily: 'var(--fh)', fontWeight: 900, fontSize: 32, letterSpacing: '-0.03em', textAlign: 'center', marginBottom: 40 }}>
           Choose your <span style={{ color: 'var(--primary)', fontStyle: 'italic' }}>path</span>
         </h2>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+        <div className="onboarding-path-grid">
           {paths.map(p => (
             <div key={p.num} className="path-card" onClick={() => navigate('/signup')}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 32 }}>

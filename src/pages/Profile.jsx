@@ -85,8 +85,7 @@ export default function Profile() {
       <div className="bento-5">
         <form
           onSubmit={handleSaveProfile}
-          className="glass-card"
-          style={{ padding: 40, borderRadius: 24, border: '0.5px solid rgba(72,72,71,0.15)', background: 'rgba(20,20,20,0.7)', backdropFilter: 'blur(20px)' }}
+          className="glass-card editorial-card accent-card"
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 24, marginBottom: 32 }}>
             <div style={{
@@ -149,8 +148,8 @@ export default function Profile() {
           </div>
         </form>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-          <div className="glass-card" style={{ padding: 32, borderRadius: 24, border: '0.5px solid rgba(72,72,71,0.15)', flex: 1, background: 'rgba(20,20,20,0.7)', backdropFilter: 'blur(20px)' }}>
+        <div className="profile-side">
+          <div className="glass-card editorial-card accent-card profile-settings-card">
             <h3 className="section-title" style={{ marginBottom: 24 }}>Account Settings</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <button
@@ -174,7 +173,7 @@ export default function Profile() {
             </div>
           </div>
 
-          <div className="glass-card" style={{ padding: 32, borderRadius: 24, border: '0.5px solid rgba(255,113,81,0.15)', background: 'rgba(255,113,81,0.02)' }}>
+          <div className="glass-card editorial-card profile-danger-card">
             <h3 className="section-title" style={{ color: 'var(--error)', marginBottom: 8 }}>Danger Zone</h3>
             <p style={{ fontSize: 13, color: 'var(--on-sv)', marginBottom: 24 }}>
               Permanently delete your account and all associated data.

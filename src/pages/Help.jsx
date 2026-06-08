@@ -29,18 +29,18 @@ const FAQS = [
 
 function FaqItem({ q, a, open, onToggle }) {
   return (
-    <div className="glass-card" style={{ borderRadius: 16, padding: 0, overflow: 'hidden', border: '0.5px solid rgba(72,72,71,0.15)' }}>
+    <div className="glass-card faq-card">
       <button
         onClick={onToggle}
-        style={{ width: '100%', padding: '20px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', textAlign: 'left', background: 'transparent' }}
+        className="faq-button"
       >
-        <span style={{ fontFamily: 'var(--fh)', fontWeight: 700, fontSize: 15 }}>{q}</span>
+        <span className="faq-question">{q}</span>
         <span className="material-symbols-outlined" style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 150ms ease' }}>
           expand_more
         </span>
       </button>
       {open && (
-        <div style={{ padding: '0 24px 20px', color: 'var(--on-sv)', fontSize: 14, lineHeight: 1.6 }}>
+        <div className="faq-answer">
           {a}
         </div>
       )}
@@ -74,7 +74,7 @@ export default function Help() {
         ))}
       </div>
 
-      <div className="glass-card editorial-card" style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+      <div className="glass-card editorial-card help-contact-card">
         <span className="material-symbols-outlined" style={{ color: 'var(--primary)', fontSize: 32 }}>support_agent</span>
         <div style={{ flex: 1 }}>
           <h3 className="section-title" style={{ marginBottom: 4 }}>Still stuck?</h3>
