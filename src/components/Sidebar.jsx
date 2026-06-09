@@ -8,6 +8,7 @@ const navItems = [
   { icon: 'insights', label: 'Analysis', path: '/analytics' },
   { icon: 'auto_stories', label: 'Subjects', path: '/subjects' },
   { icon: 'event', label: 'Schedule', path: '/schedule' },
+  { icon: 'note_alt', label: 'Notes', path: '/notes' },
 ]
 
 export default function Sidebar() {

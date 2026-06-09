@@ -20,6 +20,7 @@ import Help from './pages/Help'
 import Practice from './pages/Practice'
 import TestReview from './pages/TestReview'
 import CustomTest from './pages/CustomTest'
+import Notes from './pages/Notes'
 
 export default function App() {
   const { user, loading } = useAuth()
@@ -80,6 +81,7 @@ function AppLayout() {
           <Route path="/practice" element={<Practice />} />
           <Route path="/tests/custom" element={<CustomTest />} />
           <Route path="/tests/:id/review" element={<TestReview />} />
+          <Route path="/notes" element={<Notes />} />
         </Routes>
       </div>
       <BottomNav />
