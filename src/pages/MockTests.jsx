@@ -113,6 +113,19 @@ export default function MockTests() {
       <p className="page-sub">Build focused practice tests from the question bank.</p>
       </header>
 
+      <div className="row mb-16 flex-wrap gap-8">
+        <button className="filter-pill active" style={{ fontSize: 11, padding: '4px 12px' }}>
+          Browse
+        </button>
+        <button
+          className="filter-pill"
+          style={{ fontSize: 11, padding: '4px 12px' }}
+          onClick={() => navigate('/tests/history')}
+        >
+          History
+        </button>
+      </div>
+
       <div className="row mb-24 flex-wrap gap-8">
         {['all', 'upcoming', 'completed'].map(f => (
           <button

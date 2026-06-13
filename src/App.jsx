@@ -19,6 +19,8 @@ import Schedule from './pages/Schedule'
 import Help from './pages/Help'
 import Practice from './pages/Practice'
 import TestReview from './pages/TestReview'
+import TestResult from './pages/TestResult'
+import TestHistory from './pages/TestHistory'
 import CustomTest from './pages/CustomTest'
 import Notes from './pages/Notes'
 
@@ -80,6 +82,8 @@ function AppLayout() {
           <Route path="/help" element={<Help />} />
           <Route path="/practice" element={<Practice />} />
           <Route path="/tests/custom" element={<CustomTest />} />
+          <Route path="/tests/history" element={<TestHistory />} />
+          <Route path="/tests/result/:attemptId" element={<TestResult />} />
           <Route path="/tests/:id/review" element={<TestReview />} />
           <Route path="/notes" element={<Notes />} />
         </Routes>

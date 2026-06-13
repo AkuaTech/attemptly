@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { supabase } from '../supabase'
 import { useAuth } from '../contexts/AuthContext'
 import MathText from '../components/MathText'
@@ -12,6 +12,8 @@ function correctIdentifier(q) {
 
 export default function TestReview() {
   const { id: mockId } = useParams()
+  const [params] = useSearchParams()
+  const attemptIdParam = params.get('attempt')
   const { user } = useAuth()
   const navigate = useNavigate()
   const [data, setData] = useState({ loading: true, error: null, attempt: null, mock: null, items: [] })
@@ -21,15 +23,18 @@ export default function TestReview() {
     let cancelled = false
     async function load() {
       try {
-        const { data: attempt, error: aErr } = await supabase
+        let attemptQuery = supabase
           .from('mock_test_attempts')
           .select('*, mock_tests(*)')
           .eq('user_id', user.id)
-          .eq('mock_test_id', mockId)
-          .eq('status', 'completed')
-          .order('completed_at', { ascending: false })
-          .limit(1)
-          .maybeSingle()
+        attemptQuery = attemptIdParam
+          ? attemptQuery.eq('id', attemptIdParam)
+          : attemptQuery
+              .eq('mock_test_id', mockId)
+              .eq('status', 'completed')
+              .order('completed_at', { ascending: false })
+              .limit(1)
+        const { data: attempt, error: aErr } = await attemptQuery.maybeSingle()
         if (aErr) throw aErr
         if (!attempt) {
           if (!cancelled) setData({ loading: false, error: null, attempt: null, mock: null, items: [] })
@@ -67,7 +72,7 @@ export default function TestReview() {
     }
     load()
     return () => { cancelled = true }
-  }, [user, mockId])
+  }, [user, mockId, attemptIdParam])
 
   if (data.loading) {
     return <div className="practice-wrap"><p className="text-muted text-sm">Loading review…</p></div>

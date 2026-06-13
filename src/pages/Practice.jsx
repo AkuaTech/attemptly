@@ -3,6 +3,8 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '../supabase'
 import { useAuth } from '../contexts/AuthContext'
 import MathText from '../components/MathText'
+import TestAnalyticsView from '../components/TestAnalyticsView'
+import { computeTestAnalytics } from '../lib/testAnalytics'
 import { slugToTitle } from '../lib/slug'
 import {
   dedupeAttemptsByQuestion,
@@ -539,54 +541,42 @@ function useFinishMock({ mock, attempt, questions, setAttempt, setShowSummary, s
 
 function Summary({ mode, mock, attempt, questions, answers, onClose }) {
   const navigate = useNavigate()
-  const isCompletedMock = mode === 'mock' && attempt?.status === 'completed'
-  const total = isCompletedMock
-    ? (attempt.total_count || questions.length)
-    : (questions.length || attempt?.total_count || 0)
-  const correct = isCompletedMock
-    ? (attempt.correct_count || 0)
-    : Object.values(answers).filter(a => a.isCorrect).length
-  const accuracy = total > 0 ? (correct / total) * 100 : 0
-  const totalTimeMs = isCompletedMock
-    ? Number(attempt.time_spent_ms || 0)
-    : Object.values(answers).reduce((s, a) => s + (a.timeSpentMs || 0), 0)
-  const avgSec = total > 0 ? totalTimeMs / total / 1000 : 0
+
+  const items = useMemo(() => Object.values(answers).map(a => ({
+    subject: a.subject,
+    chapter: a.chapter,
+    topic: a.topic,
+    isCorrect: a.isCorrect,
+    timeSpentMs: a.timeSpentMs,
+  })), [answers])
+
+  const analytics = useMemo(() => computeTestAnalytics(items), [items])
+
+  const title = mode === 'mock' ? mock?.title : mode === 'diagnostic' ? 'Diagnostic Complete' : 'Set Complete'
+
+  const actions = mode === 'mock' && mock ? (
+    <>
+      <button className="btn-outline" style={{ padding: '12px 20px', borderRadius: 10 }} onClick={() => navigate(`/tests/${mock.id}/review`)}>
+        Review Answers
+      </button>
+      <button className="submit-btn" style={{ width: 'auto', padding: '12px 24px' }} onClick={onClose}>
+        Done
+      </button>
+    </>
+  ) : (
+    <>
+      <button className="btn-outline" style={{ padding: '12px 20px', borderRadius: 10 }} onClick={() => navigate('/analytics')}>
+        View Analytics
+      </button>
+      <button className="submit-btn" style={{ width: 'auto', padding: '12px 24px' }} onClick={onClose}>
+        Done
+      </button>
+    </>
+  )
 
   return (
     <div className="practice-wrap">
-      <div className="summary-card">
-        <p className="text-micro" style={{ marginBottom: 16 }}>
-          {mode === 'mock' ? mock?.title : mode === 'diagnostic' ? 'Diagnostic Complete' : 'Set Complete'}
-        </p>
-        <div className="summary-score">{accuracy.toFixed(0)}<span style={{ fontSize: 32 }}>%</span></div>
-        <p className="text-sm" style={{ marginTop: 8, color: 'var(--on-sv)' }}>
-          {correct} of {total} correct
-        </p>
-
-        <div className="summary-stats">
-          <div>
-            <div className="summary-stat-label">Correct</div>
-            <div className="summary-stat-value" style={{ color: 'var(--primary)' }}>{correct}</div>
-          </div>
-          <div>
-            <div className="summary-stat-label">Wrong</div>
-            <div className="summary-stat-value" style={{ color: 'var(--error)' }}>{total - correct}</div>
-          </div>
-          <div>
-            <div className="summary-stat-label">Avg / Q</div>
-            <div className="summary-stat-value">{avgSec > 0 ? `${avgSec.toFixed(0)}s` : '—'}</div>
-          </div>
-        </div>
-
-        <div className="row" style={{ justifyContent: 'center', gap: 12, flexWrap: 'wrap' }}>
-          <button className="btn-outline" style={{ padding: '12px 20px', borderRadius: 10 }} onClick={() => navigate('/analytics')}>
-            View Analytics
-          </button>
-          <button className="submit-btn" style={{ width: 'auto', padding: '12px 24px' }} onClick={onClose}>
-            Done
-          </button>
-        </div>
-      </div>
+      <TestAnalyticsView analytics={analytics} title={title} actions={actions} />
     </div>
   )
 }
