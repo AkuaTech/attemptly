@@ -1,54 +1,39 @@
-import katex from 'katex'
-import 'katex/dist/katex.min.css'
+import { useMemo } from 'react'
+import { renderMath } from '../lib/mathRender'
 
-function renderLatex(src) {
-  try {
-    return katex.renderToString(src, {
-      displayMode: false,
-      throwOnError: false,
-      trust: true,
-    })
-  } catch {
-    return src
-  }
-}
+// Question/option/explanation HTML mixes LaTeX ($…$, $$…$$, bare \begin{}…) with
+// real HTML (tables, lists, images). We sanitise the HTML, then render each math
+// span with KaTeX in place — so structure survives and math renders.
 
-const ALLOWED_TAGS = new Set(['br', 'sup', 'sub', 'b', 'i', 'em', 'strong', 'u', 'span', 'img'])
+const ALLOWED_TAGS = new Set([
+  'br', 'hr', 'p', 'div', 'span', 'b', 'i', 'em', 'strong', 'u', 'sup', 'sub', 'small',
+  'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'blockquote', 'pre', 'code',
+  'table', 'thead', 'tbody', 'tfoot', 'tr', 'td', 'th', 'caption', 'colgroup', 'col',
+  'figure', 'figcaption', 'picture', 'source', 'img', 'a',
+])
 
 function sanitizeHtml(raw) {
-  return raw.replace(/<\/?([a-zA-Z][a-zA-Z0-9]*)\b[^>]*>/g, (match, tag) => {
-    return ALLOWED_TAGS.has(tag.toLowerCase()) ? match : ''
-  })
+  return raw
+    // Drop <script>/<style> blocks entirely (tag + contents) — the old sanitizer
+    // stripped the tags but leaked their CSS/JS as visible text.
+    .replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1>/gi, '')
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .replace(/(href|src)\s*=\s*("javascript:[^"]*"|'javascript:[^']*')/gi, '$1="#"')
+    // Keep allowed tags only (drop others but keep their inner text). Strip inline
+    // event handlers *within tags only* — a global on\w+= strip would eat prose
+    // like "one = ..." or "Class = 12".
+    .replace(/<(\/?)([a-zA-Z][a-zA-Z0-9]*)\b([^>]*)>/g, (match, slash, tag, attrs) =>
+      ALLOWED_TAGS.has(tag.toLowerCase())
+        ? '<' + slash + tag + attrs.replace(/\son\w+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, '') + '>'
+        : '')
 }
 
 export default function MathText({ children, className, style }) {
-  if (children === null || children === undefined) return null
+  const html = useMemo(() => {
+    if (children === null || children === undefined) return ''
+    return renderMath(sanitizeHtml(String(children)))
+  }, [children])
 
-  const raw = String(children)
-
-  const parts = []
-  let cursor = 0
-  const re = /\$\$([\s\S]+?)\$\$|\$([\s\S]+?)\$/g
-  let match
-
-  while ((match = re.exec(raw)) !== null) {
-    if (match.index > cursor) {
-      parts.push({ type: 'text', val: raw.slice(cursor, match.index) })
-    }
-    parts.push({ type: 'math', val: match[1] !== undefined ? match[1] : match[2] })
-    cursor = match.index + match[0].length
-  }
-
-  if (cursor < raw.length) {
-    parts.push({ type: 'text', val: raw.slice(cursor) })
-  }
-
-  return (
-    <span className={className} style={style}>
-      {parts.map((p, i) => {
-        const html = p.type === 'text' ? sanitizeHtml(p.val) : renderLatex(p.val)
-        return <span key={i} dangerouslySetInnerHTML={{ __html: html }} />
-      })}
-    </span>
-  )
+  if (!html) return null
+  return <span className={className} style={style} dangerouslySetInnerHTML={{ __html: html }} />
 }

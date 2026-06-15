@@ -1,17 +1,31 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { useAuth } from '../contexts/AuthContext'
 import Modal from '../components/Modal'
 import { useNotes } from '../hooks/useNotes'
-import { supabase } from '../supabase'
+import { useStudyNotes } from '../hooks/useStudyNotes'
+import { renderMath } from '../lib/mathRender'
+
+// Study notes store math as raw LaTeX ($…$ / $$…$$, plus bare \begin{}… blocks)
+// mixed into HTML. renderMath renders the math in place, leaving the surrounding
+// HTML (tables, lists, images) intact.
+function StudyNoteBody({ html }) {
+  const rendered = useMemo(() => renderMath(html), [html])
+  return <div className="study-reader-content" dangerouslySetInnerHTML={{ __html: rendered }} />
+}
 
 const SUBJECTS = ['Physics', 'Chemistry', 'Mathematics']
 const EMPTY_FORM = { id: null, title: '', subject: 'Physics', chapter: '', topic: '' }
-const STORAGE_BUCKET = 'note-attachments'
 const MAX_FILES = 3
 const MAX_SIZE = 3 * 1024 * 1024
+
+// Attachments upload straight to Cloudinary from the browser via an unsigned
+// preset (the API secret must never reach the client). `auto` lets Cloudinary
+// detect images vs raw files (pdf/docx).
+const CLOUDINARY_CLOUD = 'dlfcvfgkm'
+const CLOUDINARY_UPLOAD_PRESET = 'unsigned_preset'
 
 const FILE_ICON = {
   'application/pdf': 'picture_as_pdf',
@@ -21,20 +35,22 @@ const FILE_ICON = {
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'description',
 }
 
-async function uploadFiles(userId, files) {
+async function uploadFiles(files) {
   const results = []
   for (const file of files) {
-    const ext = file.name.split('.').pop()
-    const path = `${userId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
-    const { data, error } = await supabase.storage
-      .from(STORAGE_BUCKET)
-      .upload(path, file, { upsert: false })
-    if (!error) {
-      const { data: { publicUrl } } = supabase.storage
-        .from(STORAGE_BUCKET)
-        .getPublicUrl(data.path)
-      results.push({ name: file.name, url: publicUrl, type: file.type })
+    const form = new FormData()
+    form.append('file', file)
+    form.append('upload_preset', CLOUDINARY_UPLOAD_PRESET)
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/auto/upload`, {
+      method: 'POST',
+      body: form,
+    })
+    if (!res.ok) {
+      const detail = await res.json().catch(() => null)
+      throw new Error(detail?.error?.message || `Couldn't upload "${file.name}".`)
     }
+    const data = await res.json()
+    results.push({ name: file.name, url: data.secure_url, type: file.type })
   }
   return results
 }
@@ -169,8 +185,19 @@ const inputStyle = {
 const labelStyle = { display: 'flex', flexDirection: 'column', gap: 6 }
 const labelText = { fontSize: 11, fontWeight: 700, color: 'var(--on-sv)', letterSpacing: '0.05em' }
 
+// Activate a div[role="button"] card with Enter/Space, matching native buttons.
+function cardKeyDown(onActivate) {
+  return e => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      onActivate()
+    }
+  }
+}
+
 export default function Notes() {
   const { user } = useAuth()
+  const [tab, setTab] = useState('my')
   const [subject, setSubject] = useState('Physics')
   const [modalOpen, setModalOpen] = useState(false)
   const [form, setForm] = useState(EMPTY_FORM)
@@ -179,9 +206,16 @@ export default function Notes() {
   const [pendingFiles, setPendingFiles] = useState([])
   const [attachments, setAttachments] = useState([])
 
+  const [studySubject, setStudySubject] = useState(null)
+  const [studyChapter, setStudyChapter] = useState(null)
+  const [studyTopic, setStudyTopic] = useState(null)
+  const [readingNote, setReadingNote] = useState(null)
+  const [readingLoading, setReadingLoading] = useState(false)
+
   const handleClose = useCallback(() => setModalOpen(false), [])
 
   const { notes, loading, saveNote, removeNote } = useNotes({ userId: user?.id, subject })
+  const { tree, loading: studyLoading, fetchNoteContent } = useStudyNotes({ subject: studySubject })
 
   const editor = useEditor({
     extensions: [StarterKit],
@@ -235,7 +269,14 @@ export default function Notes() {
     if (!form.title.trim()) { setFormError('Title is required.'); return }
     setSaving(true)
     setFormError(null)
-    const uploaded = pendingFiles.length > 0 ? await uploadFiles(user.id, pendingFiles) : []
+    let uploaded = []
+    try {
+      if (pendingFiles.length > 0) uploaded = await uploadFiles(pendingFiles)
+    } catch (e) {
+      setSaving(false)
+      setFormError(e.message || 'Attachment upload failed.')
+      return
+    }
     const { error } = await saveNote({
       id: form.id,
       title: form.title.trim(),
@@ -255,12 +296,31 @@ export default function Notes() {
     await removeNote(id)
   }
 
+  async function openStudyNote(note) {
+    setReadingLoading(true)
+    setReadingNote(note) // show the title immediately while the full content loads
+    window.scrollTo({ top: 0 })
+    try {
+      const full = await fetchNoteContent(note.id)
+      setReadingNote(full)
+    } catch {
+      setReadingNote(null)
+    } finally {
+      setReadingLoading(false)
+    }
+  }
+
   function set(field) {
     return e => setForm(f => ({ ...f, [field]: e.target.value }))
   }
 
   const totalFiles = attachments.length + pendingFiles.length
   const atLimit = totalFiles >= MAX_FILES
+
+  const studySubjects = studySubject ? [studySubject] : Object.keys(tree)
+  const chapters = studySubject ? Object.keys(tree[studySubject] || {}) : []
+  const topics = studySubject && studyChapter ? Object.keys(tree[studySubject]?.[studyChapter] || {}) : []
+  const topicNotes = studySubject && studyChapter && studyTopic ? (tree[studySubject]?.[studyChapter]?.[studyTopic] || []) : []
 
   return (
     <>
@@ -301,6 +361,102 @@ export default function Notes() {
         .note-card-preview p { margin: 0; }
         .note-card-preview strong { font-weight: 700; }
         .note-card-preview em { font-style: italic; }
+        .study-reader-content {
+          font-size: 14px;
+          line-height: 1.8;
+          color: var(--fg);
+        }
+        .study-reader-content h2 { font-size: 18px; font-weight: 700; margin: 16px 0 8px; }
+        .study-reader-content h3 { font-size: 16px; font-weight: 700; margin: 12px 0 6px; }
+        .study-reader-content p { margin: 8px 0; }
+        .study-reader-content ul, .study-reader-content ol { padding-left: 24px; margin: 8px 0; }
+        .study-reader-content li { margin: 4px 0; }
+        .study-reader-content img {
+          max-width: 100%;
+          height: auto;
+          border-radius: 8px;
+          margin: 12px 0;
+          /* Diagrams are black line-art on transparent bg — invisible on the dark
+             theme without a light backing. White padding makes them readable. */
+          background: #fff;
+          padding: 8px;
+          box-sizing: border-box;
+        }
+        .study-reader-content code {
+          background: rgba(255,255,255,0.08);
+          padding: 2px 6px;
+          border-radius: 4px;
+          font-size: 13px;
+          font-family: monospace;
+        }
+        .study-reader-content strong { font-weight: 700; }
+        .study-reader-content em { font-style: italic; }
+        .study-reader-content figure { margin: 12px 0; max-width: 100%; overflow-x: auto; }
+        .study-reader-content figure table { margin: 0; }
+        .study-reader-content table {
+          border-collapse: collapse;
+          width: 100%;
+          margin: 12px 0;
+          font-size: 13px;
+        }
+        .study-reader-content th, .study-reader-content td {
+          border: 1px solid var(--border);
+          padding: 8px 10px;
+          text-align: left;
+          vertical-align: top;
+        }
+        .study-reader-content th { background: var(--surface); font-weight: 700; }
+        .tab-bar {
+          display: flex;
+          gap: 4px;
+          padding: 4px;
+          background: var(--surface);
+          border-radius: 12px;
+          margin-bottom: 24px;
+        }
+        .tab-btn {
+          flex: 1;
+          padding: 10px 16px;
+          border-radius: 8px;
+          font-size: 13px;
+          font-weight: 600;
+          color: var(--on-sv);
+          background: transparent;
+          transition: all 0.2s;
+        }
+        .tab-btn.active {
+          background: var(--primary);
+          color: var(--on-primary);
+        }
+        .breadcrumb {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 13px;
+          color: var(--on-sv);
+          margin-bottom: 16px;
+          flex-wrap: wrap;
+        }
+        .breadcrumb-link {
+          color: var(--primary);
+          cursor: pointer;
+          text-decoration: underline;
+        }
+        .breadcrumb-sep { opacity: 0.5; }
+        .breadcrumb-back {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          padding: 0;
+          background: none;
+          border: none;
+          font: inherit;
+          font-size: 13px;
+          color: var(--on-sv);
+          cursor: pointer;
+        }
+        .breadcrumb-back:hover { color: var(--primary); }
+        .breadcrumb-back .material-symbols-outlined { font-size: 16px; }
       `}</style>
 
       <div className="page-canvas">
@@ -313,44 +469,237 @@ export default function Notes() {
           <p className="page-sub">Capture ideas, formulas, and concepts as you study.</p>
         </header>
 
-        <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 24, flexWrap: 'wrap' }}>
-          <select
-            value={subject}
-            onChange={e => setSubject(e.target.value)}
-            style={{
-              flex: 1, minWidth: 180, padding: '10px 14px', borderRadius: 10,
-              border: '2px solid var(--primary)', background: 'var(--surface)',
-              color: 'var(--fg)', fontSize: 14, fontWeight: 500, cursor: 'pointer',
-            }}
-          >
-            {SUBJECTS.map(s => <option key={s} value={s}>{s}</option>)}
-          </select>
-          <button
-            className="btn-outline"
-            style={{ padding: '10px 18px', borderRadius: 10, fontWeight: 600, whiteSpace: 'nowrap' }}
-            onClick={openNew}
-          >
-            + New Note
+        <div className="tab-bar">
+          <button className={`tab-btn ${tab === 'my' ? 'active' : ''}`} onClick={() => setTab('my')}>
+            My Notes
+          </button>
+          <button className={`tab-btn ${tab === 'study' ? 'active' : ''}`} onClick={() => setTab('study')}>
+            Study Notes
           </button>
         </div>
 
-        <div className="glass-card editorial-card" style={{ padding: '16px 20px', marginBottom: 20 }}>
-          <p style={{ fontWeight: 600, margin: 0, marginBottom: (!loading && notes.length === 0) ? 8 : 0 }}>
-            {loading ? 'Loading…' : `${notes.length} ${notes.length === 1 ? 'Note' : 'Notes'}`}
-          </p>
-          {!loading && notes.length === 0 && (
-            <p className="text-sm text-muted" style={{ margin: 0 }}>
-              No notes yet. Hit "New Note" to get started.
-            </p>
-          )}
-        </div>
+        {tab === 'my' && (
+          <>
+            <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 24, flexWrap: 'wrap' }}>
+              <select
+                value={subject}
+                onChange={e => setSubject(e.target.value)}
+                style={{
+                  flex: 1, minWidth: 180, padding: '10px 14px', borderRadius: 10,
+                  border: '2px solid var(--primary)', background: 'var(--surface)',
+                  color: 'var(--fg)', fontSize: 14, fontWeight: 500, cursor: 'pointer',
+                }}
+              >
+                {SUBJECTS.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
+              <button
+                className="btn-outline"
+                style={{ padding: '10px 18px', borderRadius: 10, fontWeight: 600, whiteSpace: 'nowrap' }}
+                onClick={openNew}
+              >
+                + New Note
+              </button>
+            </div>
 
-        {!loading && notes.length > 0 && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {notes.map(note => (
-              <NoteCard key={note.id} note={note} onEdit={openEdit} onDelete={handleDelete} />
-            ))}
-          </div>
+            <div className="glass-card editorial-card" style={{ padding: '16px 20px', marginBottom: 20 }}>
+              <p style={{ fontWeight: 600, margin: 0, marginBottom: (!loading && notes.length === 0) ? 8 : 0 }}>
+                {loading ? 'Loading…' : `${notes.length} ${notes.length === 1 ? 'Note' : 'Notes'}`}
+              </p>
+              {!loading && notes.length === 0 && (
+                <p className="text-sm text-muted" style={{ margin: 0 }}>
+                  No notes yet. Hit "New Note" to get started.
+                </p>
+              )}
+            </div>
+
+            {!loading && notes.length > 0 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {notes.map(note => (
+                  <NoteCard key={note.id} note={note} onEdit={openEdit} onDelete={handleDelete} />
+                ))}
+              </div>
+            )}
+          </>
+        )}
+
+        {tab === 'study' && (
+          <>
+            {studySubject && (
+              <div className="breadcrumb">
+                <button
+                  type="button"
+                  className="breadcrumb-back"
+                  onClick={() => {
+                    if (readingNote) setReadingNote(null)
+                    else if (studyTopic) setStudyTopic(null)
+                    else if (studyChapter) setStudyChapter(null)
+                    else setStudySubject(null)
+                  }}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: 16 }}>arrow_back</span>
+                  Back
+                </button>
+                <span className="breadcrumb-sep">/</span>
+                {studyChapter ? (
+                  <span className="breadcrumb-link" onClick={() => { setStudyChapter(null); setStudyTopic(null); setReadingNote(null) }}>{studySubject}</span>
+                ) : (
+                  <span>{studySubject}</span>
+                )}
+                {studyChapter && (
+                  <>
+                    <span className="breadcrumb-sep">/</span>
+                    {studyTopic ? (
+                      <span className="breadcrumb-link" onClick={() => { setStudyTopic(null); setReadingNote(null) }}>{studyChapter}</span>
+                    ) : (
+                      <span>{studyChapter}</span>
+                    )}
+                  </>
+                )}
+                {studyTopic && (
+                  <>
+                    <span className="breadcrumb-sep">/</span>
+                    {readingNote ? (
+                      <span className="breadcrumb-link" onClick={() => setReadingNote(null)}>{studyTopic}</span>
+                    ) : (
+                      <span>{studyTopic}</span>
+                    )}
+                  </>
+                )}
+                {readingNote && (
+                  <>
+                    <span className="breadcrumb-sep">/</span>
+                    <span>{readingNote.title || 'Loading…'}</span>
+                  </>
+                )}
+              </div>
+            )}
+
+            {studyLoading && (
+              <div className="glass-card editorial-card" style={{ padding: '16px 20px' }}>
+                <p style={{ fontWeight: 600, margin: 0 }}>Loading…</p>
+              </div>
+            )}
+
+            {!studyLoading && !studySubject && (
+              <div className="bento-3">
+                {studySubjects.map(s => (
+                  <div
+                    key={s}
+                    role="button"
+                    tabIndex={0}
+                    className="glass-card subject-card glass-card-hover accent-card"
+                    style={{ textAlign: 'left', cursor: 'pointer' }}
+                    onClick={() => setStudySubject(s)}
+                    onKeyDown={cardKeyDown(() => setStudySubject(s))}
+                  >
+                    <div className="curriculum-icon">
+                      <span className="material-symbols-outlined">
+                        {s === 'Physics' ? 'bolt' : s === 'Chemistry' ? 'science' : 'functions'}
+                      </span>
+                    </div>
+                    <h3>{s}</h3>
+                    <p>{Object.keys(tree[s] || {}).length} chapters</p>
+                    <button type="button" tabIndex={-1} className="subject-enter-btn">Browse</button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {!studyLoading && studySubject && !studyChapter && (
+              <div className="bento-4">
+                {chapters.map((ch, i) => (
+                  <div
+                    key={ch}
+                    role="button"
+                    tabIndex={0}
+                    className="glass-card subject-card glass-card-hover curriculum-card"
+                    style={{ textAlign: 'left', cursor: 'pointer' }}
+                    onClick={() => setStudyChapter(ch)}
+                    onKeyDown={cardKeyDown(() => setStudyChapter(ch))}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
+                      <div className="curriculum-icon">
+                        <span className="material-symbols-outlined" style={{ fontSize: 24 }}>menu_book</span>
+                      </div>
+                      <span className="text-micro">{String(i + 1).padStart(2, '0')}</span>
+                    </div>
+                    <h3 style={{ fontSize: 16, marginBottom: 8 }}>{ch}</h3>
+                    <p className="text-micro" style={{ opacity: 0.6 }}>
+                      {Object.keys(tree[studySubject]?.[ch] || {}).length} topics
+                    </p>
+                    <div style={{ marginTop: 'auto' }}>
+                      <button type="button" tabIndex={-1} className="subject-enter-btn" style={{ padding: 10, fontSize: 11 }}>View</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {!studyLoading && studySubject && studyChapter && !studyTopic && (
+              <div className="bento-4">
+                {topics.map((t, i) => (
+                  <div
+                    key={t}
+                    role="button"
+                    tabIndex={0}
+                    className="glass-card subject-card glass-card-hover curriculum-card"
+                    style={{ textAlign: 'left', cursor: 'pointer' }}
+                    onClick={() => setStudyTopic(t)}
+                    onKeyDown={cardKeyDown(() => setStudyTopic(t))}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 32 }}>
+                      <div className="curriculum-icon curriculum-icon-lg">
+                        <span className="material-symbols-outlined" style={{ fontSize: 36 }}>label</span>
+                      </div>
+                      <span className="text-sm">{String(i + 1).padStart(2, '0')}</span>
+                    </div>
+                    <h3>{t}</h3>
+                    <p>{(tree[studySubject]?.[studyChapter]?.[t] || []).length} notes</p>
+                    <div style={{ marginTop: 'auto' }}>
+                      <button type="button" tabIndex={-1} className="subject-enter-btn">Read</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {!studyLoading && studySubject && studyChapter && studyTopic && !readingNote && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {topicNotes.map(note => (
+                  <button
+                    key={note.id}
+                    className="glass-card"
+                    style={{ padding: '16px 20px', textAlign: 'left', cursor: 'pointer' }}
+                    onClick={() => openStudyNote(note)}
+                  >
+                    <h3 style={{ margin: 0, fontSize: 15, fontWeight: 600, lineHeight: 1.4, marginBottom: 4 }}>
+                      {note.title}
+                    </h3>
+                    <p className="text-sm text-muted" style={{ margin: 0 }}>
+                      {note.chapter} · {note.topic}
+                    </p>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {readingNote && (
+              <article className="glass-card" style={{ padding: '28px 32px' }}>
+                {readingLoading ? (
+                  <p style={{ color: 'var(--on-sv)', fontSize: 14, margin: 0 }}>Loading content…</p>
+                ) : readingNote.content ? (
+                  <>
+                    <h2 style={{ marginTop: 0, marginBottom: 16, fontSize: 22, fontWeight: 700, lineHeight: 1.3 }}>
+                      {readingNote.title}
+                    </h2>
+                    <StudyNoteBody html={readingNote.content} />
+                  </>
+                ) : (
+                  <p style={{ color: 'var(--on-sv)', fontSize: 14, margin: 0 }}>No content available.</p>
+                )}
+              </article>
+            )}
+          </>
         )}
 
         <Modal
