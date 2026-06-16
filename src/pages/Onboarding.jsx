@@ -1,6 +1,7 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
+import { supabase } from '../supabase'
 
 const features = [
   { icon: 'menu_book', title: 'Real PYQs', desc: 'Every question is pulled from an actual previous-year paper, with a fully worked solution. No filler, no AI-invented problems.', size: 'xl' },
@@ -20,12 +21,11 @@ const steps = [
   { step: '04', title: 'Drill weak areas', desc: 'Auto-built practice from your lowest-scoring topics.' },
 ]
 
-const stats = [
-  { value: '2,400+', label: 'PYQs' },
-  { value: '3', label: 'Subjects' },
-  { value: '100%', label: 'Free' },
-  { value: '0', label: 'Ads' },
-]
+function formatPyqCount(n) {
+  if (!n) return '—'
+  const floored = Math.floor(n / 100) * 100
+  return floored.toLocaleString() + '+'
+}
 
 const subjects = [
   { icon: 'rocket_launch', label: 'Physics' },
@@ -70,6 +70,26 @@ export default function Onboarding() {
   const navigate = useNavigate()
   const { user } = useAuth()
   const ref = useReveal()
+  const [liveCounts, setLiveCounts] = useState({ pyqs: null, subjects: null })
+
+  useEffect(() => {
+    async function fetchCounts() {
+      const [{ count: pyqCount }, { data: subjectRows }] = await Promise.all([
+        supabase.from('jee_mains').select('*', { count: 'exact', head: true }),
+        supabase.from('jee_mains').select('subject').limit(100),
+      ])
+      const subjectCount = subjectRows ? new Set(subjectRows.map(r => r.subject)).size : null
+      setLiveCounts({ pyqs: pyqCount, subjects: subjectCount })
+    }
+    fetchCounts()
+  }, [])
+
+  const displayStats = [
+    { value: liveCounts.pyqs !== null ? formatPyqCount(liveCounts.pyqs) : '—', label: 'PYQs' },
+    { value: liveCounts.subjects !== null ? String(liveCounts.subjects) : '—', label: 'Subjects' },
+    { value: '100%', label: 'Free' },
+    { value: '0', label: 'Ads' },
+  ]
 
   if (user) return <Navigate to="/dashboard" replace />
 
@@ -117,14 +137,6 @@ export default function Onboarding() {
                 I have an account
               </button>
             </div>
-            <ul className="lp-hero-stats" data-reveal>
-              {stats.map(s => (
-                <li key={s.label}>
-                  <span className="lp-hero-stat-value">{s.value}</span>
-                  <span className="lp-hero-stat-label">{s.label}</span>
-                </li>
-              ))}
-            </ul>
           </div>
 
           <div className="lp-hero-art" aria-hidden="true">
