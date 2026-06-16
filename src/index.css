@@ -925,6 +925,10 @@ h1.page-title {
 
 .auth-brand-link { position: fixed; top: 32px; left: 32px; z-index: 20; }
 
+@media (min-width: 900px) and (max-width: 1100px) {
+  .lp-hero-art > .lp-glyph:nth-child(3),
+  .lp-hero-art > .lp-glyph:nth-child(6) { display: none; }
+}
 @media (max-width: 900px) {
   .lp-hero { grid-template-columns: 1fr; min-height: 0; padding-top: clamp(96px, 16vh, 140px); }
   .lp-hero-art { display: none; }
