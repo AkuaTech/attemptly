@@ -1,107 +1,240 @@
+import { useEffect, useRef } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 
 const features = [
-  { icon: 'menu_book', title: 'Real PYQs', desc: 'Practice actual past-year questions from JEE and NEET with step-by-step solutions.' },
-  { icon: 'quiz', title: 'Custom Tests', desc: 'Build focused tests from any subject, chapter, and difficulty in the question bank.' },
-  { icon: 'insights', title: 'Performance Tracking', desc: 'See your strengths, weaknesses, accuracy trends, and consistency heatmaps.' },
-  { icon: 'functions', title: 'Math Rendering', desc: 'Every equation rendered beautifully with LaTeX, just like your textbooks.' },
+  { icon: 'menu_book', title: 'Real PYQs', desc: 'Every question is pulled from an actual previous-year paper, with a fully worked solution. No filler, no AI-invented problems.', size: 'xl' },
+  { icon: 'insights', title: 'Deep Analytics', desc: 'Accuracy trends, a consistency heatmap, subject split and speed tracking, so you always know what to fix next.', size: 'wide' },
+  { icon: 'quiz', title: 'Custom Mock Tests', desc: 'Pick subject, chapter, difficulty and length. The test builds itself.' },
+  { icon: 'psychology', title: 'Diagnostic Test', desc: 'A 15-minute cross-subject check that maps your starting point.' },
+  { icon: 'functions', title: 'LaTeX Rendering', desc: 'Crisp KaTeX equations. Never a blurry screenshot.' },
+  { icon: 'note_alt', title: 'Study Notes', desc: 'Rich-text notes with attachments, tagged by chapter.' },
+  { icon: 'event', title: 'Daily Schedule', desc: 'A plan generated from your weak topics and resume queue.' },
+  { icon: 'replay', title: 'Test Review', desc: 'Replay any test question-by-question with explanations.' },
 ]
 
-const paths = [
-  { num: '01', icon: 'architecture', label: 'JEE Main & Advanced', desc: 'Physics, Mathematics, and Chemistry for engineering entrance exams.' },
-  { num: '02', icon: 'science', label: 'NEET Medical', desc: 'Biology, Chemistry, and Physics for medical entrance exams.' },
+const steps = [
+  { step: '01', title: 'Pick a subject', desc: 'Physics, Chemistry, or Mathematics. Start anywhere.' },
+  { step: '02', title: 'Solve PYQs', desc: 'Real exam questions, instant feedback, worked solutions.' },
+  { step: '03', title: 'Track progress', desc: 'Accuracy, speed and weak topics at a glance.' },
+  { step: '04', title: 'Drill weak areas', desc: 'Auto-built practice from your lowest-scoring topics.' },
 ]
+
+const stats = [
+  { value: '2,400+', label: 'PYQs' },
+  { value: '3', label: 'Subjects' },
+  { value: '100%', label: 'Free' },
+  { value: '0', label: 'Ads' },
+]
+
+const subjects = [
+  { icon: 'rocket_launch', label: 'Physics' },
+  { icon: 'science', label: 'Chemistry' },
+  { icon: 'functions', label: 'Mathematics' },
+]
+
+const glyphs = [
+  { ch: '∫', top: '12%', left: '8%', size: 150 },
+  { ch: 'Σ', top: '52%', left: '60%', size: 190 },
+  { ch: 'π', top: '6%', left: '68%', size: 120 },
+  { ch: '√', top: '64%', left: '14%', size: 130 },
+  { ch: 'Δ', top: '34%', left: '36%', size: 110 },
+]
+
+function useReveal() {
+  const ref = useRef(null)
+  useEffect(() => {
+    const root = ref.current
+    if (!root) return
+    const targets = root.querySelectorAll('[data-reveal]')
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (reduce || !('IntersectionObserver' in window)) {
+      targets.forEach(t => t.classList.add('is-revealed'))
+      return
+    }
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('is-revealed')
+          io.unobserve(e.target)
+        }
+      })
+    }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' })
+    targets.forEach(t => io.observe(t))
+    return () => io.disconnect()
+  }, [])
+  return ref
+}
 
 export default function Onboarding() {
   const navigate = useNavigate()
   const { user } = useAuth()
+  const ref = useReveal()
 
   if (user) return <Navigate to="/dashboard" replace />
 
   return (
-    <div className="onboarding-wrap">
-      <a href="#onboarding-main" className="sr-only">Skip to content</a>
-      <div style={{ position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none' }}>
-        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 0% 0%, rgba(231,249,92,0.08) 0%, transparent 40%), radial-gradient(circle at 100% 100%, rgba(231,249,92,0.05) 0%, transparent 40%)' }} />
-        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(231,249,92,0.03) 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
-      </div>
+    <div className="lp" ref={ref}>
+      <a href="#lp-main" className="sr-only">Skip to content</a>
+      <div className="lp-atmos" aria-hidden="true" />
 
-      <div className="onboarding-nav">
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ width: 40, height: 40, background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8 }}>
-            <span className="material-symbols-outlined" style={{ color: 'var(--on-primary)', fontWeight: 900 }}>layers</span>
-          </div>
-          <span style={{ fontFamily: 'var(--fh)', fontWeight: 900, fontSize: 22, color: 'var(--on-surface)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Prepper</span>
-        </div>
-        <div className="onboarding-actions">
-          <button
-            onClick={() => navigate('/login')}
-            style={{ padding: '10px 24px', border: '1px solid var(--glass-border)', background: 'var(--hover-white)', color: 'var(--on-surface)', borderRadius: 10, fontFamily: 'var(--fh)', fontWeight: 700, fontSize: 13, cursor: 'pointer', backdropFilter: 'blur(12px)', transition: 'background 150ms ease' }}
-          >
-            Sign In
-          </button>
-        </div>
-      </div>
-
-      <header id="onboarding-main" style={{ width: '100%', maxWidth: 896, textAlign: 'center', marginBottom: 64, position: 'relative', zIndex: 1 }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 32, background: 'var(--sc)', padding: '6px 16px', borderRadius: 9999, border: '1px solid rgba(72,72,71,0.1)' }}>
-          <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--primary)', animation: 'pulse 2s infinite' }} />
-          <span style={{ fontSize: 11, fontFamily: 'var(--fb)', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--on-sv)' }}>Free forever for Aspirants</span>
-        </div>
-        <h1 style={{ fontFamily: 'var(--fh)', fontWeight: 900, fontSize: 'clamp(40px, 7vw, 72px)', letterSpacing: '-0.04em', lineHeight: 0.95, marginBottom: 24 }}>
-          JEE & NEET prep <br />
-          <span style={{ color: 'var(--primary)', fontStyle: 'italic' }}>that actually works.</span>
-        </h1>
-        <p style={{ color: 'var(--on-sv)', fontSize: 18, maxWidth: 640, margin: '0 auto 40px', fontWeight: 300, lineHeight: 1.6 }}>
-          Real PYQs, custom tests, and detailed analytics: everything you need to crack your exam. No fluff.
-        </p>
-        <button
-          className="submit-btn"
-          style={{ width: 'auto', padding: '16px 48px', display: 'inline-flex', alignItems: 'center', gap: 8, letterSpacing: '0.08em', fontSize: 15 }}
-          onClick={() => navigate('/signup')}
-        >
-          Get Started
-          <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_forward</span>
-        </button>
-      </header>
-
-      <div className="onboarding-features" style={{ width: '100%', maxWidth: 1000, marginBottom: 80, position: 'relative', zIndex: 1 }}>
-        {features.map((f, i) => (
-          <div key={f.title} style={{ background: 'rgba(26,25,25,0.5)', backdropFilter: 'blur(16px)', border: '1px solid var(--glass-border)', borderRadius: 14, padding: 28, textAlign: 'left', gridColumn: i === 0 ? 'span 2' : undefined }}>
-            <div style={{ width: 44, height: 44, borderRadius: 10, background: 'rgba(231,249,92,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
-              <span className="material-symbols-outlined" style={{ color: 'var(--primary)', fontSize: 22 }}>{f.icon}</span>
+      <nav className="lp-nav">
+        <div className="lp-nav-inner">
+          <div className="lp-brand">
+            <div className="lp-brand-mark">
+              <span className="material-symbols-outlined">layers</span>
             </div>
-            <h3 style={{ fontFamily: 'var(--fh)', fontWeight: 700, fontSize: 15, marginBottom: 8 }}>{f.title}</h3>
-            <p style={{ color: 'var(--on-sv)', fontSize: 13, lineHeight: 1.6 }}>{f.desc}</p>
+            <span className="lp-brand-text">Prepper</span>
           </div>
-        ))}
-      </div>
+          <div className="lp-nav-actions">
+            <a className="lp-nav-link" href="https://github.com/akuatech/prepper" target="_blank" rel="noopener noreferrer">GitHub</a>
+            <button className="lp-nav-signin" onClick={() => navigate('/login')}>Sign In</button>
+          </div>
+        </div>
+      </nav>
 
-      <div style={{ width: '100%', maxWidth: 1000, position: 'relative', zIndex: 1, marginBottom: 64 }}>
-        <h2 style={{ fontFamily: 'var(--fh)', fontWeight: 900, fontSize: 32, letterSpacing: '-0.03em', textAlign: 'center', marginBottom: 40 }}>
-          Choose your <span style={{ color: 'var(--primary)', fontStyle: 'italic' }}>path</span>
-        </h2>
-        <div className="onboarding-path-grid">
-          {paths.map(p => (
-            <div key={p.num} className="path-card" onClick={() => navigate('/signup')}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 32 }}>
-                <div className="path-icon-box">
-                  <span className="material-symbols-outlined" style={{ fontSize: 36, color: 'var(--primary)' }}>{p.icon}</span>
+      <main id="lp-main" className="lp-shell">
+        <header className="lp-hero">
+          <div className="lp-hero-copy">
+            <div className="lp-eyebrow" data-reveal>
+              <span className="lp-eyebrow-dot" />
+              JEE Main &amp; Advanced · Prep Platform
+            </div>
+            <h1 className="lp-title" data-reveal>
+              Stop guessing.
+              <span className="lp-title-accent">Start solving.</span>
+            </h1>
+            <p className="lp-sub" data-reveal>
+              Real previous-year questions, custom mock tests, and analytics that
+              tell you exactly what to fix. One focused platform, zero noise.
+            </p>
+            <div className="lp-hero-cta" data-reveal>
+              <button className="lp-btn-primary" onClick={() => navigate('/signup')}>
+                Get Started
+                <span className="material-symbols-outlined">arrow_forward</span>
+              </button>
+              <button className="lp-btn-ghost" onClick={() => navigate('/login')}>
+                I have an account
+              </button>
+            </div>
+            <ul className="lp-hero-stats" data-reveal>
+              {stats.map(s => (
+                <li key={s.label}>
+                  <span className="lp-hero-stat-value">{s.value}</span>
+                  <span className="lp-hero-stat-label">{s.label}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="lp-hero-art" aria-hidden="true">
+            <div className="lp-hero-ring">
+              <span className="lp-hero-ring-num">92%</span>
+              <span className="lp-hero-ring-label">accuracy</span>
+            </div>
+            {glyphs.map((g, i) => (
+              <span
+                key={i}
+                className="lp-glyph"
+                style={{ top: g.top, left: g.left, fontSize: g.size, animationDelay: `${i * 0.4}s` }}
+              >
+                {g.ch}
+              </span>
+            ))}
+          </div>
+        </header>
+
+        <section className="lp-section">
+          <div className="lp-section-head" data-reveal>
+            <span className="lp-kicker">01 · Features</span>
+            <h2 className="lp-section-title">Everything you need. Nothing you don't.</h2>
+          </div>
+          <div className="lp-bento">
+            {features.map((f, i) => (
+              <article
+                key={f.title}
+                className={`lp-feat lp-feat-${f.size || 'sm'}`}
+                data-reveal
+                style={{ transitionDelay: `${Math.min(i, 6) * 60}ms` }}
+              >
+                <div className="lp-feat-icon">
+                  <span className="material-symbols-outlined">{f.icon}</span>
                 </div>
-                <span className="path-num">{p.num}</span>
-              </div>
-              <h3>{p.label}</h3>
-              <p>{p.desc}</p>
-            </div>
-          ))}
-        </div>
-      </div>
+                <div className="lp-feat-body">
+                  <h3>{f.title}</h3>
+                  <p>{f.desc}</p>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
 
-      <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', paddingBottom: 48 }}>
-        <div style={{ width: 96, height: 1, background: 'linear-gradient(90deg, transparent, var(--primary), transparent)', opacity: 0.4, margin: '0 auto 32px' }} />
-        <p style={{ color: 'var(--muted)', fontSize: 13 }}>Built for aspirants, by aspirants.</p>
-      </div>
+        <section className="lp-section">
+          <div className="lp-section-head" data-reveal>
+            <span className="lp-kicker">02 · Workflow</span>
+            <h2 className="lp-section-title">How it works</h2>
+          </div>
+          <ol className="lp-steps">
+            <div className="lp-steps-line" aria-hidden="true" />
+            {steps.map((s, i) => (
+              <li key={s.step} className="lp-step" data-reveal style={{ transitionDelay: `${i * 80}ms` }}>
+                <div className="lp-step-node">{s.step}</div>
+                <h3>{s.title}</h3>
+                <p>{s.desc}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <section className="lp-section">
+          <div className="lp-builtfor" data-reveal>
+            <div className="lp-builtfor-copy">
+              <span className="lp-kicker">03 · Coverage</span>
+              <h2 className="lp-section-title">Built for JEE.</h2>
+              <p className="lp-builtfor-text">
+                Full Physics, Chemistry and Mathematics coverage for JEE Main &amp; Advanced.
+                Every chapter, mapped to the real syllabus.
+              </p>
+              <span className="lp-soon">More exams coming soon</span>
+            </div>
+            <div className="lp-subjects">
+              {subjects.map(s => (
+                <div key={s.label} className="lp-subject">
+                  <span className="material-symbols-outlined">{s.icon}</span>
+                  <span className="lp-subject-label">{s.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="lp-section">
+          <div className="lp-final" data-reveal>
+            <div className="lp-final-glow" aria-hidden="true" />
+            <h2 className="lp-final-title">Ready to start solving?</h2>
+            <p className="lp-final-sub">Free account. No credit card, no ads, no premium tier, ever.</p>
+            <button className="lp-btn-primary lp-btn-lg" onClick={() => navigate('/signup')}>
+              Create free account
+              <span className="material-symbols-outlined">arrow_forward</span>
+            </button>
+          </div>
+        </section>
+
+        <footer className="lp-footer">
+          <div className="lp-brand">
+            <div className="lp-brand-mark lp-brand-mark-sm">
+              <span className="material-symbols-outlined">layers</span>
+            </div>
+            <span className="lp-brand-text lp-brand-text-sm">Prepper</span>
+          </div>
+          <div className="lp-footer-links">
+            <a href="https://akuatech.github.io" target="_blank" rel="noopener noreferrer">Made by Akuatech</a>
+            <span className="lp-footer-sep">·</span>
+            <a href="https://github.com/akuatech/prepper" target="_blank" rel="noopener noreferrer">GitHub</a>
+          </div>
+          <p className="lp-footer-copy">Open source · Free forever · No tracking</p>
+        </footer>
+      </main>
     </div>
   )
 }
