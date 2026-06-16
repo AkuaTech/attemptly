@@ -39,6 +39,8 @@ html { scroll-behavior: smooth; }
   --line-2:          rgba(255,255,255,0.06);
   --hairline-strong: rgba(255,255,255,0.1);
   --fill-faint:      rgba(255,255,255,0.04);
+  --primary-faint:   rgba(231,249,92,0.15);
+  --primary-mid:     rgba(231,249,92,0.4);
 }
 
 [data-theme='light'] {
@@ -75,10 +77,12 @@ html { scroll-behavior: smooth; }
   --line-2:          rgba(16,24,40,0.12);
   --hairline-strong: rgba(16,24,40,0.18);
   --fill-faint:      rgba(16,24,40,0.05);
+  --primary-faint:   rgba(138,156,0,0.15);
+  --primary-mid:     rgba(138,156,0,0.4);
   --sc-lowest:    #f3f4f7;
 }
 
-html, body { height: 100%; background: var(--bg); color: var(--on-surface); font-family: var(--fb); font-size: 14px; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+html, body { background: var(--bg); color: var(--on-surface); font-family: var(--fb); font-size: 14px; -webkit-font-smoothing: antialiased; overflow-x: clip; }
 #root { min-height: 100dvh; }
 a { text-decoration: none; color: inherit; }
 button { cursor: pointer; border: none; background: none; font-family: inherit; }

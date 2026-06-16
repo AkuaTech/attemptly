@@ -34,11 +34,11 @@ function streak(cells) {
 }
 
 function bucketColor(count, peak) {
-  if (count === 0) return 'var(--sc-high)'
+  if (count === 0) return 'var(--outline-v)'
   const ratio = count / Math.max(1, peak)
   if (ratio > 0.66) return 'var(--primary)'
-  if (ratio > 0.33) return 'rgba(231,249,92,0.5)'
-  return 'rgba(231,249,92,0.2)'
+  if (ratio > 0.33) return 'var(--primary-mid)'
+  return 'var(--primary-faint)'
 }
 
 function HeatmapGrid({ cells }) {
@@ -248,11 +248,11 @@ export default function Analytics() {
           </div>
           <div className="flex items-center justify-center" style={{ height: 240 }}>
             <svg width="240" height="240" viewBox="0 0 200 200" className="chart-svg overflow-visible">
-              <polygon points="100,20 180,100 100,180 20,100" fill="none" stroke="var(--outline-v)" strokeWidth="0.5" strokeDasharray="2 2" />
-              <polygon points="100,50 150,100 100,150 50,100" fill="none" stroke="var(--outline-v)" strokeWidth="0.5" />
-              <circle cx="100" cy="100" r="2" fill="var(--outline-v)" />
+              <polygon points="100,20 180,100 100,180 20,100" fill="none" stroke="var(--outline)" strokeWidth="1" strokeDasharray="2 2" />
+              <polygon points="100,50 150,100 100,150 50,100" fill="none" stroke="var(--outline)" strokeWidth="1" />
+              <circle cx="100" cy="100" r="2" fill="var(--outline)" />
               {overallTotal > 0 && (
-                <polygon points={radarPoints} fill="rgba(231,249,92,0.15)" stroke="var(--primary)" strokeWidth="2" />
+                <polygon points={radarPoints} style={{ fill: 'var(--primary-faint)' }} stroke="var(--primary)" strokeWidth="2" />
               )}
               <text x="100" y="15" fill="var(--on-sv)" fontSize="8" textAnchor="middle" fontFamily="Space Grotesk" fontWeight="700">ACCURACY</text>
               <text x="195" y="103" fill="var(--on-sv)" fontSize="8" textAnchor="start" fontFamily="Space Grotesk" fontWeight="700">SPEED</text>
@@ -288,7 +288,7 @@ export default function Analytics() {
                     const dasharray = `${len} ${C - len}`
                     const dashoffset = -offset
                     offset += len
-                    const color = i === 0 ? 'var(--primary)' : i === 1 ? 'var(--tertiary)' : 'rgba(255,255,255,0.2)'
+                    const color = i === 0 ? 'var(--primary)' : i === 1 ? 'var(--tertiary)' : 'var(--muted-dim)'
                     return (
                       <circle
                         key={s.label}
@@ -311,7 +311,7 @@ export default function Analytics() {
             <ul className="flex-col gap-16">
               {split.map((s, i) => (
                 <li key={s.label} className="row gap-12">
-                  <div className="flex-shrink-0" style={{ width: 8, height: 8, borderRadius: '50%', background: i === 0 ? 'var(--primary)' : i === 1 ? 'var(--tertiary)' : 'rgba(255,255,255,0.2)' }} />
+                  <div className="flex-shrink-0" style={{ width: 8, height: 8, borderRadius: '50%', background: i === 0 ? 'var(--primary)' : i === 1 ? 'var(--tertiary)' : 'var(--muted-dim)' }} />
                   <div>
                     <p className="text-bold" style={{ fontFamily: 'var(--fh)', fontSize: 11 }}>{s.label}</p>
                     <p className="text-micro">{Math.round(s.pct * 100)}%</p>
@@ -331,7 +331,7 @@ export default function Analytics() {
           </div>
           <div className="analytics-heatmap-legend">
             <span className="text-micro">Less</span>
-            {['var(--sc-high)', 'rgba(231,249,92,0.2)', 'rgba(231,249,92,0.5)', 'var(--primary)'].map(c => (
+            {['var(--outline-v)', 'var(--primary-faint)', 'var(--primary-mid)', 'var(--primary)'].map(c => (
               <div key={c} style={{ width: 12, height: 12, borderRadius: 2, background: c }} />
             ))}
             <span className="text-micro">More</span>

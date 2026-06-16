@@ -174,7 +174,7 @@ export default function MockTests() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           {shown.map(test => (
             <div key={test.id} className="glass-card test-row">
-              <div className="test-icon-box" style={{ background: test.score == null ? 'rgba(231,249,92,0.06)' : 'rgba(255,255,255,0.03)' }}>
+              <div className="test-icon-box" style={{ background: test.score == null ? 'rgba(231,249,92,0.06)' : 'var(--fill-faint)' }}>
                 <span className="material-symbols-outlined" style={{ color: test.score == null ? 'var(--primary)' : 'var(--muted)', fontSize: 20 }}>
                   {test.score == null ? 'quiz' : 'task_alt'}
                 </span>

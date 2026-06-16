@@ -91,7 +91,7 @@ export default function TestHistory() {
                 style={{ textAlign: 'left', cursor: 'pointer' }}
                 onClick={() => navigate(`/tests/result/${a.id}`)}
               >
-                <div className="test-icon-box" style={{ background: 'rgba(255,255,255,0.03)' }}>
+                <div className="test-icon-box" style={{ background: 'var(--fill-faint)' }}>
                   <span className="material-symbols-outlined" style={{ color: 'var(--muted)', fontSize: 20 }}>history</span>
                 </div>
 
