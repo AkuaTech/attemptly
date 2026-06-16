@@ -688,6 +688,7 @@ h1.page-title {
 .italic-primary { color: var(--primary); font-style: italic; }
 .chip { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; background: var(--sc-highest); color: var(--on-sv); border: 1px solid var(--hairline); text-transform: uppercase; letter-spacing: 0.05em; gap: 4px; }
 
+.onboarding-wrap { min-height: 100dvh; display: flex; align-items: center; justify-content: center; padding: 80px 24px 48px; position: relative; background: var(--bg); }
 .login-wrap { display: grid; grid-template-columns: 1fr 1fr; min-height: 100dvh; overflow-y: auto; }
 .login-left { display: flex; flex-direction: column; justify-content: space-between; padding: 64px; position: relative; overflow: hidden; background: var(--sc-low); }
 .login-right { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 48px 96px; background: var(--bg); position: relative; overflow-y: auto; }

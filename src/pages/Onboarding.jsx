@@ -116,10 +116,6 @@ export default function Onboarding() {
       <main id="lp-main" className="lp-shell">
         <header className="lp-hero">
           <div className="lp-hero-copy">
-            <div className="lp-eyebrow" data-reveal>
-              <span className="lp-eyebrow-dot" />
-              JEE Main &amp; Advanced · Prep Platform
-            </div>
             <h1 className="lp-title" data-reveal>
               Stop guessing.
               <span className="lp-title-accent">Start solving.</span>
