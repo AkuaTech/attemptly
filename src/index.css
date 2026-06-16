@@ -823,11 +823,17 @@ h1.page-title {
 .lp-hero-stat-value { font-family: var(--lp-display); font-weight: 800; font-size: 24px; letter-spacing: -0.02em; color: var(--on-surface); }
 .lp-hero-stat-label { font-family: var(--lp-mono); font-size: 10.5px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
 
+@property --lp-arc {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0;
+}
 .lp-hero-art { position: relative; height: 100%; min-height: 360px; }
 .lp-hero-ring { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
   width: clamp(190px, 22vw, 250px); aspect-ratio: 1; border-radius: 50%;
-  background: conic-gradient(var(--primary) 0turn 0.62turn, var(--sc-highest) 0.62turn 1turn);
-  display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 2; animation: lp-float 7s ease-in-out infinite;
+  background: conic-gradient(var(--primary) 0turn calc(var(--lp-arc) * 1turn), var(--sc-highest) calc(var(--lp-arc) * 1turn) 1turn);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 2;
+  animation: lp-float 7s ease-in-out infinite, lp-arc 1.4s cubic-bezier(0.4, 0, 0.2, 1) 0.3s forwards;
   box-shadow: 0 30px 80px rgba(0,0,0,0.5); }
 .lp-hero-ring::before { content: ''; position: absolute; inset: 18px; border-radius: 50%; background: var(--surface); border: 1px solid var(--hairline); }
 .lp-hero-ring-num { position: relative; font-family: var(--lp-display); font-weight: 800; font-size: clamp(34px, 4vw, 46px); letter-spacing: -0.03em; color: var(--on-surface); }
@@ -913,6 +919,7 @@ h1.page-title {
 .lp-hero-copy [data-reveal]:nth-child(5) { transition-delay: 320ms; }
 
 @keyframes lp-float { 0%, 100% { transform: translate(-50%, -50%); } 50% { transform: translate(-50%, calc(-50% - 14px)); } }
+@keyframes lp-arc { to { --lp-arc: 0.62; } }
 .lp-glyph { animation-name: lp-glyph-float; }
 @keyframes lp-glyph-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-16px); } }
 
@@ -940,6 +947,7 @@ h1.page-title {
 @media (prefers-reduced-motion: reduce) {
   [data-reveal] { opacity: 1; transform: none; transition: none; }
   .lp-glyph, .lp-hero-ring { animation: none; }
+  .lp-hero-ring { --lp-arc: 0.62; }
 }
 
 .insight-card { border-left: 4px solid; padding: 24px; border-radius: 0 12px 12px 0; background: var(--sc-low); display: flex; gap: 16px; }
