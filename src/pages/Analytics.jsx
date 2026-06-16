@@ -215,7 +215,9 @@ export default function Analytics() {
         const y = 200 - m.accuracy * 180
         return `${i === 0 ? 'M' : 'L'}${x},${y}`
       }).join(' ')
-    : null
+    : monthly.length === 1
+      ? `M0,${200 - monthly[0].accuracy * 180} L1000,${200 - monthly[0].accuracy * 180}`
+      : null
 
   if (data.loading) {
     return (
