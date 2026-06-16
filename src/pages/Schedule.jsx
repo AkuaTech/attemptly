@@ -4,16 +4,22 @@ import { supabase } from '../supabase'
 import { useAuth } from '../contexts/AuthContext'
 import { useDashboardStats } from '../hooks/useUserStats'
 import { slugToTitle } from '../lib/slug'
+import { SkeletonRow, SkeletonTestRow } from '../components/Skeleton'
+import { cacheGet, cacheSet, cacheIsStale } from '../lib/cache'
 
 export default function Schedule() {
   const navigate = useNavigate()
   const { user } = useAuth()
   const { weakTopics, resume, loading: statsLoading } = useDashboardStats()
-  const [recentMocks, setRecentMocks] = useState([])
-  const [recentLoading, setRecentLoading] = useState(true)
+  const cacheKey = user ? `schedule_mocks_${user.id}` : null
+  const cached = cacheKey ? cacheGet(cacheKey) : null
+  const [recentMocks, setRecentMocks] = useState(cached || [])
+  const [recentLoading, setRecentLoading] = useState(!cached)
 
   useEffect(() => {
-    if (!user) { setRecentLoading(false); return }
+    if (!user || !cacheKey) { setRecentLoading(false); return }
+    if (cached && !cacheIsStale(cacheKey)) return
+    
     let cancelled = false
     supabase
       .from('mock_test_attempts')
@@ -23,11 +29,13 @@ export default function Schedule() {
       .limit(5)
       .then(({ data }) => {
         if (cancelled) return
-        setRecentMocks(data || [])
+        const result = data || []
+        cacheSet(cacheKey, result)
+        setRecentMocks(result)
         setRecentLoading(false)
       })
     return () => { cancelled = true }
-  }, [user])
+  }, [user, cacheKey, cached])
 
   const today = new Date()
   const items = []
@@ -67,7 +75,11 @@ export default function Schedule() {
         <div className="glass-card editorial-card">
           <h3 className="section-title" style={{ marginBottom: 16 }}>Recommended for today</h3>
           {statsLoading ? (
-            <p className="text-muted text-sm">Loading…</p>
+            <div className="flex-col gap-12">
+              <SkeletonRow />
+              <SkeletonRow />
+              <SkeletonRow />
+            </div>
           ) : items.length === 0 ? (
             <div>
               <p className="text-sm" style={{ color: 'var(--on-sv)', marginBottom: 16 }}>
@@ -105,7 +117,10 @@ export default function Schedule() {
         <div className="glass-card editorial-card">
           <h3 className="section-title" style={{ marginBottom: 16 }}>Recent Mock Tests</h3>
           {recentLoading ? (
-            <p className="text-muted text-sm">Loading…</p>
+            <div className="flex-col gap-12">
+              <SkeletonRow />
+              <SkeletonRow />
+            </div>
           ) : recentMocks.length === 0 ? (
             <div>
               <p className="text-sm" style={{ color: 'var(--on-sv)', marginBottom: 16 }}>

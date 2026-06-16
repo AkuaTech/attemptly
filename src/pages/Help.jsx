@@ -3,7 +3,7 @@ import { useState } from 'react'
 const FAQS = [
   {
     q: 'Where do the questions come from?',
-    a: 'Every question is a real previous-year question from JEE Main, JEE Advanced, or NEET, with full step-by-step solutions and topic tags.',
+    a: 'Every question is a real previous-year question from JEE Main and JEE Advanced, with worked solutions and topic tags.',
   },
   {
     q: 'How is accuracy calculated?',

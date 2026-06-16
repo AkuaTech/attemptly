@@ -7,10 +7,8 @@ import Modal from '../components/Modal'
 import { useNotes } from '../hooks/useNotes'
 import { useStudyNotes } from '../hooks/useStudyNotes'
 import { renderMath } from '../lib/mathRender'
+import { SkeletonNoteCard } from '../components/Skeleton'
 
-// Study notes store math as raw LaTeX ($…$ / $$…$$, plus bare \begin{}… blocks)
-// mixed into HTML. renderMath renders the math in place, leaving the surrounding
-// HTML (tables, lists, images) intact.
 function StudyNoteBody({ html }) {
   const rendered = useMemo(() => renderMath(html), [html])
   return <div className="study-reader-content" dangerouslySetInnerHTML={{ __html: rendered }} />
@@ -63,9 +61,9 @@ function ToolBtn({ label, active, onClick }) {
       style={{
         padding: '3px 8px',
         borderRadius: 5,
-        border: '1px solid var(--border)',
+        border: '1px solid var(--line-2)',
         background: active ? 'var(--primary)' : 'transparent',
-        color: active ? '#000' : 'var(--fg)',
+        color: active ? 'var(--on-primary)' : 'var(--on-surface)',
         cursor: 'pointer',
         fontSize: 12,
         fontWeight: 700,
@@ -81,7 +79,7 @@ function Toolbar({ editor }) {
   if (!editor) return null
   const c = () => editor.chain().focus()
   return (
-    <div style={{ display: 'flex', gap: 4, padding: '6px 8px', borderBottom: '1px solid var(--border)', flexWrap: 'wrap' }}>
+    <div style={{ display: 'flex', gap: 4, padding: '6px 8px', borderBottom: '1px solid var(--hairline)', flexWrap: 'wrap' }}>
       <ToolBtn label="B" active={editor.isActive('bold')} onClick={() => c().toggleBold().run()} />
       <ToolBtn label="I" active={editor.isActive('italic')} onClick={() => c().toggleItalic().run()} />
       <ToolBtn label="S" active={editor.isActive('strike')} onClick={() => c().toggleStrike().run()} />
@@ -100,9 +98,9 @@ function FileChip({ name, type, onRemove, pending }) {
       style={{
         display: 'inline-flex', alignItems: 'center', gap: 4,
         padding: '3px 8px', borderRadius: 6,
-        border: `1px solid ${pending ? 'var(--primary)' : 'var(--border)'}`,
-        background: 'var(--surface)',
-        fontSize: 12, color: 'var(--fg)',
+        border: `1px solid ${pending ? 'var(--primary)' : 'var(--line-2)'}`,
+        background: 'var(--sc)',
+        fontSize: 12, color: 'var(--on-surface)',
       }}
     >
       <span className="material-symbols-outlined" style={{ fontSize: 13 }}>
@@ -154,8 +152,8 @@ function NoteCard({ note, onEdit, onDelete }) {
               style={{
                 display: 'inline-flex', alignItems: 'center', gap: 4,
                 padding: '3px 8px', borderRadius: 6,
-                border: '1px solid var(--border)',
-                background: 'var(--surface)',
+                border: '1px solid var(--line-2)',
+                background: 'var(--sc)',
                 color: 'var(--on-sv)', fontSize: 12,
                 textDecoration: 'none',
               }}
@@ -503,14 +501,27 @@ export default function Notes() {
 
             <div className="glass-card editorial-card" style={{ padding: '16px 20px', marginBottom: 20 }}>
               <p style={{ fontWeight: 600, margin: 0, marginBottom: (!loading && notes.length === 0) ? 8 : 0 }}>
-                {loading ? 'Loading…' : `${notes.length} ${notes.length === 1 ? 'Note' : 'Notes'}`}
+                {loading ? '' : `${notes.length} ${notes.length === 1 ? 'Note' : 'Notes'}`}
               </p>
+              {loading && (
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <div className="skeleton" style={{ width: 60, height: 14, borderRadius: 4 }} />
+                </div>
+              )}
               {!loading && notes.length === 0 && (
                 <p className="text-sm text-muted" style={{ margin: 0 }}>
                   No notes yet. Hit "New Note" to get started.
                 </p>
               )}
             </div>
+
+            {loading && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <SkeletonNoteCard />
+                <SkeletonNoteCard />
+                <SkeletonNoteCard />
+              </div>
+            )}
 
             {!loading && notes.length > 0 && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -568,7 +579,7 @@ export default function Notes() {
                 {readingNote && (
                   <>
                     <span className="breadcrumb-sep">/</span>
-                    <span>{readingNote.title || 'Loading…'}</span>
+                    <span>{readingNote.title || ''}</span>
                   </>
                 )}
               </div>
@@ -576,7 +587,7 @@ export default function Notes() {
 
             {studyLoading && (
               <div className="glass-card editorial-card" style={{ padding: '16px 20px' }}>
-                <p style={{ fontWeight: 600, margin: 0 }}>Loading…</p>
+                <div className="skeleton" style={{ width: 80, height: 14, borderRadius: 4 }} />
               </div>
             )}
 
@@ -686,7 +697,12 @@ export default function Notes() {
             {readingNote && (
               <article className="glass-card" style={{ padding: '28px 32px' }}>
                 {readingLoading ? (
-                  <p style={{ color: 'var(--on-sv)', fontSize: 14, margin: 0 }}>Loading content…</p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    <div className="skeleton" style={{ width: '40%', height: 22, borderRadius: 6 }} />
+                    <div className="skeleton" style={{ width: '100%', height: 14, borderRadius: 4 }} />
+                    <div className="skeleton" style={{ width: '90%', height: 14, borderRadius: 4 }} />
+                    <div className="skeleton" style={{ width: '70%', height: 14, borderRadius: 4 }} />
+                  </div>
                 ) : readingNote.content ? (
                   <>
                     <h2 style={{ marginTop: 0, marginBottom: 16, fontSize: 22, fontWeight: 700, lineHeight: 1.3 }}>

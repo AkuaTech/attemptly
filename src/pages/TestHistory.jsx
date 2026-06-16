@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../supabase'
 import { useAuth } from '../contexts/AuthContext'
+import { SkeletonTestRow } from '../components/Skeleton'
+import { cacheGet, cacheSet, cacheIsStale } from '../lib/cache'
 
 function formatDate(value) {
   if (!value) return ''
@@ -13,15 +15,18 @@ function formatDate(value) {
 export default function TestHistory() {
   const navigate = useNavigate()
   const { user } = useAuth()
-  const [attempts, setAttempts] = useState([])
-  const [loading, setLoading] = useState(true)
+  const cacheKey = user ? `test_history_${user.id}` : null
+  const cached = cacheKey ? cacheGet(cacheKey) : null
+  const [attempts, setAttempts] = useState(cached || [])
+  const [loading, setLoading] = useState(!cached)
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    if (!user) { setLoading(false); return }
+    if (!user || !cacheKey) { setLoading(false); return }
+    if (cached && !cacheIsStale(cacheKey)) return
+    
     let cancelled = false
     async function load() {
-      setLoading(true)
       const { data, error: err } = await supabase
         .from('mock_test_attempts')
         .select('id, mock_test_id, score, correct_count, total_count, time_spent_ms, completed_at, mock_tests(title, pattern)')
@@ -30,12 +35,14 @@ export default function TestHistory() {
         .order('completed_at', { ascending: false })
       if (cancelled) return
       if (err) { setError(err); setLoading(false); return }
-      setAttempts(data || [])
+      const result = data || []
+      cacheSet(cacheKey, result)
+      setAttempts(result)
       setLoading(false)
     }
     load()
     return () => { cancelled = true }
-  }, [user])
+  }, [user, cacheKey, cached])
 
   return (
     <div className="page-canvas">
@@ -64,7 +71,11 @@ export default function TestHistory() {
       )}
 
       {loading ? (
-        <div className="text-muted text-sm">Loading history…</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <SkeletonTestRow />
+          <SkeletonTestRow />
+          <SkeletonTestRow />
+        </div>
       ) : attempts.length === 0 ? (
         <div className="text-muted text-sm" style={{ padding: 32, textAlign: 'center' }}>
           No completed tests yet. Finish a mock test to see it here.

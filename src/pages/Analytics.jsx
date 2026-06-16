@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { supabase } from '../supabase'
 import { useAuth } from '../contexts/AuthContext'
+import { SkeletonCard, SkeletonPage } from '../components/Skeleton'
+import { cacheGet, cacheSet, cacheIsStale } from '../lib/cache'
 
 const HEATMAP_DAYS = 364
 const HEATMAP_WEEKS = HEATMAP_DAYS / 7
@@ -141,10 +143,14 @@ function deriveInsights({ attempts, progress, monthly }) {
 
 export default function Analytics() {
   const { user } = useAuth()
-  const [data, setData] = useState({ attempts: [], progress: [], loading: true, error: null })
+  const cacheKey = user ? `analytics_${user.id}` : null
+  const cached = cacheKey ? cacheGet(cacheKey) : null
+  const [data, setData] = useState(cached || { attempts: [], progress: [], loading: true, error: null })
 
   useEffect(() => {
-    if (!user) { setData(d => ({ ...d, loading: false })); return }
+    if (!user || !cacheKey) { setData(d => ({ ...d, loading: false })); return }
+    if (cached && !cacheIsStale(cacheKey)) return
+    
     let cancelled = false
     async function load() {
       const sinceYear = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString()
@@ -161,16 +167,18 @@ export default function Analytics() {
           .eq('user_id', user.id),
       ])
       if (cancelled) return
-      setData({
+      const result = {
         attempts: attemptsRes.data || [],
         progress: progressRes.data || [],
         loading: false,
         error: attemptsRes.error || progressRes.error,
-      })
+      }
+      cacheSet(cacheKey, result)
+      setData(result)
     }
     load()
     return () => { cancelled = true }
-  }, [user])
+  }, [user, cacheKey, cached])
 
   const cells = useMemo(() => buildHeatmapCells(data.attempts), [data.attempts])
   const dayStreak = useMemo(() => streak(cells), [cells])
@@ -211,9 +219,13 @@ export default function Analytics() {
 
   if (data.loading) {
     return (
-      <div className="page-canvas">
-        <p className="text-muted text-sm">Loading analytics…</p>
-      </div>
+      <SkeletonPage>
+        <div className="bento-2 mb-24">
+          <SkeletonCard lines={4} h={320} />
+          <SkeletonCard lines={3} h={320} />
+        </div>
+        <SkeletonCard lines={2} h={200} />
+      </SkeletonPage>
     )
   }
 
@@ -225,7 +237,7 @@ export default function Analytics() {
           <span>Deep Analytics</span>
         </div>
         <h1 className="page-title">Analysis</h1>
-        <p className="page-sub">Comprehensive performance breakdown and rank projections.</p>
+        <p className="page-sub">Accuracy, speed, consistency, and subject breakdown.</p>
       </header>
 
       <div className="bento-2 mb-24">

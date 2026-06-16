@@ -49,7 +49,7 @@ export default function Sidebar() {
       <div className="sidebar-footer">
         {!user ? (
           <div className="sidebar-auth-card">
-            <p className="text-micro text-muted mb-12">100% free, forever.</p>
+            <p className="text-micro text-muted mb-12">No ads. No premium tier.</p>
             <div className="flex-col gap-8">
               <button className="sidebar-signin-btn" onClick={() => navigate('/login')}>Sign In</button>
               <button className="sidebar-signup-btn" onClick={() => navigate('/signup')}>Create Account</button>

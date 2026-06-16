@@ -1,13 +1,13 @@
 import { useNavigate } from 'react-router-dom'
 import { useDashboardStats } from '../hooks/useUserStats'
 import { slugToTitle } from '../lib/slug'
+import { SkeletonStatCard, SkeletonRow } from '../components/Skeleton'
 
 const SUBJECT_ICON = { Physics: 'bolt', Mathematics: 'functions', Chemistry: 'science' }
 
 function StatCard({ stat }) {
   return (
     <div className="glass-card stat-card">
-      <div className="stat-card-glow" />
       <span className="stat-label">{stat.label}</span>
       <div className="row" style={{ alignItems: 'flex-end', gap: 0, position: 'relative', zIndex: 1 }}>
         <span className="stat-value" style={stat.primary ? { color: 'var(--primary)' } : undefined}>
@@ -145,11 +145,17 @@ export default function Dashboard() {
           <span>Performance Overview</span>
         </div>
         <h1 className="page-title">Dashboard</h1>
-        <p className="page-sub">Comprehensive overview of your JEE preparation performance.</p>
+        <p className="page-sub">Questions solved, accuracy trends, and what to work on next.</p>
       </header>
 
       <div className="bento-3">
-        {stats.map(s => <StatCard key={s.label} stat={s} />)}
+        {loading ? (
+          <>
+            <SkeletonStatCard />
+            <SkeletonStatCard />
+            <SkeletonStatCard />
+          </>
+        ) : stats.map(s => <StatCard key={s.label} stat={s} />)}
       </div>
 
       <div className="bento-5">
@@ -187,7 +193,11 @@ export default function Dashboard() {
           </div>
           <div className="flex-col gap-12">
             {loading ? (
-              <div className="text-micro text-muted">Loading…</div>
+              <>
+                <SkeletonRow />
+                <SkeletonRow />
+                <SkeletonRow />
+              </>
             ) : weakTopics.length === 0 ? (
               <div className="text-micro text-muted" style={{ textTransform: 'none', letterSpacing: 0, fontSize: 13 }}>
                 No weak topics yet — solve at least 5 questions in a topic to see analysis here.

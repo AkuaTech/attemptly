@@ -4,6 +4,7 @@ import { supabase } from '../supabase'
 import { useAuth } from '../contexts/AuthContext'
 import MathText from '../components/MathText'
 import { dedupeAttemptsByQuestion } from '../lib/mockContract'
+import { SkeletonPractice } from '../components/Skeleton'
 
 function correctIdentifier(q) {
   const arr = Array.isArray(q.correct_options) ? q.correct_options : []
@@ -75,7 +76,7 @@ export default function TestReview() {
   }, [user, mockId, attemptIdParam])
 
   if (data.loading) {
-    return <div className="practice-wrap"><p className="text-muted text-sm">Loading review…</p></div>
+    return <SkeletonPractice />
   }
   if (data.error) {
     return <div className="practice-wrap"><p className="form-error">{data.error.message}</p></div>

@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '../supabase'
 import { useAuth } from '../contexts/AuthContext'
+import { SkeletonToggleRow } from '../components/Skeleton'
+import { cacheGet, cacheSet, cacheIsStale, cacheClear } from '../lib/cache'
 
 const PREF_FIELDS = [
   { key: 'email_daily_summary',     label: 'Daily summary',           sub: 'Yesterday\'s practice and accuracy at 8 AM.', channel: 'email' },
@@ -27,14 +29,18 @@ export default function Settings() {
   const [params, setParams] = useSearchParams()
   const tab = params.get('tab') || 'account'
 
-  const [prefs, setPrefs] = useState(DEFAULT_PREFS)
-  const [loading, setLoading] = useState(true)
+  const cacheKey = user ? `settings_prefs_${user.id}` : null
+  const cached = cacheKey ? cacheGet(cacheKey) : null
+  const [prefs, setPrefs] = useState(cached || DEFAULT_PREFS)
+  const [loading, setLoading] = useState(!cached)
   const [saving, setSaving] = useState(false)
   const [savedAt, setSavedAt] = useState(null)
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    if (!user) return
+    if (!user || !cacheKey) return
+    if (cached && !cacheIsStale(cacheKey)) return
+    
     let cancelled = false
     supabase
       .from('notification_preferences')
@@ -44,11 +50,15 @@ export default function Settings() {
       .then(({ data, error: err }) => {
         if (cancelled) return
         if (err) setError(err)
-        else if (data) setPrefs({ ...DEFAULT_PREFS, ...data })
+        else if (data) {
+          const result = { ...DEFAULT_PREFS, ...data }
+          cacheSet(cacheKey, result)
+          setPrefs(result)
+        }
         setLoading(false)
       })
     return () => { cancelled = true }
-  }, [user])
+  }, [user, cacheKey, cached])
 
   async function togglePref(key) {
     if (!user) return
@@ -60,6 +70,7 @@ export default function Settings() {
       .upsert({ user_id: user.id, ...next }, { onConflict: 'user_id' })
     setSaving(false)
     if (err) { setError(err); return }
+    if (cacheKey) cacheSet(cacheKey, next)
     setSavedAt(Date.now())
   }
 
@@ -106,7 +117,15 @@ export default function Settings() {
           </div>
           {error && <p className="form-error" style={{ marginBottom: 16 }}>{error.message}</p>}
           {loading ? (
-            <p className="text-muted text-sm">Loading…</p>
+            <>
+              <h4 className="text-micro" style={{ margin: '8px 0 12px' }}>Email</h4>
+              <SkeletonToggleRow />
+              <SkeletonToggleRow />
+              <SkeletonToggleRow />
+              <h4 className="text-micro" style={{ margin: '24px 0 12px' }}>In-app push</h4>
+              <SkeletonToggleRow />
+              <SkeletonToggleRow />
+            </>
           ) : (
             <>
               <h4 className="text-micro" style={{ margin: '8px 0 12px' }}>Email</h4>

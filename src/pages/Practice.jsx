@@ -6,6 +6,7 @@ import MathText from '../components/MathText'
 import TestAnalyticsView from '../components/TestAnalyticsView'
 import { computeTestAnalytics } from '../lib/testAnalytics'
 import { slugToTitle } from '../lib/slug'
+import { SkeletonPractice } from '../components/Skeleton'
 import {
   dedupeAttemptsByQuestion,
   displayDifficulty,
@@ -315,11 +316,7 @@ export default function Practice() {
   }
 
   if (loadState.loading) {
-    return (
-      <div className="practice-wrap">
-        <p className="text-muted text-sm">Loading questions…</p>
-      </div>
-    )
+    return <SkeletonPractice />
   }
 
   if (loadState.error) {

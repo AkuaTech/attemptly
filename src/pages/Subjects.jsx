@@ -43,10 +43,9 @@ export default function Subjects() {
       </div>
 
       <section style={{ marginTop: 40, position: 'relative', borderRadius: 12, overflow: 'hidden', height: 200, display: 'flex', alignItems: 'center', background: 'linear-gradient(135deg, var(--sc-high), var(--sc-low))' }}>
-        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(231,249,92,0.04) 1px, transparent 1px)', backgroundSize: '20px 20px', zIndex: 0 }} />
         <div style={{ position: 'relative', zIndex: 2, padding: '0 24px' }}>
           <h4 style={{ fontFamily: 'var(--fh)', fontWeight: 800, fontSize: 20, color: 'var(--primary)', marginBottom: 8, letterSpacing: '-0.01em' }}>Diagnostic Test</h4>
-          <p className="text-micro" style={{ maxWidth: 380, textTransform: 'none', letterSpacing: '0', opacity: 0.7 }}>Assess your readiness in 15 minutes. We'll build a custom study plan based on your results.</p>
+          <p className="text-micro" style={{ maxWidth: 380, textTransform: 'none', letterSpacing: '0', opacity: 0.7 }}>15-minute cross-subject assessment. We build your study plan from the results.</p>
           <button
             className="btn-ghost"
             style={{ marginTop: 16, display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, padding: '6px 12px' }}

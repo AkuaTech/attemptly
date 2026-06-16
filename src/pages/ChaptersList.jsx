@@ -1,6 +1,7 @@
 import { Link, useParams } from 'react-router-dom'
 import { useChapters } from '../hooks/useTaxonomy'
 import { slugToTitle } from '../lib/slug'
+import { SkeletonGridCard } from '../components/Skeleton'
 
 export default function ChaptersList() {
   const { subject } = useParams()
@@ -20,7 +21,7 @@ export default function ChaptersList() {
           {subject} <span style={{ color: 'var(--primary)' }}>Chapters.</span>
         </h1>
         <p className="page-sub">
-          {loading ? 'Loading chapters…' : `${chapters.length} chapters available for review.`}
+          {loading ? '' : `${chapters.length} chapters available for review.`}
         </p>
       </header>
 
@@ -37,7 +38,18 @@ export default function ChaptersList() {
       )}
 
       <div className="bento-4">
-        {chapters.map((c, i) => (
+        {loading ? (
+          <>
+            <SkeletonGridCard />
+            <SkeletonGridCard />
+            <SkeletonGridCard />
+            <SkeletonGridCard />
+            <SkeletonGridCard />
+            <SkeletonGridCard />
+            <SkeletonGridCard />
+            <SkeletonGridCard />
+          </>
+        ) : chapters.map((c, i) => (
           <Link
             key={c.slug}
             to={`/subjects/${encodeURIComponent(subject)}/${encodeURIComponent(c.slug)}`}

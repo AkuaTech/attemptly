@@ -29,8 +29,8 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="h-full flex items-center justify-center" style={{ background: 'var(--bg)' }}>
-        <span className="text-bold text-muted" style={{ fontFamily: 'var(--fh)', fontSize: 18, letterSpacing: '0.1em' }}>Loading...</span>
+      <div className="app-loading">
+        <div className="app-loading-dot" />
       </div>
     )
   }

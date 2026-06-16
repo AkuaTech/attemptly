@@ -1,6 +1,7 @@
 import { Link, useParams } from 'react-router-dom'
 import { useTopics } from '../hooks/useTaxonomy'
 import { slugToTitle } from '../lib/slug'
+import { SkeletonGridCard } from '../components/Skeleton'
 
 export default function TopicsList() {
   const { subject, chapter } = useParams()
@@ -25,7 +26,7 @@ export default function TopicsList() {
           <span style={{ color: 'var(--primary)' }}>Topics.</span>
         </h1>
         <p className="page-sub">
-          {loading ? 'Loading topics…' : `${topics.length} topic${topics.length === 1 ? '' : 's'} in this chapter.`}
+          {loading ? '' : `${topics.length} topic${topics.length === 1 ? '' : 's'} in this chapter.`}
         </p>
         {!loading && !error && topics.length > 0 && (
           <Link to={practiceAllHref} className="btn-ghost" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 14, padding: '8px 16px', textDecoration: 'none' }}>
@@ -48,7 +49,18 @@ export default function TopicsList() {
       )}
 
       <div className="bento-4">
-        {topics.map((t, i) => (
+        {loading ? (
+          <>
+            <SkeletonGridCard />
+            <SkeletonGridCard />
+            <SkeletonGridCard />
+            <SkeletonGridCard />
+            <SkeletonGridCard />
+            <SkeletonGridCard />
+            <SkeletonGridCard />
+            <SkeletonGridCard />
+          </>
+        ) : topics.map((t, i) => (
           <Link
             key={t.slug}
             to={`/practice?subject=${encodeURIComponent(subject)}&chapter=${encodeURIComponent(chapter)}&topic=${encodeURIComponent(t.slug)}`}

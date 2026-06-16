@@ -1,20 +1,24 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../supabase'
+import { cacheGet, cacheSet, cacheIsStale, cacheClear } from '../lib/cache'
 
 export function useNotes({ userId = null, subject = null, chapter = null, topic = null } = {}) {
-  const [notes, setNotes] = useState([])
-  const [loading, setLoading] = useState(true)
+  const cacheKey = userId ? `notes_${userId}_${subject || 'all'}_${chapter || 'all'}_${topic || 'all'}` : null
+  const cached = cacheKey ? cacheGet(cacheKey) : null
+  const [notes, setNotes] = useState(cached || [])
+  const [loading, setLoading] = useState(!cached)
   const [error, setError] = useState(null)
 
   useEffect(() => {
     let cancelled = false
     async function load() {
-      if (!userId) {
+      if (!userId || !cacheKey) {
         setNotes([])
         setLoading(false)
         return
       }
-      setLoading(true)
+      if (cached && !cacheIsStale(cacheKey)) return
+      
       setError(null)
 
       let query = supabase
@@ -30,12 +34,16 @@ export function useNotes({ userId = null, subject = null, chapter = null, topic 
       const { data, error: err } = await query
       if (cancelled) return
       if (err) setError(err)
-      else setNotes(data || [])
+      else {
+        const result = data || []
+        cacheSet(cacheKey, result)
+        setNotes(result)
+      }
       setLoading(false)
     }
     load()
     return () => { cancelled = true }
-  }, [userId, subject, chapter, topic])
+  }, [userId, subject, chapter, topic, cacheKey, cached])
 
   async function saveNote({ id, title, content, subject: s, chapter: c, topic: t, attachments = [] }) {
     if (id) {
@@ -47,6 +55,7 @@ export function useNotes({ userId = null, subject = null, chapter = null, topic 
         .single()
       if (err) return { error: err }
       setNotes(prev => prev.map(n => (n.id === id ? data : n)))
+      if (cacheKey) cacheClear(cacheKey)
       return { data }
     }
     const { data, error: err } = await supabase
@@ -56,6 +65,7 @@ export function useNotes({ userId = null, subject = null, chapter = null, topic 
       .single()
     if (err) return { error: err }
     setNotes(prev => [data, ...prev])
+    if (cacheKey) cacheClear(cacheKey)
     return { data }
   }
 
@@ -63,6 +73,7 @@ export function useNotes({ userId = null, subject = null, chapter = null, topic 
     const { error: err } = await supabase.from('notes').delete().eq('id', id)
     if (err) return { error: err }
     setNotes(prev => prev.filter(n => n.id !== id))
+    if (cacheKey) cacheClear(cacheKey)
     return {}
   }
 

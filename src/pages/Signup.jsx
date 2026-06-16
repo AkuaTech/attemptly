@@ -64,7 +64,7 @@ export default function Signup() {
             Create your <span style={{ color: 'var(--primary)', fontStyle: 'italic' }}>account</span>
           </h1>
           <p style={{ color: 'var(--on-sv)', fontSize: 15, textAlign: 'center', marginBottom: 40 }}>
-            Free forever for all students.
+            Takes 30 seconds. No credit card.
           </p>
 
           {error && (

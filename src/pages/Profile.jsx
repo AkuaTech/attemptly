@@ -9,8 +9,8 @@ const TARGET_EXAMS = [
   'JEE Main 2027',
   'JEE Advanced 2026',
   'JEE Advanced 2027',
-  'NEET 2026',
-  'NEET 2027',
+  // 'NEET 2026',
+  // 'NEET 2027',
 ]
 const CLASS_OPTIONS = ['Class 11th', 'Class 12th', 'Dropper', 'College']
 

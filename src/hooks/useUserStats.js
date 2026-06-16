@@ -1,13 +1,18 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../supabase'
 import { useAuth } from '../contexts/AuthContext'
+import { cacheGet, cacheSet, cacheIsStale } from '../lib/cache'
 
 export function useUserProgress() {
   const { user } = useAuth()
-  const [state, setState] = useState({ rows: [], loading: true, error: null })
+  const cacheKey = user ? `user_progress_${user.id}` : null
+  const cached = cacheKey ? cacheGet(cacheKey) : null
+  const [state, setState] = useState({ rows: cached || [], loading: !cached, error: null })
 
   useEffect(() => {
-    if (!user) { setState({ rows: [], loading: false, error: null }); return }
+    if (!user || !cacheKey) { setState({ rows: [], loading: false, error: null }); return }
+    if (cached && !cacheIsStale(cacheKey)) return
+    
     let cancelled = false
     supabase
       .from('user_progress')
@@ -16,17 +21,21 @@ export function useUserProgress() {
       .order('last_attempted_at', { ascending: false, nullsFirst: false })
       .then(({ data, error }) => {
         if (cancelled) return
-        setState({ rows: data || [], loading: false, error })
+        const rows = data || []
+        cacheSet(cacheKey, rows)
+        setState({ rows, loading: false, error })
       })
     return () => { cancelled = true }
-  }, [user])
+  }, [user, cacheKey, cached])
 
   return state
 }
 
 export function useDashboardStats() {
   const { user } = useAuth()
-  const [state, setState] = useState({
+  const cacheKey = user ? `dashboard_stats_${user.id}` : null
+  const cached = cacheKey ? cacheGet(cacheKey) : null
+  const [state, setState] = useState(cached || {
     totals: { solved: 0, correct: 0, totalTimeMs: 0 },
     weekly: [],
     weekDelta: 0,
@@ -38,7 +47,9 @@ export function useDashboardStats() {
   })
 
   useEffect(() => {
-    if (!user) { setState(s => ({ ...s, loading: false })); return }
+    if (!user || !cacheKey) { setState(s => ({ ...s, loading: false })); return }
+    if (cached && !cacheIsStale(cacheKey)) return
+    
     let cancelled = false
 
     async function load() {
@@ -109,7 +120,7 @@ export function useDashboardStats() {
         .sort((a, b) => new Date(b.last_attempted_at) - new Date(a.last_attempted_at))
       const resume = sortedByRecent[0] || null
 
-      setState({
+      const result = {
         totals,
         weekly: weekly.slice(7),
         weekDelta,
@@ -118,12 +129,15 @@ export function useDashboardStats() {
         inProgressMock: mockRes.data || null,
         loading: false,
         error: progressRes.error || recentAttemptsRes.error || mockRes.error || null,
-      })
+      }
+      
+      cacheSet(cacheKey, result)
+      setState(result)
     }
 
     load()
     return () => { cancelled = true }
-  }, [user])
+  }, [user, cacheKey, cached])
 
   return state
 }

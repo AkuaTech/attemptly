@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext'
 import TestAnalyticsView from '../components/TestAnalyticsView'
 import { computeTestAnalytics } from '../lib/testAnalytics'
 import { dedupeAttemptsByQuestion } from '../lib/mockContract'
+import { SkeletonPractice } from '../components/Skeleton'
 
 function formatDate(value) {
   if (!value) return ''
@@ -65,7 +66,7 @@ export default function TestResult() {
   const analytics = useMemo(() => computeTestAnalytics(data.items), [data.items])
 
   if (data.loading) {
-    return <div className="practice-wrap"><p className="text-muted text-sm">Loading result…</p></div>
+    return <SkeletonPractice />
   }
   if (data.error) {
     return <div className="practice-wrap"><p className="form-error">{data.error.message}</p></div>

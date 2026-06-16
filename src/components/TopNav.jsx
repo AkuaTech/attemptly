@@ -68,7 +68,7 @@ export default function TopNav({ theme, toggleTheme }) {
             <div style={{ padding: '24px 20px', textAlign: 'center' }}>
               <span className="material-symbols-outlined" style={{ fontSize: 28, color: 'var(--muted)' }}>notifications_off</span>
               <p className="text-sm" style={{ marginTop: 8 }}>
-                Activity alerts will appear here when there is something to review.
+                Streak alerts and test reminders will show up here.
               </p>
             </div>
             <footer className="topnav-panel-foot">

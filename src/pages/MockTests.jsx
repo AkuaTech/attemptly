@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../supabase'
 import { useAuth } from '../contexts/AuthContext'
 import { displayDifficulty } from '../lib/mockContract'
+import { SkeletonTestRow } from '../components/Skeleton'
+import { cacheGet, cacheSet, cacheIsStale } from '../lib/cache'
 
 const diffColor = { hard: 'var(--error)', medium: '#f4a261', easy: 'var(--primary)' }
 
@@ -19,14 +21,17 @@ export default function MockTests() {
   const navigate = useNavigate()
   const { user } = useAuth()
   const [filter, setFilter] = useState('all')
-  const [tests, setTests] = useState([])
-  const [loading, setLoading] = useState(true)
+  const cacheKey = user ? `mock_tests_${user.id}` : 'mock_tests_public'
+  const cached = cacheGet(cacheKey)
+  const [tests, setTests] = useState(cached || [])
+  const [loading, setLoading] = useState(!cached)
   const [error, setError] = useState(null)
 
   useEffect(() => {
+    if (cached && !cacheIsStale(cacheKey)) return
+    
     let cancelled = false
     async function load() {
-      setLoading(true)
       const [testsRes, attemptsRes] = await Promise.all([
         supabase
           .from('mock_tests')
@@ -57,12 +62,13 @@ export default function MockTests() {
           inProgress: latest?.status === 'started',
         }
       })
+      cacheSet(cacheKey, enriched)
       setTests(enriched)
       setLoading(false)
     }
     load()
     return () => { cancelled = true }
-  }, [user])
+  }, [user, cacheKey, cached])
 
   const shown = tests.filter(t => {
     if (filter === 'all') return true
@@ -155,7 +161,11 @@ export default function MockTests() {
       )}
 
       {loading ? (
-        <div className="text-muted text-sm">Loading tests…</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <SkeletonTestRow />
+          <SkeletonTestRow />
+          <SkeletonTestRow />
+        </div>
       ) : shown.length === 0 ? (
         <div className="text-muted text-sm" style={{ padding: 32, textAlign: 'center' }}>
           {filter === 'completed' ? 'No completed tests yet.' : 'No custom tests yet. Create one to get started.'}

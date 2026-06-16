@@ -40,8 +40,7 @@ export default function Login() {
     <main className="login-wrap">
       <a href="#login-form" className="sr-only">Skip to content</a>
       <section className="login-left">
-        <div style={{ position: 'absolute', inset: 0, opacity: 0.2, pointerEvents: 'none', background: 'radial-gradient(circle at top left, var(--primary) 0%, transparent 40%)' }} />
-        <div style={{ position: 'absolute', bottom: -96, left: -96, width: 384, height: 384, background: 'rgba(231,249,92,0.05)', borderRadius: '50%', filter: 'blur(3rem)' }} />
+        <div style={{ position: 'absolute', inset: 0, opacity: 0.12, pointerEvents: 'none', background: 'radial-gradient(circle at top left, var(--primary) 0%, transparent 50%)' }} />
 
         <div style={{ position: 'relative', zIndex: 1 }}>
           <div className="row" style={{ marginBottom: 48 }}>
@@ -52,11 +51,11 @@ export default function Login() {
           </div>
 
           <h1 style={{ fontFamily: 'var(--fh)', fontWeight: 700, fontSize: 52, lineHeight: 1.05, letterSpacing: '-0.03em', marginBottom: 24 }}>
-            Exam prep that <br />
-            <span style={{ color: 'var(--primary)', fontStyle: 'italic' }}>actually works.</span>
+            Your prep,<br />
+            <span style={{ color: 'var(--primary)', fontStyle: 'italic' }}>measured.</span>
           </h1>
           <p style={{ color: 'var(--on-sv)', fontSize: 16, maxWidth: 420, lineHeight: 1.6 }}>
-            Practice real PYQs, build custom tests, and track progress. Free forever.
+            PYQs, custom tests, analytics. All free.
           </p>
         </div>
       </section>
