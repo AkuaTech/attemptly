@@ -797,7 +797,7 @@ h1.page-title {
   padding: 7px 14px; border-radius: 9999px; border: 1px solid var(--hairline); background: rgba(255,255,255,0.02); }
 .lp-eyebrow-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--primary); box-shadow: 0 0 10px var(--primary); }
 .lp-title { font-family: var(--lp-display); font-weight: 800; font-size: clamp(46px, 7vw, 94px);
-  line-height: 0.9; letter-spacing: -0.035em; color: var(--on-surface); margin: 0 0 22px; }
+  line-height: 0.9; letter-spacing: -0.035em; color: var(--on-surface); margin: 0 0 22px; text-wrap: balance; }
 .lp-title-accent { display: block; color: var(--primary); }
 .lp-sub { font-family: var(--fb); color: var(--on-sv); font-size: clamp(15px, 1.25vw, 18px);
   line-height: 1.6; max-width: 30em; margin: 0 0 34px; }
