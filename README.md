@@ -1,4 +1,4 @@
-# Prepper
+# Attemptly
 
 JEE / NEET exam preparation platform. Practice PYQs, build custom tests, track your progress.
 

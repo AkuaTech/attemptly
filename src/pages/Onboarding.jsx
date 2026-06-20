@@ -104,10 +104,10 @@ export default function Onboarding() {
             <div className="lp-brand-mark">
               <span className="material-symbols-outlined">layers</span>
             </div>
-            <span className="lp-brand-text">Prepper</span>
+            <span className="lp-brand-text">Attemptly</span>
           </div>
           <div className="lp-nav-actions">
-            <a className="lp-nav-link" href="https://github.com/akuatech/prepper" target="_blank" rel="noopener noreferrer">GitHub</a>
+            <a className="lp-nav-link" href="https://github.com/akuatech/attemptly" target="_blank" rel="noopener noreferrer">GitHub</a>
             <button className="lp-nav-signin" onClick={() => navigate('/login')}>Sign In</button>
           </div>
         </div>
@@ -233,12 +233,12 @@ export default function Onboarding() {
             <div className="lp-brand-mark lp-brand-mark-sm">
               <span className="material-symbols-outlined">layers</span>
             </div>
-            <span className="lp-brand-text lp-brand-text-sm">Prepper</span>
+            <span className="lp-brand-text lp-brand-text-sm">Attemptly</span>
           </div>
           <div className="lp-footer-links">
             <a href="https://akuatech.github.io" target="_blank" rel="noopener noreferrer">Made by Akuatech</a>
             <span className="lp-footer-sep">·</span>
-            <a href="https://github.com/akuatech/prepper" target="_blank" rel="noopener noreferrer">GitHub</a>
+            <a href="https://github.com/akuatech/attemptly" target="_blank" rel="noopener noreferrer">GitHub</a>
           </div>
           <p className="lp-footer-copy">Open source · Free forever · No tracking</p>
         </footer>

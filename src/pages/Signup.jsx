@@ -54,7 +54,7 @@ export default function Signup() {
           <div style={{ width: 40, height: 40, background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8 }}>
             <span className="material-symbols-outlined" style={{ color: 'var(--on-primary)', fontWeight: 900 }}>layers</span>
           </div>
-          <span style={{ fontFamily: 'var(--fh)', fontWeight: 900, fontSize: 22, color: 'var(--on-surface)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Prepper</span>
+          <span style={{ fontFamily: 'var(--fh)', fontWeight: 900, fontSize: 22, color: 'var(--on-surface)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Attemptly</span>
         </button>
       </div>
 

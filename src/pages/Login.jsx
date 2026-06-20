@@ -47,7 +47,7 @@ export default function Login() {
             <div style={{ width: 40, height: 40, background: 'var(--primary)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <span className="material-symbols-outlined" style={{ color: 'var(--on-primary)', fontWeight: 700 }}>bolt</span>
             </div>
-            <span style={{ fontFamily: 'var(--fh)', fontWeight: 900, fontSize: 22, letterSpacing: '0.05em', color: 'var(--on-surface)' }}>Prepper</span>
+            <span style={{ fontFamily: 'var(--fh)', fontWeight: 900, fontSize: 22, letterSpacing: '0.05em', color: 'var(--on-surface)' }}>Attemptly</span>
           </div>
 
           <h1 style={{ fontFamily: 'var(--fh)', fontWeight: 700, fontSize: 52, lineHeight: 1.05, letterSpacing: '-0.03em', marginBottom: 24 }}>

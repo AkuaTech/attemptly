@@ -35,7 +35,7 @@ export default function TopNav({ theme, toggleTheme }) {
 
   return (
     <header className="topnav">
-      <span className="topnav-brand" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>Prepper</span>
+      <span className="topnav-brand" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>Attemptly</span>
 
       <div className="topnav-right" ref={wrapRef}>
         <button
