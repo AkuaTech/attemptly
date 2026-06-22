@@ -8,6 +8,17 @@ import { MOCK_DIFFICULTIES, displayDifficulty, normalizeDifficulty } from '../li
 
 const SUBJECTS = ['Physics', 'Chemistry', 'Mathematics']
 const SIZES = [10, 20, 30]
+const DURATION_OPTIONS = [
+  { label: 'No limit', value: 0 },
+  { label: '10 min', value: 10 },
+  { label: '15 min', value: 15 },
+  { label: '20 min', value: 20 },
+  { label: '30 min', value: 30 },
+  { label: '45 min', value: 45 },
+  { label: '1 hr', value: 60 },
+  { label: '90 min', value: 90 },
+]
+
 export default function CustomTest() {
   const navigate = useNavigate()
   const { user } = useAuth()
@@ -15,11 +26,16 @@ export default function CustomTest() {
   const [chapter, setChapter] = useState('')
   const [size, setSize] = useState(20)
   const [difficulty, setDifficulty] = useState('medium')
+  const [duration, setDuration] = useState(30)
+  const [durationManual, setDurationManual] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState(null)
   const { chapters, loading: chaptersLoading } = useChapters(subject)
 
   useEffect(() => { setChapter('') }, [subject])
+  useEffect(() => {
+    if (!durationManual) setDuration(Math.max(15, Math.round(size * 1.5)))
+  }, [size, durationManual])
 
   async function handleStart() {
     if (!user) return
@@ -40,13 +56,12 @@ export default function CustomTest() {
       setBusy(false)
       return
     }
-    const duration = Math.max(15, Math.round(size * 1.5))
     const title = `Custom · ${subject}${chapter ? ` · ${slugToTitle(chapter)}` : ''} · ${size}q`
     const { data: test, error: tErr } = await supabase
       .from('mock_tests')
       .insert({
         title, pattern: 'Custom Test',
-        num_questions: size, duration_minutes: duration,
+        num_questions: size, duration_minutes: duration || null,
         difficulty: normalizedDifficulty, subject, chapter: chapter || null,
         is_official: false, created_by: user.id,
       })
@@ -114,6 +129,22 @@ export default function CustomTest() {
                 type="button"
                 className={`filter-pill ${difficulty === d.value ? 'active' : ''}`}
                 onClick={() => setDifficulty(d.value)}
+              >
+                {d.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="form-row">
+          <label className="text-micro">Time Limit</label>
+          <div className="row gap-8 flex-wrap">
+            {DURATION_OPTIONS.map(d => (
+              <button
+                key={d.value}
+                type="button"
+                className={`filter-pill ${duration === d.value ? 'active' : ''}`}
+                onClick={() => { setDuration(d.value); setDurationManual(true) }}
               >
                 {d.label}
               </button>

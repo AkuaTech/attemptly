@@ -196,6 +196,7 @@ export default function Practice() {
   const subject = params.get('subject')
   const chapter = params.get('chapter')
   const topic = params.get('topic')
+  const timeLimitParam = Number(params.get('timelimit')) || 0
   const mode = mockId ? 'mock' : isDiagnostic ? 'diagnostic' : 'practice'
 
   const [loadState, setLoadState] = useState({ loading: true, error: null })
@@ -286,29 +287,36 @@ export default function Practice() {
     return () => { cancelled = true }
   }, [user, mode, mockId, attemptIdParam, subject, chapter, topic])
 
-  // Tick the timer in mock mode
+  const timeLimitMin = mode === 'mock' ? (mock?.duration_minutes || 0) : timeLimitParam
+
+  // Tick the timer whenever a time limit is active
   useEffect(() => {
-    if (mode !== 'mock' || !mock || showSummary) return
+    if (!timeLimitMin || showSummary) return
+    if (mode === 'mock' && !mock) return
     const t = setInterval(() => setTick(t => t + 1), 1000)
     return () => clearInterval(t)
-  }, [mode, mock, showSummary])
+  }, [timeLimitMin, mock, mode, showSummary])
 
   const remainingMs = useMemo(() => {
-    if (mode !== 'mock' || !mock) return 0
-    const totalMs = (mock.duration_minutes || 60) * 60 * 1000
+    if (!timeLimitMin) return 0
+    const totalMs = timeLimitMin * 60 * 1000
     const elapsed = Date.now() - startedAtRef.current
     return Math.max(0, totalMs - elapsed)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mode, mock, tick])
+  }, [timeLimitMin, tick])
 
   const finishMock = useFinishMock({
     mock, attempt, questions, setAttempt, setShowSummary, setSubmitting, setLoadState,
   })
 
   useEffect(() => {
-    if (mode !== 'mock' || !mock || showSummary || submitting) return
-    if (remainingMs <= 0) finishMock()
-  }, [mode, mock, remainingMs, showSummary, submitting, finishMock])
+    if (!timeLimitMin || showSummary || submitting) return
+    if (mode === 'mock' && !mock) return
+    if (remainingMs <= 0) {
+      if (mode === 'mock') finishMock()
+      else setShowSummary(true)
+    }
+  }, [timeLimitMin, mode, mock, remainingMs, showSummary, submitting, finishMock])
 
   if (!user) {
     navigate('/login', { replace: true })
@@ -338,6 +346,7 @@ export default function Practice() {
       questions={questions}
       answers={answers}
       onClose={() => navigate(mode === 'mock' ? '/tests' : '/dashboard')}
+      timeLimitMs={timeLimitMin > 0 ? timeLimitMin * 60 * 1000 : null}
     />
   }
 
@@ -456,7 +465,7 @@ export default function Practice() {
         <div className="practice-progress-text">
           {idx + 1} / {questions.length}
         </div>
-        {mode === 'mock' && (
+        {timeLimitMin > 0 && (
           <div className={`practice-timer ${remainingMs < 60_000 ? 'warn' : ''}`} aria-label="Time remaining">
             {formatClock(remainingMs)}
           </div>
@@ -536,7 +545,7 @@ function useFinishMock({ mock, attempt, questions, setAttempt, setShowSummary, s
   }
 }
 
-function Summary({ mode, mock, attempt, questions, answers, onClose }) {
+function Summary({ mode, mock, attempt, questions, answers, onClose, timeLimitMs }) {
   const navigate = useNavigate()
 
   const items = useMemo(() => Object.values(answers).map(a => ({
@@ -573,7 +582,7 @@ function Summary({ mode, mock, attempt, questions, answers, onClose }) {
 
   return (
     <div className="practice-wrap">
-      <TestAnalyticsView analytics={analytics} title={title} actions={actions} />
+      <TestAnalyticsView analytics={analytics} title={title} actions={actions} timeLimitMs={timeLimitMs} />
     </div>
   )
 }

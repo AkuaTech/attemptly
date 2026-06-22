@@ -22,7 +22,7 @@ function TopicLine({ topic }) {
   )
 }
 
-export default function TestAnalyticsView({ analytics, title, subtitle, actions }) {
+export default function TestAnalyticsView({ analytics, title, subtitle, actions, timeLimitMs }) {
   const a = analytics
   const accuracyPct = Math.round(a.accuracy * 100)
   const avgLabel = a.avgSec > 0
@@ -121,8 +121,15 @@ export default function TestAnalyticsView({ analytics, title, subtitle, actions 
           <div className="glass-card editorial-card accent-card tav-block row" style={{ alignItems: 'center', gap: 16 }}>
             <span className="material-symbols-outlined text-primary" style={{ fontSize: 28 }}>timer</span>
             <div>
-              <p className="text-micro">Total Time</p>
-              <p className="summary-stat-value">{formatDurationMs(a.totalTimeMs)}</p>
+              <p className="text-micro">Time Used</p>
+              <p className="summary-stat-value">
+                {formatDurationMs(a.totalTimeMs)}
+                {timeLimitMs > 0 && (
+                  <span style={{ fontSize: 14, color: 'var(--on-sv)', fontWeight: 400, marginLeft: 6 }}>
+                    / {formatDurationMs(timeLimitMs)}
+                  </span>
+                )}
+              </p>
             </div>
             <div className="spacer" />
             <div className="text-right">
