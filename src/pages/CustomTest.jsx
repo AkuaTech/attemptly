@@ -10,7 +10,6 @@ const SUBJECTS = ['Physics', 'Chemistry', 'Mathematics']
 const SIZES = [10, 20, 30]
 const DURATION_OPTIONS = [
   { label: 'No limit', value: 0 },
-  { label: '10 min', value: 10 },
   { label: '15 min', value: 15 },
   { label: '20 min', value: 20 },
   { label: '30 min', value: 30 },
@@ -28,6 +27,8 @@ export default function CustomTest() {
   const [difficulty, setDifficulty] = useState('medium')
   const [duration, setDuration] = useState(30)
   const [durationManual, setDurationManual] = useState(false)
+  const [customActive, setCustomActive] = useState(false)
+  const [customVal, setCustomVal] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState(null)
   const { chapters, loading: chaptersLoading } = useChapters(subject)
@@ -137,19 +138,75 @@ export default function CustomTest() {
         </div>
 
         <div className="form-row">
-          <label className="text-micro">Time Limit</label>
-          <div className="row gap-8 flex-wrap">
+          <label className="text-micro">
+            Time Limit
+            <span style={{ marginLeft: 8, color: 'var(--on-sv)', fontWeight: 400, fontSize: 11 }}>
+              {customActive ? (customVal ? `${customVal} min` : '—') : duration === 0 ? '— no limit' : `${duration} min`}
+            </span>
+          </label>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
             {DURATION_OPTIONS.map(d => (
               <button
                 key={d.value}
                 type="button"
-                className={`filter-pill ${duration === d.value ? 'active' : ''}`}
-                onClick={() => { setDuration(d.value); setDurationManual(true) }}
+                style={{
+                  padding: '9px 4px',
+                  borderRadius: 8,
+                  border: `1.5px solid ${!customActive && duration === d.value ? 'var(--primary)' : 'var(--outline)'}`,
+                  background: !customActive && duration === d.value ? 'var(--primary-faint)' : 'transparent',
+                  color: !customActive && duration === d.value ? 'var(--primary)' : 'var(--on-sv)',
+                  fontFamily: 'var(--fh)',
+                  fontWeight: 700,
+                  fontSize: 12,
+                  cursor: 'pointer',
+                  transition: 'border-color 150ms, background 150ms, color 150ms',
+                }}
+                onClick={() => { setDuration(d.value); setDurationManual(true); setCustomActive(false); setCustomVal('') }}
               >
                 {d.label}
               </button>
             ))}
+            {/* Custom tile */}
+            <button
+              type="button"
+              style={{
+                padding: '9px 4px',
+                borderRadius: 8,
+                border: `1.5px solid ${customActive ? 'var(--primary)' : 'var(--outline)'}`,
+                background: customActive ? 'var(--primary-faint)' : 'transparent',
+                color: customActive ? 'var(--primary)' : 'var(--on-sv)',
+                fontFamily: 'var(--fh)',
+                fontWeight: 700,
+                fontSize: 12,
+                cursor: 'pointer',
+                transition: 'border-color 150ms, background 150ms, color 150ms',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3,
+              }}
+              onClick={() => { setCustomActive(true); setDurationManual(true); setCustomVal('') }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: 13 }}>edit</span>
+              Custom
+            </button>
           </div>
+          {customActive && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', borderRadius: 8, border: '1.5px solid var(--primary)', background: 'var(--primary-faint)' }}>
+              <input
+                type="text"
+                inputMode="numeric"
+                placeholder="e.g. 25"
+                value={customVal}
+                autoFocus
+                onChange={e => {
+                  const raw = e.target.value.replace(/\D/g, '')
+                  setCustomVal(raw)
+                  const n = parseInt(raw, 10)
+                  if (n > 0 && n <= 300) setDuration(n)
+                }}
+                style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', color: 'var(--primary)', fontFamily: 'var(--fh)', fontWeight: 700, fontSize: 15, minWidth: 0 }}
+              />
+              <span style={{ color: 'var(--primary)', fontFamily: 'var(--fh)', fontWeight: 700, fontSize: 13, flexShrink: 0 }}>min</span>
+            </div>
+          )}
         </div>
 
         {error && <p className="form-error" style={{ marginTop: 16 }}>{error.message}</p>}
