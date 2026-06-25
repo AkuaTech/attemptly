@@ -74,6 +74,14 @@ export default function Profile() {
   return (
     <div className="page-canvas">
       <header style={{ marginBottom: 48 }}>
+        <button
+          className="btn-outline"
+          style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, padding: '6px 12px', marginBottom: 20 }}
+          onClick={() => navigate(-1)}
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: 16 }}>arrow_back</span>
+          Back
+        </button>
         <h1 className="page-title">
           Your <span style={{ color: 'var(--primary)' }}>Profile.</span>
         </h1>

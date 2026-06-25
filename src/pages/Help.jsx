@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 const FAQS = [
   {
@@ -49,11 +50,20 @@ function FaqItem({ q, a, open, onToggle }) {
 }
 
 export default function Help() {
+  const navigate = useNavigate()
   const [openIdx, setOpenIdx] = useState(0)
 
   return (
     <div className="page-canvas">
       <header className="editorial-header">
+        <button
+          className="btn-outline"
+          style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, padding: '6px 12px', marginBottom: 20 }}
+          onClick={() => navigate(-1)}
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: 16 }}>arrow_back</span>
+          Back
+        </button>
         <div className="editorial-tag">
           <div className="line" />
           <span>Help & Support</span>

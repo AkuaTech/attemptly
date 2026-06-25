@@ -42,6 +42,14 @@ export default function TopicsList() {
   return (
     <div className="page-canvas">
       <header style={{ marginBottom: 48 }}>
+        <button
+          className="btn-outline"
+          style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, padding: '6px 12px', marginBottom: 20 }}
+          onClick={() => navigate(`/subjects/${encodeURIComponent(subject)}`)}
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: 16 }}>arrow_back</span>
+          {subject}
+        </button>
         <div className="editorial-tag">
           <div className="line" />
           <span>

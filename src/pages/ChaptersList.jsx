@@ -1,15 +1,24 @@
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useChapters } from '../hooks/useTaxonomy'
 import { slugToTitle } from '../lib/slug'
 import { SkeletonGridCard } from '../components/Skeleton'
 
 export default function ChaptersList() {
   const { subject } = useParams()
+  const navigate = useNavigate()
   const { chapters, loading, error } = useChapters(subject)
 
   return (
     <div className="page-canvas">
       <header className="editorial-header">
+        <button
+          className="btn-outline"
+          style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, padding: '6px 12px', marginBottom: 20 }}
+          onClick={() => navigate('/subjects')}
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: 16 }}>arrow_back</span>
+          Subjects
+        </button>
         <div className="editorial-tag">
           <div className="line" />
           <span>
