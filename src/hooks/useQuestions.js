@@ -15,7 +15,7 @@ export function useQuestions({ limit = 50, subject = null, chapter = null, topic
       let query = supabase
         .from('jee_mains')
         .select('*')
-        .eq('type', 'mcq')
+        .in('type', ['mcq', 'integer'])
         .eq('is_out_of_syllabus', false)
         .order('id', { ascending: true })
         .limit(limit)

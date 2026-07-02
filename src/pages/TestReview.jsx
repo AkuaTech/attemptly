@@ -4,12 +4,8 @@ import { supabase } from '../supabase'
 import { useAuth } from '../contexts/AuthContext'
 import MathText from '../components/MathText'
 import { dedupeAttemptsByQuestion } from '../lib/mockContract'
+import { correctDisplay, correctOption, isNumerical } from '../lib/questionAnswer'
 import { SkeletonPractice } from '../components/Skeleton'
-
-function correctIdentifier(q) {
-  const arr = Array.isArray(q.correct_options) ? q.correct_options : []
-  return arr[0] || null
-}
 
 export default function TestReview() {
   const { id: mockId } = useParams()
@@ -56,7 +52,7 @@ export default function TestReview() {
         if (ids.length > 0) {
           const { data: qData, error: qErr } = await supabase
             .from('jee_mains')
-            .select('id, subject, chapter, topic, question, options, correct_options, explanation')
+            .select('id, subject, chapter, topic, type, question, options, correct_options, answer, explanation')
             .in('id', ids)
           if (qErr) throw qErr
           questions = qData || []
@@ -106,30 +102,50 @@ export default function TestReview() {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         {data.items.map(({ attempt, question }, i) => {
-          const correct = correctIdentifier(question)
+          const correct = correctOption(question)
+          const numerical = isNumerical(question)
+          const correctVal = correctDisplay(question)
           return (
             <div key={attempt.question_id} className="question-card" style={{ padding: 24 }}>
               <div className="practice-meta" style={{ marginBottom: 12 }}>
                 Q{i + 1} · {question.subject} {attempt.is_correct ? '· Correct' : '· Wrong'}
               </div>
               <MathText>{question.question}</MathText>
-              <div className="option-list">
-                {(question.options || []).map(opt => {
-                  const isUser = attempt.selected_option === opt.identifier
-                  const isCorrect = opt.identifier === correct
-                  const isWrong = isUser && !isCorrect
-                  return (
-                    <div
-                      key={opt.identifier}
-                      className={`option-chip ${isCorrect ? 'correct' : ''} ${isWrong ? 'wrong' : ''}`}
-                      style={{ cursor: 'default' }}
-                    >
-                      <span className="option-letter">{opt.identifier}</span>
-                      <MathText style={{ flex: 1 }}>{opt.content}</MathText>
+              {numerical ? (
+                <div className="option-list">
+                  <div className={`option-chip numerical-chip ${attempt.is_correct ? 'correct' : 'wrong'}`} style={{ cursor: 'default' }}>
+                    <span className="option-letter">=</span>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontFamily: 'var(--fh)', fontWeight: 700, fontSize: 15 }}>
+                        Your answer: {attempt.selected_option || '—'}
+                      </div>
+                      {!attempt.is_correct && correctVal != null && (
+                        <div style={{ color: 'var(--primary)', fontFamily: 'var(--fh)', fontWeight: 700, fontSize: 13, marginTop: 4 }}>
+                          Correct: {correctVal}
+                        </div>
+                      )}
                     </div>
-                  )
-                })}
-              </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="option-list">
+                  {(question.options || []).map(opt => {
+                    const isUser = attempt.selected_option === opt.identifier
+                    const isCorrect = opt.identifier === correct
+                    const isWrong = isUser && !isCorrect
+                    return (
+                      <div
+                        key={opt.identifier}
+                        className={`option-chip ${isCorrect ? 'correct' : ''} ${isWrong ? 'wrong' : ''}`}
+                        style={{ cursor: 'default' }}
+                      >
+                        <span className="option-letter">{opt.identifier}</span>
+                        <MathText style={{ flex: 1 }}>{opt.content}</MathText>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
               {question.explanation && (
                 <div className="explanation-card">
                   <h4>Explanation</h4>

@@ -46,7 +46,7 @@ export default function CustomTest() {
       .from('jee_mains')
       .select('id', { count: 'exact', head: true })
       .eq('subject', subject)
-      .eq('type', 'mcq')
+      .in('type', ['mcq', 'integer'])
       .eq('is_out_of_syllabus', false)
       .eq('difficulty', normalizedDifficulty)
     if (chapter) countQuery = countQuery.eq('chapter', chapter)

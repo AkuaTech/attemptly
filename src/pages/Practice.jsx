@@ -14,6 +14,12 @@ import {
   normalizeDifficulty,
   shouldFilterMockDifficulty,
 } from '../lib/mockContract'
+import {
+  checkAnswer,
+  correctDisplay,
+  correctOption,
+  isNumerical,
+} from '../lib/questionAnswer'
 
 const DIAGNOSTIC_COUNT = 15
 const DEFAULT_PRACTICE_LIMIT = 20
@@ -25,11 +31,6 @@ function formatClock(ms) {
   const s = total % 60
   if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
   return `${m}:${String(s).padStart(2, '0')}`
-}
-
-function correctIdentifier(q) {
-  const arr = Array.isArray(q.correct_options) ? q.correct_options : []
-  return arr[0] || null
 }
 
 async function loadMockTest(mockId) {
@@ -138,8 +139,8 @@ async function createOrUpdateMockAnswer(answer) {
 async function loadQuestions({ mode, mock, subject, chapter, topic }) {
   let query = supabase
     .from('jee_mains')
-    .select('id, subject, chapter, topic, difficulty, question, options, correct_options, explanation')
-    .eq('type', 'mcq')
+    .select('id, subject, chapter, topic, difficulty, type, question, options, correct_options, answer, explanation')
+    .in('type', ['mcq', 'integer'])
     .eq('is_out_of_syllabus', false)
 
   if (mode === 'mock' && mock) {
@@ -364,14 +365,18 @@ export default function Practice() {
   }
 
   const q = questions[idx]
-  const correct = correctIdentifier(q)
+  const correct = correctOption(q)
+  const correctVal = correctDisplay(q)
+  const numerical = isNumerical(q)
+  const showCorrectness = mode !== 'mock' && submitted
+  const isCorrectAnswer = checkAnswer(q, selected)
   const isLast = idx === questions.length - 1
 
   async function handleSubmit() {
     if (!selected || submitting) return
     setSubmitting(true)
     const elapsed = Math.min(10 * 60 * 1000, Date.now() - questionStartedAtRef.current)
-    const isCorrect = selected === correct
+    const isCorrect = checkAnswer(q, selected)
 
     if (mode !== 'mock') {
       const { error } = await supabase.from('user_attempts').insert({
@@ -409,7 +414,7 @@ export default function Practice() {
     if (!selected || submitting || !attempt) return
     setSubmitting(true)
     const elapsed = Math.min(30 * 60 * 1000, Date.now() - questionStartedAtRef.current)
-    const isCorrect = selected === correct
+    const isCorrect = checkAnswer(q, selected)
     const attemptedAt = new Date().toISOString()
 
     // Persist this answer immediately so a refresh / tab-close can resume from
@@ -481,9 +486,25 @@ export default function Practice() {
         <MathText>{q.question}</MathText>
 
         <div className="option-list">
-          {(q.options || []).map(opt => {
+          {numerical ? (
+            <div
+              className={`option-chip numerical-chip ${showCorrectness ? (isCorrectAnswer ? 'correct' : (selected ? 'wrong' : '')) : ''}`}
+            >
+              <input
+                type="text"
+                inputMode="decimal"
+                placeholder="Enter your answer"
+                value={selected ?? ''}
+                onChange={e => !submitted && setSelected(e.target.value)}
+                disabled={submitted}
+                className="numerical-input"
+              />
+              {showCorrectness && !isCorrectAnswer && correctVal != null && (
+                <span className="numerical-correct">Correct: {correctVal}</span>
+              )}
+            </div>
+          ) : (q.options || []).map(opt => {
             const isSelected = selected === opt.identifier
-            const showCorrectness = mode !== 'mock' && submitted
             const isCorrect = showCorrectness && opt.identifier === correct
             const isWrong = showCorrectness && isSelected && opt.identifier !== correct
             return (
