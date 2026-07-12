@@ -3,17 +3,13 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '../supabase'
 import { useAuth } from '../contexts/AuthContext'
 import MathText from '../components/MathText'
+import Modal from '../components/Modal'
 import TestAnalyticsView from '../components/TestAnalyticsView'
 import { computeTestAnalytics } from '../lib/testAnalytics'
 import { slugToTitle } from '../lib/slug'
 import { SkeletonPractice } from '../components/Skeleton'
-import {
-  dedupeAttemptsByQuestion,
-  displayDifficulty,
-  getMockQuestionLimit,
-  normalizeDifficulty,
-  shouldFilterMockDifficulty,
-} from '../lib/mockContract'
+import { dedupeAttemptsByQuestion, displayDifficulty } from '../lib/mockContract'
+import { loadMockQuestionSet } from '../lib/mockQuestionSet'
 import {
   checkAnswer,
   correctDisplay,
@@ -23,6 +19,7 @@ import {
 
 const DIAGNOSTIC_COUNT = 15
 const DEFAULT_PRACTICE_LIMIT = 20
+const MAX_QUESTION_MS = 30 * 60 * 1000
 
 function formatClock(ms) {
   const total = Math.max(0, Math.floor(ms / 1000))
@@ -31,6 +28,18 @@ function formatClock(ms) {
   const s = total % 60
   if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
   return `${m}:${String(s).padStart(2, '0')}`
+}
+
+function shuffleInPlace(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[arr[i], arr[j]] = [arr[j], arr[i]]
+  }
+  return arr
+}
+
+function markedStorageKey(attemptId) {
+  return `mock_marked_${attemptId}`
 }
 
 async function loadMockTest(mockId) {
@@ -136,36 +145,49 @@ async function createOrUpdateMockAnswer(answer) {
   if (error) throw error
 }
 
-async function loadQuestions({ mode, mock, subject, chapter, topic }) {
+async function loadAttemptedQuestionIds({ userId, subject, chapter, topic }) {
+  let query = supabase
+    .from('user_attempts')
+    .select('question_id')
+    .eq('user_id', userId)
+  if (subject) query = query.eq('subject', subject)
+  if (chapter) query = query.eq('chapter', chapter)
+  if (topic) query = query.eq('topic', topic)
+  const { data, error } = await query
+  if (error) throw error
+  return new Set((data || []).map(r => r.question_id))
+}
+
+function pickPracticeQuestions(rows, attemptedIds, limit) {
+  const fresh = shuffleInPlace(rows.filter(q => !attemptedIds.has(q.id)))
+  if (fresh.length >= limit) return fresh.slice(0, limit)
+  const seen = shuffleInPlace(rows.filter(q => attemptedIds.has(q.id)))
+  return [...fresh, ...seen.slice(0, Math.max(0, limit - fresh.length))]
+}
+
+async function loadQuestions({ mode, mock, subject, chapter, topic, userId }) {
+  if (mode === 'mock' && mock) {
+    return loadMockQuestionSet(mock)
+  }
+
   let query = supabase
     .from('jee_mains')
     .select('id, subject, chapter, topic, difficulty, type, question, options, correct_options, answer, explanation')
     .in('type', ['mcq', 'integer'])
     .eq('is_out_of_syllabus', false)
 
-  if (mode === 'mock' && mock) {
-    if (mock.subject) query = query.eq('subject', mock.subject)
-    if (mock.chapter) query = query.eq('chapter', mock.chapter)
-    if (mock.topic) query = query.eq('topic', mock.topic)
-    if (shouldFilterMockDifficulty(mock)) {
-      query = query.eq('difficulty', normalizeDifficulty(mock.difficulty))
-    }
-    query = query.order('id', { ascending: true }).limit(getMockQuestionLimit(mock))
-  } else if (mode === 'diagnostic') {
-    query = query.order('id', { ascending: true }).limit(2000)
-  } else {
+  if (mode !== 'diagnostic') {
     if (subject) query = query.eq('subject', subject)
     if (chapter) query = query.eq('chapter', chapter)
     if (topic) query = query.eq('topic', topic)
-    query = query.order('id', { ascending: true }).limit(DEFAULT_PRACTICE_LIMIT)
   }
+  query = query.order('id', { ascending: true }).limit(2000)
 
   const { data, error } = await query
   if (error) throw error
-  let rows = data || []
+  const rows = data || []
 
   if (mode === 'diagnostic') {
-    // Pick a balanced random sample across subjects.
     const bySubject = new Map()
     for (const r of rows) {
       if (!bySubject.has(r.subject)) bySubject.set(r.subject, [])
@@ -175,15 +197,13 @@ async function loadQuestions({ mode, mock, subject, chapter, topic }) {
     const subjects = [...bySubject.keys()]
     const perSubject = Math.ceil(DIAGNOSTIC_COUNT / Math.max(1, subjects.length))
     for (const s of subjects) {
-      const pool = bySubject.get(s)
-      for (let i = pool.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));[pool[i], pool[j]] = [pool[j], pool[i]]
-      }
-      picked.push(...pool.slice(0, perSubject))
+      picked.push(...shuffleInPlace(bySubject.get(s)).slice(0, perSubject))
     }
-    rows = picked.slice(0, DIAGNOSTIC_COUNT)
+    return picked.slice(0, DIAGNOSTIC_COUNT)
   }
-  return rows
+
+  const attemptedIds = await loadAttemptedQuestionIds({ userId, subject, chapter, topic })
+  return pickPracticeQuestions(rows, attemptedIds, DEFAULT_PRACTICE_LIMIT)
 }
 
 export default function Practice() {
@@ -197,7 +217,6 @@ export default function Practice() {
   const subject = params.get('subject')
   const chapter = params.get('chapter')
   const topic = params.get('topic')
-  const timeLimitParam = Number(params.get('timelimit')) || 0
   const mode = mockId ? 'mock' : isDiagnostic ? 'diagnostic' : 'practice'
 
   const [loadState, setLoadState] = useState({ loading: true, error: null })
@@ -208,17 +227,24 @@ export default function Practice() {
   const [selected, setSelected] = useState(null)
   const [submitted, setSubmitted] = useState(false)
   const [answers, setAnswers] = useState({})
+  const [marked, setMarked] = useState(() => new Set())
+  const [visited, setVisited] = useState(() => new Set())
+  const [confirmOpen, setConfirmOpen] = useState(false)
   const [showSummary, setShowSummary] = useState(false)
   const [submitting, setSubmitting] = useState(false)
 
   const startedAtRef = useRef(Date.now())
   const questionStartedAtRef = useRef(Date.now())
+  const timeSpentRef = useRef({})
+  const timeUpRef = useRef(false)
   const [tick, setTick] = useState(0)
 
   useEffect(() => {
     let cancelled = false
     async function run() {
       try {
+        timeUpRef.current = false
+        timeSpentRef.current = {}
         let mockRow = null
         let attemptRow = null
         let qs = []
@@ -233,7 +259,7 @@ export default function Practice() {
             }
             return
           }
-          qs = await loadQuestions({ mode, mock: mockRow, subject, chapter, topic })
+          qs = await loadQuestions({ mode, mock: mockRow, subject, chapter, topic, userId: user.id })
           if (qs.length === 0) {
             throw new Error('No questions match this mock test. Try a broader custom test or choose another mock.')
           }
@@ -242,16 +268,17 @@ export default function Practice() {
             : await loadOrCreateAttempt({ mockId, userId: user.id, totalCount: qs.length })
           startedAtRef.current = new Date(attemptRow.started_at).getTime()
         } else {
-          qs = await loadQuestions({ mode, mock: mockRow, subject, chapter, topic })
+          qs = await loadQuestions({ mode, mock: mockRow, subject, chapter, topic, userId: user.id })
         }
         if (cancelled) return
 
         let resumedAnswers = {}
         let resumeIdx = 0
-        let finalizedAttempt = null
+        let storedMarked = []
         if (mode === 'mock' && attemptRow) {
           const existing = await loadExistingMockAnswers(attemptRow.id)
           for (const a of existing) {
+            timeSpentRef.current[a.question_id] = Number(a.time_spent_ms) || 0
             resumedAnswers[a.question_id] = {
               selected: a.selected_option,
               isCorrect: a.is_correct,
@@ -262,22 +289,27 @@ export default function Practice() {
           if (existing.length > 0) {
             const nextIdx = qs.findIndex(q => !(q.id in resumedAnswers))
             if (nextIdx === -1) {
-              // Every question already answered but the attempt is still 'started' —
-              // a previous finalize must have failed. Finalize now and show summary.
-              finalizedAttempt = await finalizeMockAttempt(attemptRow.id, qs.length)
+              resumeIdx = qs.length - 1
             } else {
               resumeIdx = nextIdx
             }
+          }
+          try {
+            storedMarked = JSON.parse(localStorage.getItem(markedStorageKey(attemptRow.id)) || '[]')
+          } catch {
+            storedMarked = []
           }
         }
         if (cancelled) return
 
         setMock(mockRow)
-        setAttempt(finalizedAttempt || attemptRow)
+        setAttempt(attemptRow)
         setQuestions(qs)
         setAnswers(resumedAnswers)
+        setMarked(new Set(Array.isArray(storedMarked) ? storedMarked : []))
+        setVisited(new Set(qs.filter(q => q.id in resumedAnswers).map(q => q.id)))
         setIdx(resumeIdx)
-        if (finalizedAttempt) setShowSummary(true)
+        setSelected(resumedAnswers[qs[resumeIdx]?.id]?.selected ?? null)
         questionStartedAtRef.current = Date.now()
         setLoadState({ loading: false, error: null })
       } catch (err) {
@@ -288,15 +320,14 @@ export default function Practice() {
     return () => { cancelled = true }
   }, [user, mode, mockId, attemptIdParam, subject, chapter, topic])
 
-  const timeLimitMin = mode === 'mock' ? (mock?.duration_minutes || 0) : timeLimitParam
+  const timeLimitMin = mode === 'mock' ? (mock?.duration_minutes || 0) : 0
 
-  // Tick the timer whenever a time limit is active
   useEffect(() => {
-    if (!timeLimitMin || showSummary) return
-    if (mode === 'mock' && !mock) return
+    if (showSummary || loadState.loading) return
+    if (mode === 'mock' && (!mock || !timeLimitMin)) return
     const t = setInterval(() => setTick(t => t + 1), 1000)
     return () => clearInterval(t)
-  }, [timeLimitMin, mock, mode, showSummary])
+  }, [timeLimitMin, mock, mode, showSummary, loadState.loading])
 
   const remainingMs = useMemo(() => {
     if (!timeLimitMin) return 0
@@ -310,14 +341,142 @@ export default function Practice() {
     mock, attempt, questions, setAttempt, setShowSummary, setSubmitting, setLoadState,
   })
 
+  const q = questions[idx]
+  const isLast = idx === questions.length - 1
+
   useEffect(() => {
-    if (!timeLimitMin || showSummary || submitting) return
-    if (mode === 'mock' && !mock) return
-    if (remainingMs <= 0) {
-      if (mode === 'mock') finishMock()
-      else setShowSummary(true)
+    if (mode !== 'mock' || !q) return
+    setVisited(prev => (prev.has(q.id) ? prev : new Set(prev).add(q.id)))
+  }, [mode, q])
+
+  useEffect(() => {
+    if (mode !== 'mock' || !attempt || attempt.status !== 'started') return
+    localStorage.setItem(markedStorageKey(attempt.id), JSON.stringify([...marked]))
+  }, [marked, mode, attempt])
+
+  function accumulateTime() {
+    if (!q) return
+    const stint = Date.now() - questionStartedAtRef.current
+    timeSpentRef.current[q.id] = Math.min(MAX_QUESTION_MS, (timeSpentRef.current[q.id] || 0) + stint)
+    questionStartedAtRef.current = Date.now()
+  }
+
+  function pendingSelection() {
+    if (selected == null || String(selected).trim() === '') return null
+    return selected
+  }
+
+  async function persistCurrentAnswer() {
+    if (mode !== 'mock' || !attempt || !q) return
+    const value = pendingSelection()
+    const savedSel = answers[q.id]?.selected ?? null
+    if (value == null || value === savedSel) return
+    const isCorrect = checkAnswer(q, value)
+    await createOrUpdateMockAnswer({
+      user_id: user.id,
+      mock_attempt_id: attempt.id,
+      question_id: q.id,
+      subject: q.subject, chapter: q.chapter, topic: q.topic,
+      selected_option: value,
+      is_correct: isCorrect,
+      time_spent_ms: timeSpentRef.current[q.id] || 0,
+      attempted_at: new Date().toISOString(),
+    })
+    setAnswers(prev => ({
+      ...prev,
+      [q.id]: {
+        selected: value,
+        isCorrect,
+        timeSpentMs: timeSpentRef.current[q.id] || 0,
+        subject: q.subject, chapter: q.chapter, topic: q.topic,
+      },
+    }))
+  }
+
+  async function gotoQuestion(nextIdx) {
+    if (mode !== 'mock' || submitting) return
+    if (nextIdx === idx || nextIdx < 0 || nextIdx >= questions.length) return
+    accumulateTime()
+    try {
+      await persistCurrentAnswer()
+    } catch (error) {
+      setLoadState({ loading: false, error })
+      return
     }
-  }, [timeLimitMin, mode, mock, remainingMs, showSummary, submitting, finishMock])
+    setIdx(nextIdx)
+    setSelected(answers[questions[nextIdx].id]?.selected ?? null)
+    questionStartedAtRef.current = Date.now()
+  }
+
+  async function submitTest() {
+    if (submitting) return
+    setConfirmOpen(false)
+    accumulateTime()
+    try {
+      await persistCurrentAnswer()
+    } catch (error) {
+      setLoadState({ loading: false, error })
+      return
+    }
+    await finishMock()
+  }
+
+  function toggleMarked() {
+    if (!q) return
+    setMarked(prev => {
+      const next = new Set(prev)
+      if (next.has(q.id)) next.delete(q.id)
+      else next.add(q.id)
+      return next
+    })
+  }
+
+  useEffect(() => {
+    if (mode !== 'mock' || !timeLimitMin || !mock || showSummary || submitting || loadState.loading) return
+    if (remainingMs > 0 || timeUpRef.current) return
+    timeUpRef.current = true
+    submitTest()
+  })
+
+  async function handleSubmit() {
+    if (!selected || submitting) return
+    setSubmitting(true)
+    const elapsed = Math.min(10 * 60 * 1000, Date.now() - questionStartedAtRef.current)
+    const isCorrect = checkAnswer(q, selected)
+
+    const { error } = await supabase.from('user_attempts').insert({
+      user_id: user.id,
+      question_id: q.id,
+      subject: q.subject, chapter: q.chapter, topic: q.topic,
+      selected_option: selected,
+      is_correct: isCorrect,
+      time_spent_ms: elapsed,
+    })
+    if (error) { setLoadState({ loading: false, error }); setSubmitting(false); return }
+
+    setAnswers(prev => ({
+      ...prev,
+      [q.id]: { selected, isCorrect, timeSpentMs: elapsed, subject: q.subject, chapter: q.chapter, topic: q.topic },
+    }))
+    setSubmitted(true)
+    setSubmitting(false)
+  }
+
+  function handleNext() {
+    if (idx + 1 < questions.length) {
+      setIdx(idx + 1)
+      setSelected(null)
+      setSubmitted(false)
+      questionStartedAtRef.current = Date.now()
+    } else {
+      setShowSummary(true)
+    }
+  }
+
+  function handleSkip() {
+    if (submitting) return
+    handleNext()
+  }
 
   if (!user) {
     navigate('/login', { replace: true })
@@ -364,93 +523,17 @@ export default function Practice() {
     )
   }
 
-  const q = questions[idx]
+  const questionElapsedMs = Date.now() - questionStartedAtRef.current
   const correct = correctOption(q)
   const correctVal = correctDisplay(q)
   const numerical = isNumerical(q)
   const showCorrectness = mode !== 'mock' && submitted
   const isCorrectAnswer = checkAnswer(q, selected)
-  const isLast = idx === questions.length - 1
-
-  async function handleSubmit() {
-    if (!selected || submitting) return
-    setSubmitting(true)
-    const elapsed = Math.min(10 * 60 * 1000, Date.now() - questionStartedAtRef.current)
-    const isCorrect = checkAnswer(q, selected)
-
-    if (mode !== 'mock') {
-      const { error } = await supabase.from('user_attempts').insert({
-        user_id: user.id,
-        question_id: q.id,
-        subject: q.subject, chapter: q.chapter, topic: q.topic,
-        selected_option: selected,
-        is_correct: isCorrect,
-        time_spent_ms: elapsed,
-      })
-      if (error) { setLoadState({ loading: false, error }); setSubmitting(false); return }
-    }
-
-    setAnswers(prev => ({
-      ...prev,
-      [q.id]: { selected, isCorrect, timeSpentMs: elapsed, subject: q.subject, chapter: q.chapter, topic: q.topic },
-    }))
-    setSubmitted(true)
-    setSubmitting(false)
-  }
-
-  function handleNext() {
-    if (idx + 1 < questions.length) {
-      setIdx(idx + 1)
-      setSelected(null)
-      setSubmitted(false)
-      questionStartedAtRef.current = Date.now()
-    } else {
-      if (mode === 'mock') finishMock()
-      else setShowSummary(true)
-    }
-  }
-
-  async function handleMockNext() {
-    if (!selected || submitting || !attempt) return
-    setSubmitting(true)
-    const elapsed = Math.min(30 * 60 * 1000, Date.now() - questionStartedAtRef.current)
-    const isCorrect = checkAnswer(q, selected)
-    const attemptedAt = new Date().toISOString()
-
-    // Persist this answer immediately so a refresh / tab-close can resume from
-    // here, and so attempted_at reflects when the work actually happened
-    // rather than when the whole mock is submitted.
-    try {
-      await createOrUpdateMockAnswer({
-        user_id: user.id,
-        mock_attempt_id: attempt.id,
-        question_id: q.id,
-        subject: q.subject, chapter: q.chapter, topic: q.topic,
-        selected_option: selected,
-        is_correct: isCorrect,
-        time_spent_ms: elapsed,
-        attempted_at: attemptedAt,
-      })
-    } catch (error) {
-      setLoadState({ loading: false, error })
-      setSubmitting(false)
-      return
-    }
-
-    setAnswers(prev => ({
-      ...prev,
-      [q.id]: { selected, isCorrect, timeSpentMs: elapsed, subject: q.subject, chapter: q.chapter, topic: q.topic },
-    }))
-
-    if (isLast) {
-      await finishMock()
-    } else {
-      setIdx(idx + 1)
-      setSelected(null)
-      questionStartedAtRef.current = Date.now()
-      setSubmitting(false)
-    }
-  }
+  const answeredCount = Object.keys(answers).length + (q && !answers[q.id] && pendingSelection() ? 1 : 0)
+  const unansweredCount = Math.max(0, questions.length - answeredCount)
+  const progressRatio = mode === 'mock'
+    ? answeredCount / questions.length
+    : (idx + (submitted ? 1 : 0)) / questions.length
 
   const headerLabel = mode === 'mock'
     ? mock?.title
@@ -465,21 +548,62 @@ export default function Practice() {
           <span className="material-symbols-outlined">close</span>
         </button>
         <div className="practice-progress" aria-label={`Question ${idx + 1} of ${questions.length}`}>
-          <div className="practice-progress-fill" style={{ width: `${((idx + (submitted ? 1 : 0)) / questions.length) * 100}%` }} />
+          <div className="practice-progress-fill" style={{ width: `${progressRatio * 100}%` }} />
         </div>
         <div className="practice-progress-text">
           {idx + 1} / {questions.length}
         </div>
-        {timeLimitMin > 0 && (
-          <div className={`practice-timer ${remainingMs < 60_000 ? 'warn' : ''}`} aria-label="Time remaining">
-            {formatClock(remainingMs)}
+        {mode === 'mock' ? (
+          <>
+            {timeLimitMin > 0 && (
+              <div className={`practice-timer ${remainingMs < 60_000 ? 'warn' : ''}`} aria-label="Time remaining">
+                {formatClock(remainingMs)}
+              </div>
+            )}
+            <button
+              className="btn-outline"
+              style={{ padding: '8px 14px', borderRadius: 8, fontSize: 12, flexShrink: 0 }}
+              disabled={submitting}
+              onClick={() => setConfirmOpen(true)}
+            >
+              Submit
+            </button>
+          </>
+        ) : (
+          <div className="practice-timer" aria-label="Time on this question">
+            {formatClock(questionElapsedMs)}
           </div>
         )}
       </div>
 
+      {mode === 'mock' && (
+        <>
+          <div className="qpalette" aria-label="Question palette">
+            {questions.map((item, i) => {
+              const cls = [
+                'qpalette-chip',
+                i === idx ? 'current' : '',
+                answers[item.id] ? 'answered' : visited.has(item.id) ? 'seen' : '',
+                marked.has(item.id) ? 'marked' : '',
+              ].filter(Boolean).join(' ')
+              return (
+                <button key={item.id} className={cls} onClick={() => gotoQuestion(i)} aria-label={`Go to question ${i + 1}`}>
+                  {i + 1}
+                </button>
+              )
+            })}
+          </div>
+          <div className="qpalette-legend">
+            <span><i className="qpalette-dot answered" /> Answered</span>
+            <span><i className="qpalette-dot seen" /> Seen</span>
+            <span><i className="qpalette-dot marked" /> Marked for review</span>
+          </div>
+        </>
+      )}
+
       <div className="practice-meta">
         {headerLabel}
-        {q.difficulty && <span style={{ marginLeft: 12, color: 'var(--primary)' }}>· {displayDifficulty(q.difficulty)}</span>}
+        {mode !== 'mock' && q.difficulty && <span style={{ marginLeft: 12, color: 'var(--primary)' }}>· {displayDifficulty(q.difficulty)}</span>}
       </div>
 
       <div className="question-card">
@@ -531,14 +655,44 @@ export default function Practice() {
 
       <div className="practice-actions">
         {mode === 'mock' ? (
-          <button className="submit-btn" disabled={!selected || submitting} onClick={handleMockNext}>
-            {isLast ? (submitting ? 'Submitting…' : 'Submit Test') : 'Next'}
-            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_forward</span>
-          </button>
+          <>
+            <button
+              className="btn-outline practice-nav-btn"
+              disabled={idx === 0 || submitting}
+              onClick={() => gotoQuestion(idx - 1)}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_back</span>
+              Prev
+            </button>
+            <button
+              className={`btn-outline practice-nav-btn ${marked.has(q.id) ? 'is-marked' : ''}`}
+              disabled={submitting}
+              onClick={toggleMarked}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: 18 }}>flag</span>
+              {marked.has(q.id) ? 'Marked' : 'Mark'}
+            </button>
+            {isLast ? (
+              <button className="submit-btn" disabled={submitting} onClick={() => setConfirmOpen(true)}>
+                {submitting ? 'Submitting…' : 'Submit Test'}
+              </button>
+            ) : (
+              <button className="submit-btn" disabled={submitting} onClick={() => gotoQuestion(idx + 1)}>
+                Save & Next
+                <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_forward</span>
+              </button>
+            )}
+          </>
         ) : !submitted ? (
-          <button className="submit-btn" disabled={!selected || submitting} onClick={handleSubmit}>
-            {submitting ? 'Saving…' : 'Submit'}
-          </button>
+          <>
+            <button className="btn-outline practice-nav-btn" disabled={submitting} onClick={handleSkip}>
+              Skip
+              <span className="material-symbols-outlined" style={{ fontSize: 18 }}>skip_next</span>
+            </button>
+            <button className="submit-btn" disabled={!selected || submitting} onClick={handleSubmit}>
+              {submitting ? 'Saving…' : 'Submit'}
+            </button>
+          </>
         ) : (
           <button className="submit-btn" onClick={handleNext}>
             {isLast ? 'Finish' : 'Next Question'}
@@ -546,6 +700,37 @@ export default function Practice() {
           </button>
         )}
       </div>
+
+      <Modal
+        open={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        title="Submit test?"
+        footer={(
+          <>
+            <button
+              className="btn-outline"
+              style={{ padding: '10px 16px', borderRadius: 10 }}
+              onClick={() => setConfirmOpen(false)}
+            >
+              Keep going
+            </button>
+            <button
+              className="submit-btn"
+              style={{ width: 'auto', padding: '10px 20px' }}
+              disabled={submitting}
+              onClick={submitTest}
+            >
+              {submitting ? 'Submitting…' : 'Submit Test'}
+            </button>
+          </>
+        )}
+      >
+        <p className="text-sm" style={{ lineHeight: 1.7 }}>
+          You've answered {answeredCount} of {questions.length} questions.
+          {unansweredCount > 0 && <> <strong>{unansweredCount} unanswered</strong> will be scored as incorrect.</>}
+          {marked.size > 0 && <> {marked.size} still marked for review.</>}
+        </p>
+      </Modal>
     </div>
   )
 }
@@ -557,6 +742,7 @@ function useFinishMock({ mock, attempt, questions, setAttempt, setShowSummary, s
     try {
       const updated = await finalizeMockAttempt(attempt.id, questions.length)
       if (updated) setAttempt(updated)
+      localStorage.removeItem(markedStorageKey(attempt.id))
       setShowSummary(true)
     } catch (err) {
       setLoadState({ loading: false, error: err })
@@ -583,7 +769,7 @@ function Summary({ mode, mock, attempt, questions, answers, onClose, timeLimitMs
 
   const actions = mode === 'mock' && mock ? (
     <>
-      <button className="btn-outline" style={{ padding: '12px 20px', borderRadius: 10 }} onClick={() => navigate(`/tests/${mock.id}/review`)}>
+      <button className="btn-outline" style={{ padding: '12px 20px', borderRadius: 10 }} onClick={() => navigate(`/tests/${mock.id}/review?attempt=${attempt?.id || ''}`)}>
         Review Answers
       </button>
       <button className="submit-btn" style={{ width: 'auto', padding: '12px 24px' }} onClick={onClose}>

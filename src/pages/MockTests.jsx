@@ -199,13 +199,22 @@ export default function MockTests() {
                     <div className="text-black mb-4" style={{ fontFamily: 'var(--fh)', fontSize: 24, letterSpacing: '-0.02em', color: test.score >= 70 ? 'var(--primary)' : 'var(--error)' }}>
                       {test.score}%
                     </div>
-                    <button
-                      className="btn-outline text-micro"
-                      style={{ padding: '4px 10px' }}
-                      onClick={() => handleReview(test)}
-                    >
-                      Review
-                    </button>
+                    <div className="row gap-8" style={{ justifyContent: 'flex-end' }}>
+                      <button
+                        className="btn-outline text-micro"
+                        style={{ padding: '4px 10px' }}
+                        onClick={() => handleReview(test)}
+                      >
+                        Review
+                      </button>
+                      <button
+                        className="btn-outline text-micro"
+                        style={{ padding: '4px 10px', color: 'var(--primary)', borderColor: 'var(--primary)' }}
+                        onClick={() => handleStart(test)}
+                      >
+                        Retake
+                      </button>
+                    </div>
                   </div>
                 ) : (
                   <button

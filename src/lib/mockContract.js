@@ -1,3 +1,5 @@
+import { isNumerical } from './questionAnswer'
+
 export const MOCK_DIFFICULTIES = [
   { value: 'easy', label: 'Easy' },
   { value: 'medium', label: 'Medium' },
@@ -24,6 +26,20 @@ export function shouldFilterMockDifficulty(mock) {
 export function getMockQuestionLimit(mock, fallback = 30) {
   const limit = Number(mock?.num_questions)
   return Number.isFinite(limit) && limit > 0 ? Math.floor(limit) : fallback
+}
+
+export function pickMockQuestions(rows = [], limit) {
+  if (!Number.isFinite(limit) || limit <= 0 || rows.length <= limit) return rows
+  const numerical = rows.filter(isNumerical)
+  if (numerical.length === 0) return rows.slice(0, limit)
+  const mcq = rows.filter(q => !isNumerical(q))
+  let numericalTarget = Math.max(1, Math.round((numerical.length / rows.length) * limit))
+  numericalTarget = Math.min(numericalTarget, numerical.length, limit)
+  const mcqTarget = Math.min(limit - numericalTarget, mcq.length)
+  const chosen = new Set(
+    [...mcq.slice(0, mcqTarget), ...numerical.slice(0, limit - mcqTarget)].map(q => q.id)
+  )
+  return rows.filter(q => chosen.has(q.id))
 }
 
 export function dedupeAttemptsByQuestion(rows = []) {
