@@ -59,16 +59,22 @@ function ToolBtn({ label, active, onClick }) {
       type="button"
       onMouseDown={e => { e.preventDefault(); onClick() }}
       style={{
-        padding: '3px 8px',
-        borderRadius: 5,
-        border: '1px solid var(--line-2)',
-        background: active ? 'var(--primary)' : 'transparent',
-        color: active ? 'var(--on-primary)' : 'var(--on-surface)',
+        padding: '5px 10px',
+        borderRadius: 8,
+        border: active ? '1px solid rgba(231,249,92,0.25)' : '1px solid var(--line-2)',
+        background: active
+          ? 'linear-gradient(145deg, rgba(231,249,92,0.10) 0%, rgba(231,249,92,0.05) 100%)'
+          : 'transparent',
+        color: active ? 'var(--primary)' : 'var(--on-surface)',
         cursor: 'pointer',
         fontSize: 12,
         fontWeight: 700,
         lineHeight: 1.6,
+        transition: 'all 200ms ease',
+        fontFamily: 'var(--fh)',
       }}
+      onMouseEnter={e => { if (!active) e.currentTarget.style.background = 'var(--hover-white)' }}
+      onMouseLeave={e => { if (!active) e.currentTarget.style.background = 'transparent' }}
     >
       {label}
     </button>
@@ -407,24 +413,53 @@ export default function Notes() {
         .tab-bar {
           display: flex;
           gap: 4px;
-          padding: 4px;
-          background: var(--surface);
-          border-radius: 12px;
+          padding: 5px;
+          background: linear-gradient(145deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%), var(--sc-low);
+          border-radius: 14px;
           margin-bottom: 24px;
+          border: 1px solid var(--glass-border);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), 0 2px 8px rgba(0,0,0,0.06);
+          max-width: 480px;
         }
         .tab-btn {
           flex: 1;
-          padding: 10px 16px;
-          border-radius: 8px;
+          padding: 10px 14px;
+          border-radius: 10px;
           font-size: 13px;
           font-weight: 600;
           color: var(--on-sv);
           background: transparent;
-          transition: all 0.2s;
+          border: none;
+          cursor: pointer;
+          transition: all 250ms cubic-bezier(.16,1,.3,1);
+          position: relative;
+          overflow: hidden;
+          font-family: var(--fh);
+        }
+        .tab-btn::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          border-radius: inherit;
+          pointer-events: none;
+          opacity: 0;
+          background: linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.20) 50%, transparent 70%);
+          background-size: 200% 100%;
+          background-position: 150% 0;
+          transition: opacity 400ms ease, background-position 500ms ease;
+        }
+        .tab-btn:hover {
+          color: var(--on-surface);
         }
         .tab-btn.active {
-          background: var(--primary);
-          color: var(--on-primary);
+          background: linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%), var(--sc-high);
+          color: var(--on-surface);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 2px 8px rgba(0,0,0,0.08);
+          border: 1px solid rgba(231,249,92,0.12);
+        }
+        .tab-btn.active::before {
+          opacity: 0.4;
+          background-position: -50% 0;
         }
         .breadcrumb {
           display: flex;
@@ -434,26 +469,37 @@ export default function Notes() {
           color: var(--on-sv);
           margin-bottom: 16px;
           flex-wrap: wrap;
+          padding: 10px 16px;
+          border-radius: 12px;
+          background: linear-gradient(145deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0) 100%), var(--sc-high);
+          border: 1px solid var(--glass-border);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
+          width: fit-content;
         }
         .breadcrumb-link {
           color: var(--primary);
           cursor: pointer;
-          text-decoration: underline;
+          text-decoration: none;
+          font-weight: 600;
+          transition: color 150ms ease;
         }
-        .breadcrumb-sep { opacity: 0.5; }
+        .breadcrumb-link:hover { text-decoration: underline; }
+        .breadcrumb-sep { opacity: 0.3; }
         .breadcrumb-back {
           display: inline-flex;
           align-items: center;
           gap: 4px;
-          padding: 0;
-          background: none;
-          border: none;
+          padding: 4px 10px;
+          background: rgba(255,255,255,0.03);
+          border: 1px solid var(--glass-border);
+          border-radius: 8px;
           font: inherit;
           font-size: 13px;
           color: var(--on-sv);
           cursor: pointer;
+          transition: all 200ms ease;
         }
-        .breadcrumb-back:hover { color: var(--primary); }
+        .breadcrumb-back:hover { color: var(--primary); border-color: rgba(231,249,92,0.20); background: rgba(231,249,92,0.04); }
         .breadcrumb-back .material-symbols-outlined { font-size: 16px; }
       `}</style>
 
@@ -483,16 +529,29 @@ export default function Notes() {
                 value={subject}
                 onChange={e => setSubject(e.target.value)}
                 style={{
-                  flex: 1, minWidth: 180, padding: '10px 14px', borderRadius: 10,
-                  border: '2px solid var(--primary)', background: 'var(--surface)',
+                  flex: 1, minWidth: 180, padding: '10px 14px', borderRadius: 12,
+                  border: '1px solid var(--glass-border)', background: 'var(--sc-high)',
                   color: 'var(--fg)', fontSize: 14, fontWeight: 500, cursor: 'pointer',
+                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.03), 0 2px 8px rgba(0,0,0,0.06)',
+                  fontFamily: 'var(--fh)',
                 }}
               >
                 {SUBJECTS.map(s => <option key={s} value={s}>{s}</option>)}
               </select>
               <button
                 className="btn-outline"
-                style={{ padding: '10px 18px', borderRadius: 10, fontWeight: 600, whiteSpace: 'nowrap' }}
+                style={{
+                  padding: '10px 20px', borderRadius: 12, fontWeight: 700, whiteSpace: 'nowrap',
+                  background: 'linear-gradient(145deg, rgba(231,249,92,0.08) 0%, rgba(231,249,92,0.03) 100%)',
+                  border: '1px solid rgba(231,249,92,0.18)',
+                  color: 'var(--primary)',
+                  fontFamily: 'var(--fh)',
+                  fontSize: 13,
+                  letterSpacing: '0.02em',
+                  transition: 'all 200ms ease',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 16px rgba(231,249,92,0.12)' }}
+                onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none' }}
                 onClick={openNew}
               >
                 + New Note

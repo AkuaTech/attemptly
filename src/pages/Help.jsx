@@ -20,7 +20,7 @@ const FAQS = [
   },
   {
     q: 'How do I report a bad question or wrong answer key?',
-    a: 'Email the team at hello@attemptly.dev with the question id (visible during practice) — fixes go out within a couple of days.',
+    a: 'Email the team at akuatech.support@gmail.com with the question id (visible during practice) — fixes go out within a couple of days.',
   },
   {
     q: 'Can I delete my account?',
@@ -89,7 +89,7 @@ export default function Help() {
         <div style={{ flex: 1 }}>
           <h3 className="section-title" style={{ marginBottom: 4 }}>Still stuck?</h3>
           <p className="text-sm" style={{ color: 'var(--on-sv)' }}>
-            Reach the team at <a href="mailto:hello@attemptly.dev" style={{ color: 'var(--primary)', fontWeight: 700 }}>hello@attemptly.dev</a>.
+            Reach the team at <a href="mailto:akuatech.support@gmail.com" style={{ color: 'var(--primary)', fontWeight: 700 }}>akuatech.support@gmail.com</a>.
           </p>
         </div>
       </div>

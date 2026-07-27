@@ -39,33 +39,51 @@ export default function Login() {
   return (
     <main className="login-wrap">
       <a href="#login-form" className="sr-only">Skip to content</a>
+      {/* Atmospheric background matching landing page */}
+      <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none' }}>
+        <div style={{ position: 'absolute', inset: 0, opacity: 0.08, background: 'radial-gradient(circle at 20% 10%, rgba(231,249,92,0.20) 0%, transparent 50%)' }} />
+        <div style={{ position: 'absolute', inset: 0, opacity: 0.05, background: 'radial-gradient(circle at 80% 80%, rgba(231,249,92,0.15) 0%, transparent 40%)' }} />
+      </div>
+
       <section className="login-left">
         <div style={{ position: 'absolute', inset: 0, opacity: 0.12, pointerEvents: 'none', background: 'radial-gradient(circle at top left, var(--primary) 0%, transparent 50%)' }} />
 
         <div style={{ position: 'relative', zIndex: 1 }}>
-          <div className="row" style={{ marginBottom: 48 }}>
-            <div style={{ width: 40, height: 40, background: 'var(--primary)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span className="material-symbols-outlined" style={{ color: 'var(--on-primary)', fontWeight: 700 }}>bolt</span>
+          <button onClick={() => navigate('/')} style={{ display: 'flex', alignItems: 'center', gap: 14, cursor: 'pointer', background: 'none', marginBottom: 56, padding: '8px 12px', borderRadius: 12, transition: 'background 200ms ease' }} className="lp-nav-link">
+            <div style={{ width: 44, height: 44, background: 'var(--primary)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 6px 24px rgba(231,249,92,0.25)' }}>
+              <span className="material-symbols-outlined" style={{ color: 'var(--on-primary)', fontWeight: 700, fontSize: 24 }}>layers</span>
             </div>
-            <span style={{ fontFamily: 'var(--fh)', fontWeight: 900, fontSize: 22, letterSpacing: '0.05em', color: 'var(--on-surface)' }}>Attemptly</span>
-          </div>
+            <span style={{ fontFamily: 'var(--lp-display)', fontWeight: 800, fontSize: 24, letterSpacing: '-0.01em', color: 'var(--on-surface)' }}>Attemptly</span>
+          </button>
 
-          <h1 style={{ fontFamily: 'var(--fh)', fontWeight: 700, fontSize: 52, lineHeight: 1.05, letterSpacing: '-0.03em', marginBottom: 24 }}>
+          <h1 style={{ fontFamily: 'var(--lp-display)', fontWeight: 800, fontSize: 'clamp(42px, 5vw, 64px)', lineHeight: 0.95, letterSpacing: '-0.035em', marginBottom: 28 }}>
             Your prep,<br />
-            <span style={{ color: 'var(--primary)', fontStyle: 'italic' }}>measured.</span>
+            <span style={{ color: 'var(--primary)' }}>measured.</span>
           </h1>
-          <p style={{ color: 'var(--on-sv)', fontSize: 16, maxWidth: 420, lineHeight: 1.6 }}>
-            PYQs, custom tests, analytics. All free.
+          <p style={{ color: 'var(--on-sv)', fontSize: 17, maxWidth: 420, lineHeight: 1.65, fontFamily: 'var(--fb)' }}>
+            Real previous-year questions, custom mock tests, and analytics that tell you exactly what to fix.
           </p>
+
+          {/* Stats strip */}
+          <div style={{ display: 'flex', gap: 0, marginTop: 48, border: '1px solid var(--hairline)', borderRadius: 16, overflow: 'hidden', width: 'fit-content' }}>
+            {[{v:'Free',l:'Forever'},{v:'0',l:'Ads'},{v:'JEE',l:'Focused'}].map((s,i) => (
+              <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: '18px 24px', borderLeft: i > 0 ? '1px solid var(--hairline)' : 'none' }}>
+                <span style={{ fontFamily: 'var(--lp-display)', fontWeight: 800, fontSize: 22, letterSpacing: '-0.02em', color: 'var(--on-surface)' }}>{s.v}</span>
+                <span style={{ fontFamily: 'var(--lp-mono)', fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--muted)' }}>{s.l}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
       <section className="login-right" id="login-form">
-        <div style={{ width: '100%', maxWidth: 420 }}>
-          <div style={{ marginBottom: 40 }}>
-            <h2 style={{ fontFamily: 'var(--fh)', fontWeight: 700, fontSize: 28, marginBottom: 8 }}>Welcome Back</h2>
-            <p className="text-sm">Pick up where you left off.</p>
-          </div>
+        {/* Glass-card form container */}
+        <div style={{ width: '100%', maxWidth: 440, position: 'relative', zIndex: 1 }}>
+          <div className="glass-card" style={{ padding: '40px 36px', borderRadius: 24 }}>
+            <div style={{ marginBottom: 32 }}>
+              <h2 style={{ fontFamily: 'var(--lp-display)', fontWeight: 800, fontSize: 28, letterSpacing: '-0.02em', marginBottom: 6 }}>Welcome back</h2>
+              <p className="text-sm">Pick up where you left off.</p>
+            </div>
 
           {error && (
             <div style={{ background: 'rgba(255,113,81,0.1)', border: '1px solid rgba(255,113,81,0.3)', borderRadius: 8, padding: '10px 16px', marginBottom: 20, fontSize: 13, color: 'var(--error)' }}>
@@ -112,7 +130,7 @@ export default function Login() {
             </button>
           </form>
 
-          <div style={{ marginTop: 48, textAlign: 'center' }}>
+          <div style={{ marginTop: 40, textAlign: 'center' }}>
             <p className="text-sm">
               New here?{' '}
               <button style={{ color: 'var(--primary)', fontWeight: 700, cursor: 'pointer', background: 'none', fontFamily: 'inherit', fontSize: 14 }}
@@ -121,6 +139,7 @@ export default function Login() {
             </p>
           </div>
         </div>
+      </div>
       </section>
     </main>
   )

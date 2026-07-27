@@ -256,10 +256,10 @@ export default function Analytics() {
               {overallTotal > 0 && (
                 <polygon points={radarPoints} style={{ fill: 'var(--primary-faint)' }} stroke="var(--primary)" strokeWidth="2" />
               )}
-              <text x="100" y="15" fill="var(--on-sv)" fontSize="8" textAnchor="middle" fontFamily="Space Grotesk" fontWeight="700">ACCURACY</text>
-              <text x="195" y="103" fill="var(--on-sv)" fontSize="8" textAnchor="start" fontFamily="Space Grotesk" fontWeight="700">SPEED</text>
-              <text x="100" y="195" fill="var(--on-sv)" fontSize="8" textAnchor="middle" fontFamily="Space Grotesk" fontWeight="700">CONSISTENCY</text>
-              <text x="5" y="103" fill="var(--on-sv)" fontSize="8" textAnchor="end" fontFamily="Space Grotesk" fontWeight="700">VOLUME</text>
+              <text x="100" y="15" fill="var(--on-sv)" fontSize="8" textAnchor="middle" fontFamily="Geist, Inter, sans-serif" fontWeight="700">ACCURACY</text>
+              <text x="195" y="103" fill="var(--on-sv)" fontSize="8" textAnchor="start" fontFamily="Geist, Inter, sans-serif" fontWeight="700">SPEED</text>
+              <text x="100" y="195" fill="var(--on-sv)" fontSize="8" textAnchor="middle" fontFamily="Geist, Inter, sans-serif" fontWeight="700">CONSISTENCY</text>
+              <text x="5" y="103" fill="var(--on-sv)" fontSize="8" textAnchor="end" fontFamily="Geist, Inter, sans-serif" fontWeight="700">VOLUME</text>
             </svg>
           </div>
           <div className="analytics-metric-grid">

@@ -43,72 +43,77 @@ export default function Signup() {
   }
 
   return (
-    <div className="onboarding-wrap">
+    <div className="onboarding-wrap" style={{ position: 'relative' }}>
       <a href="#signup-form" className="sr-only">Skip to content</a>
+      {/* Atmospheric background matching landing page */}
       <div style={{ position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none' }}>
-        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 0% 0%, rgba(231,249,92,0.06) 0%, transparent 40%)' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 0% 0%, rgba(231,249,92,0.08) 0%, transparent 40%)' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 80% 60%, rgba(231,249,92,0.04) 0%, transparent 50%)' }} />
       </div>
 
       <div className="auth-brand-link">
-        <button onClick={() => navigate('/')} style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', background: 'none' }}>
-          <div style={{ width: 40, height: 40, background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8 }}>
-            <span className="material-symbols-outlined" style={{ color: 'var(--on-primary)', fontWeight: 900 }}>layers</span>
+        <button onClick={() => navigate('/')} style={{ display: 'flex', alignItems: 'center', gap: 14, cursor: 'pointer', background: 'none', padding: '8px 12px', borderRadius: 12, transition: 'background 200ms ease' }} className="lp-nav-link">
+          <div style={{ width: 44, height: 44, background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 12, boxShadow: '0 6px 24px rgba(231,249,92,0.25)' }}>
+            <span className="material-symbols-outlined" style={{ color: 'var(--on-primary)', fontWeight: 900, fontSize: 24 }}>layers</span>
           </div>
-          <span style={{ fontFamily: 'var(--fh)', fontWeight: 900, fontSize: 22, color: 'var(--on-surface)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Attemptly</span>
+          <span style={{ fontFamily: 'var(--lp-display)', fontWeight: 800, fontSize: 22, letterSpacing: '-0.01em', color: 'var(--on-surface)' }}>Attemptly</span>
         </button>
       </div>
 
       {step === 'form' && (
-        <div id="signup-form" style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: 420 }}>
-          <h1 style={{ fontFamily: 'var(--fh)', fontWeight: 900, fontSize: 'clamp(32px, 5vw, 48px)', letterSpacing: '-0.04em', lineHeight: 1, marginBottom: 12, textAlign: 'center' }}>
-            Create your <span style={{ color: 'var(--primary)', fontStyle: 'italic' }}>account</span>
-          </h1>
-          <p style={{ color: 'var(--on-sv)', fontSize: 15, textAlign: 'center', marginBottom: 40 }}>
-            Takes 30 seconds. No credit card.
-          </p>
+        <div id="signup-form" style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: 440 }}>
+          {/* Glass-card form container */}
+          <div className="glass-card" style={{ padding: '40px 36px', borderRadius: 24 }}>
+            <h1 style={{ fontFamily: 'var(--lp-display)', fontWeight: 800, fontSize: 'clamp(28px, 4vw, 40px)', letterSpacing: '-0.03em', lineHeight: 1.05, marginBottom: 8, textAlign: 'center' }}>
+              Create your <span style={{ color: 'var(--primary)' }}>account</span>
+            </h1>
+            <p style={{ color: 'var(--on-sv)', fontSize: 15, textAlign: 'center', marginBottom: 32 }}>
+              Takes 30 seconds. No credit card.
+            </p>
 
-          {error && (
-            <div style={{ background: 'rgba(255,113,81,0.1)', border: '1px solid rgba(255,113,81,0.3)', borderRadius: 8, padding: '10px 16px', marginBottom: 20, fontSize: 13, color: 'var(--error)' }}>
-              {error}
+            {error && (
+              <div style={{ background: 'rgba(255,113,81,0.08)', border: '1px solid rgba(255,113,81,0.25)', borderRadius: 12, padding: '12px 16px', marginBottom: 20, fontSize: 13, color: 'var(--error)' }}>
+                {error}
+              </div>
+            )}
+
+            <button className="google-btn" onClick={handleGoogle} style={{ marginBottom: 16 }}>
+              <svg width="20" height="20" viewBox="0 0 24 24">
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+              </svg>
+              Sign up with Google
+            </button>
+
+            <div className="or-divider">
+              <div className="or-line" />
+              <span className="or-text">or email</span>
+              <div className="or-line" />
             </div>
-          )}
 
-          <button className="google-btn" onClick={handleGoogle} style={{ marginBottom: 16 }}>
-            <svg width="20" height="20" viewBox="0 0 24 24">
-              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
-              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-            </svg>
-            Sign up with Google
-          </button>
+            <form onSubmit={handleSignup} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div>
+                <label className="field-label">Email</label>
+                <input type="email" className="login-input" placeholder="you@gmail.com" value={email} onChange={e => setEmail(e.target.value)} required />
+              </div>
+              <div>
+                <label className="field-label">Password</label>
+                <input type="password" className="login-input" placeholder="At least 6 characters" value={password} onChange={e => setPassword(e.target.value)} required minLength={6} />
+              </div>
+              <button type="submit" className="login-enter-btn" disabled={busy}>
+                {busy ? 'Creating account...' : 'Create Account'}
+              </button>
+            </form>
 
-          <div className="or-divider">
-            <div className="or-line" />
-            <span className="or-text">or email</span>
-            <div className="or-line" />
+            <p style={{ textAlign: 'center', marginTop: 28, color: 'var(--on-sv)', fontSize: 14 }}>
+              Already have an account?{' '}
+              <button style={{ color: 'var(--primary)', fontWeight: 700, cursor: 'pointer', background: 'none', fontFamily: 'inherit', fontSize: 14 }} onClick={() => navigate('/login')}>
+                Sign in
+              </button>
+            </p>
           </div>
-
-          <form onSubmit={handleSignup} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <div>
-              <label className="field-label">Email</label>
-              <input type="email" className="login-input" placeholder="you@gmail.com" value={email} onChange={e => setEmail(e.target.value)} required />
-            </div>
-            <div>
-              <label className="field-label">Password</label>
-              <input type="password" className="login-input" placeholder="At least 6 characters" value={password} onChange={e => setPassword(e.target.value)} required minLength={6} />
-            </div>
-            <button type="submit" className="login-enter-btn" disabled={busy}>
-              {busy ? 'Creating account...' : 'Create Account'}
-            </button>
-          </form>
-
-          <p style={{ textAlign: 'center', marginTop: 32, color: 'var(--on-sv)', fontSize: 14 }}>
-            Already have an account?{' '}
-            <button style={{ color: 'var(--primary)', fontWeight: 700, cursor: 'pointer', background: 'none', fontFamily: 'inherit', fontSize: 14 }} onClick={() => navigate('/login')}>
-              Sign in
-            </button>
-          </p>
         </div>
       )}
 

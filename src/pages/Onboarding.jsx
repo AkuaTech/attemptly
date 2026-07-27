@@ -46,10 +46,12 @@ function useReveal() {
   useEffect(() => {
     const root = ref.current
     if (!root) return
-    const targets = root.querySelectorAll('[data-reveal]')
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const reveals = root.querySelectorAll('[data-reveal]')
+    const words = root.querySelectorAll('.scroll-word')
     if (reduce || !('IntersectionObserver' in window)) {
-      targets.forEach(t => t.classList.add('is-revealed'))
+      reveals.forEach(t => t.classList.add('is-revealed'))
+      words.forEach(t => t.classList.add('hl'))
       return
     }
     const io = new IntersectionObserver((entries) => {
@@ -60,8 +62,19 @@ function useReveal() {
         }
       })
     }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' })
-    targets.forEach(t => io.observe(t))
-    return () => io.disconnect()
+    reveals.forEach(t => io.observe(t))
+
+    const wordIo = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('hl')
+          wordIo.unobserve(e.target)
+        }
+      })
+    }, { threshold: 0.4, rootMargin: '0px 0px -15% 0px' })
+    words.forEach(t => wordIo.observe(t))
+
+    return () => { io.disconnect(); wordIo.disconnect() }
   }, [])
   return ref
 }
@@ -97,6 +110,7 @@ export default function Onboarding() {
     <div className="lp" ref={ref}>
       <a href="#lp-main" className="sr-only">Skip to content</a>
       <div className="lp-atmos" aria-hidden="true" />
+      <div className="lp-glow" aria-hidden="true" />
 
       <nav className="lp-nav">
         <div className="lp-nav-inner">
@@ -107,8 +121,11 @@ export default function Onboarding() {
             <span className="lp-brand-text">Attemptly</span>
           </div>
           <div className="lp-nav-actions">
+            <a className="lp-nav-link" href="#features" onClick={e => { e.preventDefault(); document.querySelector('.lp-section')?.scrollIntoView({ behavior: 'smooth' }) }}>Features</a>
+            <a className="lp-nav-link" href="#how-it-works" onClick={e => { e.preventDefault(); document.querySelector('.lp-steps')?.scrollIntoView({ behavior: 'smooth' }) }}>How it Works</a>
             <a className="lp-nav-link" href="https://github.com/akuatech/attemptly" target="_blank" rel="noopener noreferrer">GitHub</a>
             <button className="lp-nav-signin" onClick={() => navigate('/login')}>Sign In</button>
+            <button className="lp-btn-primary lp-btn-sm" onClick={() => navigate('/signup')}>Get Started</button>
           </div>
         </div>
       </nav>
@@ -117,15 +134,15 @@ export default function Onboarding() {
         <header className="lp-hero">
           <div className="lp-hero-copy">
             <h1 className="lp-title" data-reveal>
-              Stop guessing.
-              <span className="lp-title-accent">Start solving.</span>
+              <span className="scroll-word">Stop</span> <span className="scroll-word">guessing.</span>
+              <span className="scroll-word scroll-word-accent">Start solving.</span>
             </h1>
             <p className="lp-sub" data-reveal>
               Real previous-year questions, custom mock tests, and analytics that
               tell you exactly what to fix. One focused platform, zero noise.
             </p>
             <div className="lp-hero-cta" data-reveal>
-              <button className="lp-btn-primary" onClick={() => navigate('/signup')}>
+              <button className="lp-btn-action" onClick={() => navigate('/signup')}>
                 Get Started
                 <span className="material-symbols-outlined">arrow_forward</span>
               </button>
@@ -152,16 +169,57 @@ export default function Onboarding() {
           </div>
         </header>
 
+        {/* Trust strip */}
+        <section className="lp-section" style={{ paddingTop: 32, paddingBottom: 32 }}>
+          <div className="lp-trust-strip" data-reveal>
+            <div className="lp-trust-item">
+              <span className="material-symbols-outlined lp-trust-icon">school</span>
+              <span className="lp-trust-text">JEE Main & Advanced</span>
+            </div>
+            <div className="lp-trust-divider" />
+            <div className="lp-trust-item">
+              <span className="material-symbols-outlined lp-trust-icon">verified</span>
+              <span className="lp-trust-text">100% Free</span>
+            </div>
+            <div className="lp-trust-divider" />
+            <div className="lp-trust-item">
+              <span className="material-symbols-outlined lp-trust-icon">trending_up</span>
+              <span className="lp-trust-text">Real PYQs</span>
+            </div>
+            <div className="lp-trust-divider" />
+            <div className="lp-trust-item">
+              <span className="material-symbols-outlined lp-trust-icon">speed</span>
+              <span className="lp-trust-text">Instant Analytics</span>
+            </div>
+          </div>
+        </section>
+
+        <div className="lp-marquee" aria-hidden="true" style={{ marginBottom: 64, padding: '8px 0' }}>
+          <div className="lp-marquee-content">
+            {[...Array(2)].map((_, dup) => (
+              <span key={dup} style={{ display: 'flex', gap: 48, alignItems: 'center' }}>
+                {['Physics', 'Chemistry', 'Mathematics', 'PYQs', 'Mock Tests', 'Analytics', 'Study Notes', 'Diagnostic'].map((word, i) => (
+                  <span key={`${dup}-${i}`} style={{ fontFamily: 'var(--lp-mono)', fontSize: 13, fontWeight: 500, color: 'var(--muted)', letterSpacing: '0.08em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
+                    {word} <span style={{ color: 'var(--primary)', marginLeft: 48 }}>/</span>
+                  </span>
+                ))}
+              </span>
+            ))}
+          </div>
+        </div>
+
         <section className="lp-section">
           <div className="lp-section-head" data-reveal>
             <span className="lp-kicker">01 · Features</span>
-            <h2 className="lp-section-title">Everything you need. Nothing you don't.</h2>
+            <h2 className="lp-section-title">
+              <span className="scroll-word">Everything</span> <span className="scroll-word">you</span> <span className="scroll-word">need.</span> <span className="scroll-word">Nothing</span> <span className="scroll-word">you</span> <span className="scroll-word">don't.</span>
+            </h2>
           </div>
           <div className="lp-bento">
             {features.map((f, i) => (
               <article
                 key={f.title}
-                className={`lp-feat lp-feat-${f.size || 'sm'}`}
+                className={`lp-feat lp-feat-${f.size || 'sm'} glass-veil tilt-module`}
                 data-reveal
                 style={{ transitionDelay: `${Math.min(i, 6) * 60}ms` }}
               >
@@ -180,7 +238,9 @@ export default function Onboarding() {
         <section className="lp-section">
           <div className="lp-section-head" data-reveal>
             <span className="lp-kicker">02 · Workflow</span>
-            <h2 className="lp-section-title">How it works</h2>
+            <h2 className="lp-section-title">
+              <span className="scroll-word">How</span> <span className="scroll-word">it</span> <span className="scroll-word">works</span>
+            </h2>
           </div>
           <ol className="lp-steps">
             <div className="lp-steps-line" aria-hidden="true" />
@@ -194,11 +254,41 @@ export default function Onboarding() {
           </ol>
         </section>
 
+        {/* Why Choose Us */}
+        <section className="lp-section">
+          <div className="lp-why" data-reveal>
+            <div className="lp-section-head" style={{ textAlign: 'center', marginBottom: 52 }}>
+              <span className="lp-kicker">Why Attemptly?</span>
+              <h2 className="lp-section-title" style={{ maxWidth: 'none' }}>
+                Not just another prep app.
+              </h2>
+            </div>
+            <div className="lp-why-grid">
+              {[
+                { title: 'Real questions only', desc: 'Every problem is pulled from actual JEE papers. No synthetic filler, no AI hallucinations.' },
+                { title: 'Tracks your weak spots', desc: 'Accuracy per topic, time per question, subject breakdown. Know exactly where to focus.' },
+                { title: 'Mocks on demand', desc: 'Build a custom test in 10 seconds. Pick subject, chapter, difficulty, and length.' },
+                { title: 'Always free', desc: 'No premium tier. No ads. No credit card. Ever.' },
+              ].map((item, i) => (
+                <div key={i} className="lp-why-card">
+                  <div className="lp-why-card-head">
+                    <span className="lp-why-num">{String(i + 1).padStart(2, '0')}</span>
+                    <h3>{item.title}</h3>
+                  </div>
+                  <p>{item.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         <section className="lp-section">
           <div className="lp-builtfor" data-reveal>
             <div className="lp-builtfor-copy">
               <span className="lp-kicker">03 · Coverage</span>
-              <h2 className="lp-section-title">Built for JEE.</h2>
+              <h2 className="lp-section-title">
+                <span className="scroll-word">Built</span> <span className="scroll-word">for</span> <span className="scroll-word scroll-word-accent">JEE.</span>
+              </h2>
               <p className="lp-builtfor-text">
                 Full Physics, Chemistry and Mathematics coverage for JEE Main &amp; Advanced.
                 Every chapter, mapped to the real syllabus.
@@ -219,9 +309,11 @@ export default function Onboarding() {
         <section className="lp-section">
           <div className="lp-final" data-reveal>
             <div className="lp-final-glow" aria-hidden="true" />
-            <h2 className="lp-final-title">Ready to start solving?</h2>
+            <h2 className="lp-final-title">
+              <span className="scroll-word">Ready</span> <span className="scroll-word">to</span> <span className="scroll-word">start</span> <span className="scroll-word scroll-word-accent">solving?</span>
+            </h2>
             <p className="lp-final-sub">Free account. No credit card, no ads, no premium tier, ever.</p>
-            <button className="lp-btn-primary lp-btn-lg" onClick={() => navigate('/signup')}>
+            <button className="lp-btn-action lp-btn-lg" onClick={() => navigate('/signup')}>
               Create free account
               <span className="material-symbols-outlined">arrow_forward</span>
             </button>
