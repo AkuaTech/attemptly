@@ -177,14 +177,15 @@ function NoteCard({ note, onEdit, onDelete }) {
 }
 
 const inputStyle = {
-  padding: '9px 12px',
-  borderRadius: 8,
-  border: '1px solid var(--border)',
-  background: 'var(--surface)',
-  color: 'var(--fg)',
+  padding: '10px 14px',
+  borderRadius: 10,
+  border: '1px solid var(--hairline-strong)',
+  background: 'var(--sc-lowest)',
+  color: 'var(--on-surface)',
   fontSize: 14,
   width: '100%',
   boxSizing: 'border-box',
+  outline: 'none',
 }
 const labelStyle = { display: 'flex', flexDirection: 'column', gap: 6 }
 const labelText = { fontSize: 11, fontWeight: 700, color: 'var(--on-sv)', letterSpacing: '0.05em' }
@@ -542,16 +543,16 @@ export default function Notes() {
                 className="btn-outline"
                 style={{
                   padding: '10px 20px', borderRadius: 12, fontWeight: 700, whiteSpace: 'nowrap',
-                  background: 'linear-gradient(145deg, rgba(231,249,92,0.08) 0%, rgba(231,249,92,0.03) 100%)',
-                  border: '1px solid rgba(231,249,92,0.18)',
-                  color: 'var(--primary)',
+                  background: 'var(--primary)',
+                  border: '1px solid var(--primary)',
+                  color: 'var(--on-primary)',
                   fontFamily: 'var(--fh)',
                   fontSize: 13,
                   letterSpacing: '0.02em',
                   transition: 'all 200ms ease',
                 }}
-                onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 16px rgba(231,249,92,0.12)' }}
-                onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none' }}
+                onMouseEnter={e => { e.currentTarget.style.filter = 'brightness(1.1)' }}
+                onMouseLeave={e => { e.currentTarget.style.filter = 'none' }}
                 onClick={openNew}
               >
                 + New Note
@@ -818,7 +819,7 @@ export default function Notes() {
 
             <div style={labelStyle}>
               <span style={labelText}>CONTENT</span>
-              <div style={{ borderRadius: 8, border: '1px solid var(--border)', background: 'var(--surface)', overflow: 'hidden' }}>
+              <div style={{ borderRadius: 10, border: '1px solid var(--hairline-strong)', background: 'var(--sc-lowest)', overflow: 'hidden' }}>
                 <Toolbar editor={editor} />
                 <EditorContent editor={editor} />
               </div>
