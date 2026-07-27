@@ -321,16 +321,18 @@ export default function Onboarding() {
         </section>
 
         <footer className="lp-footer">
-          <div className="lp-brand">
-            <div className="lp-brand-mark lp-brand-mark-sm">
-              <span className="material-symbols-outlined">layers</span>
+          <div className="lp-footer-brand">
+            <div className="lp-brand">
+              <div className="lp-brand-mark lp-brand-mark-sm">
+                <span className="material-symbols-outlined">layers</span>
+              </div>
+              <span className="lp-brand-text lp-brand-text-sm">Attemptly</span>
             </div>
-            <span className="lp-brand-text lp-brand-text-sm">Attemptly</span>
+            <p className="lp-footer-tagline">Built for JEE aspirants, by people who actually took the exam.</p>
           </div>
           <div className="lp-footer-links">
-            <a href="https://akuatech.github.io" target="_blank" rel="noopener noreferrer">Made by Akuatech</a>
-            <span className="lp-footer-sep">·</span>
             <a href="https://github.com/akuatech/attemptly" target="_blank" rel="noopener noreferrer">GitHub</a>
+            <a href="https://akuatech.github.io" target="_blank" rel="noopener noreferrer">Akuatech</a>
           </div>
           <p className="lp-footer-copy">Open source · Free forever · No tracking</p>
         </footer>

@@ -9,7 +9,6 @@ import { MOCK_DIFFICULTIES, displayDifficulty, normalizeDifficulty } from '../li
 const SUBJECTS = ['Physics', 'Chemistry', 'Mathematics']
 const SIZES = [10, 20, 30]
 const DURATION_OPTIONS = [
-  { label: 'No limit', value: 0 },
   { label: '15 min', value: 15 },
   { label: '20 min', value: 20 },
   { label: '30 min', value: 30 },
@@ -149,7 +148,7 @@ export default function CustomTest() {
           <label className="text-micro">
             Time Limit
             <span style={{ marginLeft: 8, color: 'var(--on-sv)', fontWeight: 400, fontSize: 11 }}>
-              {customActive ? (customVal ? `${customVal} min` : '—') : duration === 0 ? '— no limit' : `${duration} min`}
+              {customActive ? (customVal ? `${customVal} min` : '—') : `${duration} min`}
             </span>
           </label>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
