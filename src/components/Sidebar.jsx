@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import {
   SquaresFour,
@@ -25,11 +25,18 @@ const navItems = [
   { icon: Notepad, label: 'Notes', path: '/notes' },
 ]
 
+const testPaths = ['/practice', '/tests/result', '/tests/', '/review']
+
 export default function Sidebar() {
   const location = useLocation()
   const navigate = useNavigate()
   const { user, signOut } = useAuth()
-  const [collapsed, setCollapsed] = useState(false)
+  const isTestScreen = testPaths.some(p => location.pathname.startsWith(p))
+  const [collapsed, setCollapsed] = useState(isTestScreen)
+
+  useEffect(() => {
+    setCollapsed(testPaths.some(p => location.pathname.startsWith(p)))
+  }, [location.pathname])
 
   async function handleLogout() {
     await signOut()

@@ -26,6 +26,7 @@ export default function MockTests() {
   const [tests, setTests] = useState(cached || [])
   const [loading, setLoading] = useState(!cached)
   const [error, setError] = useState(null)
+  const [confirmTest, setConfirmTest] = useState(null)
 
   useEffect(() => {
     if (cached && !cacheIsStale(cacheKey)) return
@@ -91,6 +92,13 @@ export default function MockTests() {
       navigate(`/practice?mock=${test.id}&attempt=${existing.id}`)
       return
     }
+    setConfirmTest(test)
+  }
+
+  async function confirmStart() {
+    if (!confirmTest) return
+    const test = confirmTest
+    setConfirmTest(null)
     const { data, error: insErr } = await supabase
       .from('mock_test_attempts')
       .insert({ user_id: user.id, mock_test_id: test.id, total_count: test.num_questions })
@@ -229,6 +237,28 @@ export default function MockTests() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {confirmTest && (
+        <div className="modal-backdrop" onClick={() => setConfirmTest(null)}>
+          <div className="modal-card" style={{ maxWidth: 400 }}>
+            <div className="modal-head">
+              <h3 className="modal-title">Start Test?</h3>
+              <button className="modal-close" onClick={() => setConfirmTest(null)}>
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <div className="modal-body">
+              <p className="text-sm" style={{ margin: 0, lineHeight: 1.6 }}>
+                Are you sure you want to start <strong>{confirmTest.title}</strong>? This will begin a timed session.
+              </p>
+            </div>
+            <div className="modal-foot">
+              <button className="btn-ghost" onClick={() => setConfirmTest(null)}>Cancel</button>
+              <button className="btn-start" onClick={confirmStart}>Start Test</button>
+            </div>
+          </div>
         </div>
       )}
     </div>

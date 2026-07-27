@@ -53,6 +53,8 @@ function ScrollToTop() {
 
 function AppLayout() {
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark')
+  const location = useLocation()
+  const hideNav = location.pathname === '/practice'
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
@@ -65,9 +67,9 @@ function AppLayout() {
     <div className="layout">
       <a href="#main-content" className="sr-only">Skip to content</a>
       <ScrollToTop />
-      <TopNav theme={theme} toggleTheme={toggleTheme} />
+      {!hideNav && <TopNav theme={theme} toggleTheme={toggleTheme} />}
       <Sidebar />
-      <div className="main-area" id="main-content">
+      <div className="main-area" id="main-content" style={hideNav ? { marginTop: 0, paddingTop: 24 } : undefined}>
         <Routes>
           <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<Dashboard />} />

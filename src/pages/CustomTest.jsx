@@ -30,6 +30,7 @@ export default function CustomTest() {
   const [customVal, setCustomVal] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState(null)
+  const [showConfirm, setShowConfirm] = useState(false)
   const { chapters, loading: chaptersLoading } = useChapters(subject)
 
   useEffect(() => { setChapter('') }, [subject])
@@ -39,6 +40,11 @@ export default function CustomTest() {
 
   async function handleStart() {
     if (!user) return
+    setShowConfirm(true)
+  }
+
+  async function confirmStart() {
+    setShowConfirm(false)
     setBusy(true); setError(null)
     const normalizedDifficulty = normalizeDifficulty(difficulty)
     let countQuery = supabase
@@ -228,6 +234,28 @@ export default function CustomTest() {
           </button>
         </div>
       </div>
+
+      {showConfirm && (
+        <div className="modal-backdrop" onClick={() => setShowConfirm(false)}>
+          <div className="modal-card" style={{ maxWidth: 400 }}>
+            <div className="modal-head">
+              <h3 className="modal-title">Start Test?</h3>
+              <button className="modal-close" onClick={() => setShowConfirm(false)}>
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <div className="modal-body">
+              <p className="text-sm" style={{ margin: 0, lineHeight: 1.6 }}>
+                Are you sure you want to start this custom test? This will begin a timed session with <strong>{size} questions</strong>.
+              </p>
+            </div>
+            <div className="modal-foot">
+              <button className="btn-ghost" onClick={() => setShowConfirm(false)}>Cancel</button>
+              <button className="btn-start" onClick={confirmStart}>Start Test</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
