@@ -21,6 +21,6 @@ function renderSeg(tex, display) {
 export function renderMath(html) {
   if (!html) return ''
   return html
-    .replace(/\$\$([\s\S]+?)\$\$/g, (m, t) => renderSeg(t, false) ?? m)
-    .replace(/\$([^$]+?)\$/g, (m, t) => renderSeg(t, false) ?? m)
+    .replace(/\$\$([\s\S]+?)\$\$/g, (m, t) => renderSeg(t, false) ?? t)
+    .replace(/\$([^$]+?)\$/g, (m, t) => renderSeg(t, false) ?? t)
 }

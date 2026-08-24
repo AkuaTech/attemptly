@@ -1,9 +1,10 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 
 const items = [
-  { icon: 'home', label: 'Home', path: '/dashboard' },
   { icon: 'assignment', label: 'Tests', path: '/tests' },
   { icon: 'auto_stories', label: 'Subjects', path: '/subjects' },
+  { icon: 'calendar_month', label: 'Planner', path: '/schedule' },
+  { icon: 'sticky_note_2', label: 'Notes', path: '/notes' },
   { icon: 'analytics', label: 'Analysis', path: '/analytics' },
 ]
 
