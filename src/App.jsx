@@ -23,6 +23,7 @@ import TestResult from './pages/TestResult'
 import TestHistory from './pages/TestHistory'
 import CustomTest from './pages/CustomTest'
 import Notes from './pages/Notes'
+import Tour from './components/Tour'
 
 export default function App() {
   const { user, loading } = useAuth()
@@ -54,7 +55,9 @@ function ScrollToTop() {
 function AppLayout() {
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark')
   const location = useLocation()
+  const { user } = useAuth()
   const hideNav = location.pathname === '/practice'
+  const [tour, setTour] = useState(() => user && !localStorage.getItem(`tour_${user.id}`))
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
@@ -69,6 +72,9 @@ function AppLayout() {
       <ScrollToTop />
       {!hideNav && <TopNav theme={theme} toggleTheme={toggleTheme} />}
       {!hideNav && <Sidebar />}
+      {tour && user && (
+        <Tour onDone={() => { localStorage.setItem(`tour_${user.id}`, '1'); setTour(false) }} />
+      )}
       <div className={`main-area ${hideNav ? 'focus-mode' : ''}`} id="main-content">
         <Routes>
           <Route index element={<Navigate to="/practice" replace />} />
