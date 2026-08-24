@@ -119,11 +119,7 @@ export default function MockTests() {
   return (
     <div className="page-canvas">
       <header className="editorial-header">
-        <div className="editorial-tag">
-          <div className="line" />
-        <span>Custom Exams</span>
-      </div>
-      <h1 className="page-title">Mock Tests</h1>
+        <h1 className="page-title">Mock Tests</h1>
       <p className="page-sub">Build focused practice tests from the question bank.</p>
       </header>
 
@@ -179,57 +175,38 @@ export default function MockTests() {
           {filter === 'completed' ? 'No completed tests yet.' : 'No custom tests yet. Create one to get started.'}
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {shown.map(test => (
-            <div key={test.id} className="glass-card test-row">
-              <div className="test-icon-box" style={{ background: test.score == null ? 'rgba(231,249,92,0.06)' : 'var(--fill-faint)' }}>
-                <span className="material-symbols-outlined" style={{ color: test.score == null ? 'var(--primary)' : 'var(--muted)', fontSize: 20 }}>
+            <div key={test.id} className="glass-card glass-card-hover test-row" onClick={() => test.score == null ? handleStart(test) : handleReview(test)}>
+              <div className="test-row-icon" style={{ background: test.score == null ? 'rgba(231,249,92,0.08)' : 'var(--fill-faint)' }}>
+                <span className="material-symbols-outlined" style={{ color: test.score == null ? 'var(--primary)' : 'var(--muted)', fontSize: 22 }}>
                   {test.score == null ? 'quiz' : 'task_alt'}
                 </span>
               </div>
 
-              <div className="flex-1">
-                <div className="text-bold mb-4" style={{ fontFamily: 'var(--fh)', fontSize: 14 }}>{test.title}</div>
-                <div className="row gap-8 flex-wrap">
-                  <span className="text-micro">{test.pattern}</span>
-                  <span className="text-muted" style={{ fontSize: 10 }}>·</span>
-                  <span className="text-micro">{test.num_questions} Qs</span>
-                  <span className="text-muted" style={{ fontSize: 10 }}>·</span>
-                  <span className="text-micro">{formatDuration(test.duration_minutes)}</span>
-                  <span className="text-muted" style={{ fontSize: 10 }}>·</span>
-                  <span style={{ fontSize: 10, color: diffColor[String(test.difficulty).toLowerCase()], fontWeight: 700, textTransform: 'uppercase' }}>{displayDifficulty(test.difficulty)}</span>
+              <div className="test-row-body">
+                <div className="text-bold" style={{ fontFamily: 'var(--fh)', fontSize: 15, marginBottom: 4 }}>{test.title}</div>
+                <div className="test-row-chips">
+                  <span className="chip" style={{ fontSize: 9 }}>{test.pattern}</span>
+                  <span className="chip" style={{ fontSize: 9 }}>{test.num_questions} Qs</span>
+                  <span className="chip" style={{ fontSize: 9 }}>{formatDuration(test.duration_minutes)}</span>
+                  <span className="chip" style={{ fontSize: 9, background: diffColor[String(test.difficulty).toLowerCase()] + '15', color: diffColor[String(test.difficulty).toLowerCase()], borderColor: diffColor[String(test.difficulty).toLowerCase()] + '30' }}>{displayDifficulty(test.difficulty)}</span>
                 </div>
               </div>
 
-              <div className="text-right flex-shrink-0">
+              <div className="test-row-actions">
                 {test.score != null ? (
-                  <div>
-                    <div className="text-black mb-4" style={{ fontFamily: 'var(--fh)', fontSize: 24, letterSpacing: '-0.02em', color: test.score >= 70 ? 'var(--primary)' : 'var(--error)' }}>
-                      {test.score}%
+                  <>
+                    <div className="text-black" style={{ fontFamily: 'var(--fh)', fontSize: 28, letterSpacing: '-0.02em', color: test.score >= 70 ? 'var(--primary)' : 'var(--error)', lineHeight: 1 }}>
+                      {test.score}<span style={{ fontSize: 14 }}>%</span>
                     </div>
-                    <div className="row gap-8" style={{ justifyContent: 'flex-end' }}>
-                      <button
-                        className="btn-outline text-micro"
-                        style={{ padding: '4px 10px' }}
-                        onClick={() => handleReview(test)}
-                      >
-                        Review
-                      </button>
-                      <button
-                        className="btn-outline text-micro"
-                        style={{ padding: '4px 10px', color: 'var(--primary)', borderColor: 'var(--primary)' }}
-                        onClick={() => handleStart(test)}
-                      >
-                        Retake
-                      </button>
+                    <div className="test-row-links">
+                      <button className="btn-outline" style={{ fontSize: 12, padding: '6px 14px', borderRadius: 8 }} onClick={e => { e.stopPropagation(); handleReview(test); }}>Review</button>
+                      <button className="btn-start" style={{ padding: '6px 14px', fontSize: 12 }} onClick={e => { e.stopPropagation(); handleStart(test); }}>Retake</button>
                     </div>
-                  </div>
+                  </>
                 ) : (
-                  <button
-                    className="btn-start"
-                    style={{ padding: '6px 12px', fontSize: 11 }}
-                    onClick={() => handleStart(test)}
-                  >
+                  <button className="btn-start" style={{ padding: '8px 16px', fontSize: 12, whiteSpace: 'nowrap' }} onClick={e => { e.stopPropagation(); handleStart(test); }}>
                     {test.inProgress ? 'Resume' : 'Start'}
                     <span className="material-symbols-outlined" style={{ fontSize: 14 }}>arrow_forward</span>
                   </button>

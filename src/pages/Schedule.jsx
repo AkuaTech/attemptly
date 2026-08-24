@@ -61,13 +61,9 @@ export default function Schedule() {
   return (
     <div className="page-canvas">
       <header className="editorial-header">
-        <div className="editorial-tag">
-          <div className="line" />
-          <span>Study Plan</span>
-        </div>
         <h1 className="page-title">Schedule</h1>
         <p className="page-sub">
-          {today.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+          {today.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })} · Picks your weakest topics based on accuracy
         </p>
       </header>
 

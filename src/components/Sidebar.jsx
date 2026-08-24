@@ -104,15 +104,7 @@ export default function Sidebar() {
                 </button>
               </div>
             </div>
-          ) : (
-            <div className="px-8 mb-8 overflow-hidden">
-              {!collapsed && (
-                <p className="text-micro text-muted" style={{ textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {user.email}
-                </p>
-              )}
-            </div>
-          )}
+          ) : null}
           <button
             className={`sidebar-item ${location.pathname === '/settings' ? 'active' : ''}`}
             onClick={() => navigate('/settings')}

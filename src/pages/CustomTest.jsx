@@ -84,7 +84,7 @@ export default function CustomTest() {
   }
 
   return (
-    <div className="page-canvas" style={{ maxWidth: 640 }}>
+    <div className="page-canvas">
       <header className="editorial-header">
         <button
           className="btn-outline"
@@ -94,132 +94,153 @@ export default function CustomTest() {
           <span className="material-symbols-outlined" style={{ fontSize: 16 }}>arrow_back</span>
           Tests
         </button>
-        <div className="editorial-tag">
-          <div className="line" />
-          <span>New Mock</span>
-        </div>
         <h1 className="page-title">Custom <span style={{ color: 'var(--primary)' }}>Test.</span></h1>
         <p className="page-sub">Build a quick test from any subject and chapter.</p>
       </header>
 
-      <div className="glass-card editorial-card" style={{ display: 'flex', flexDirection: 'column' }}>
-        <div className="form-row">
-          <label className="text-micro">Subject</label>
-          <select className="form-select" value={subject} onChange={e => setSubject(e.target.value)}>
-            {SUBJECTS.map(s => <option key={s} value={s}>{s}</option>)}
-          </select>
-        </div>
-
-        <div className="form-row">
-          <label className="text-micro">Chapter (optional)</label>
-          <select className="form-select" value={chapter} onChange={e => setChapter(e.target.value)} disabled={chaptersLoading}>
-            <option value="">{chaptersLoading ? 'Loading…' : 'Whole subject'}</option>
-            {chapters.map(c => <option key={c.slug} value={c.slug}>{slugToTitle(c.slug)} ({c.count})</option>)}
-          </select>
-        </div>
-
-        <div className="form-row">
-          <label className="text-micro">Number of questions</label>
-          <div className="row gap-8">
-            {SIZES.map(n => (
-              <button
-                key={n}
-                type="button"
-                className={`filter-pill ${size === n ? 'active' : ''}`}
-                onClick={() => setSize(n)}
-              >
-                {n}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="form-row">
-          <label className="text-micro">Difficulty</label>
-          <div className="row gap-8">
-            {MOCK_DIFFICULTIES.map(d => (
-              <button
-                key={d.value}
-                type="button"
-                className={`filter-pill ${difficulty === d.value ? 'active' : ''}`}
-                onClick={() => setDifficulty(d.value)}
-              >
-                {d.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="form-row">
-          <label className="text-micro">
-            Time Limit
-            <span style={{ marginLeft: 8, color: 'var(--on-sv)', fontWeight: 400, fontSize: 11 }}>
-              {customActive ? (customVal ? `${customVal} min` : '—') : `${duration} min`}
-            </span>
-          </label>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
-            {DURATION_OPTIONS.map(d => (
-              <button
-                key={d.value}
-                type="button"
-                style={{
-                  padding: '9px 4px',
-                  borderRadius: 8,
-                  border: `1.5px solid ${!customActive && duration === d.value ? 'var(--primary)' : 'var(--outline)'}`,
-                  background: !customActive && duration === d.value ? 'var(--primary-faint)' : 'transparent',
-                  color: !customActive && duration === d.value ? 'var(--primary)' : 'var(--on-sv)',
-                  fontFamily: 'var(--fh)',
-                  fontWeight: 700,
-                  fontSize: 12,
-                  cursor: 'pointer',
-                  transition: 'border-color 150ms, background 150ms, color 150ms',
-                }}
-                onClick={() => { setDuration(d.value); setDurationManual(true); setCustomActive(false); setCustomVal('') }}
-              >
-                {d.label}
-              </button>
-            ))}
-            {/* Custom tile */}
-            <button
-              type="button"
-              style={{
-                padding: '9px 4px',
-                borderRadius: 8,
-                border: `1.5px solid ${customActive ? 'var(--primary)' : 'var(--outline)'}`,
-                background: customActive ? 'var(--primary-faint)' : 'transparent',
-                color: customActive ? 'var(--primary)' : 'var(--on-sv)',
-                fontFamily: 'var(--fh)',
-                fontWeight: 700,
-                fontSize: 12,
-                cursor: 'pointer',
-                transition: 'border-color 150ms, background 150ms, color 150ms',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3,
-              }}
-              onClick={() => { setCustomActive(true); setDurationManual(true); setCustomVal('') }}
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: 13 }}>edit</span>
-              Custom
-            </button>
-          </div>
-          {customActive && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', borderRadius: 8, border: '1.5px solid var(--primary)', background: 'var(--primary-faint)' }}>
-              <input
-                type="text"
-                inputMode="numeric"
-                placeholder="e.g. 25"
-                value={customVal}
-                autoFocus
-                onChange={e => {
-                  const raw = e.target.value.replace(/\D/g, '')
-                  setCustomVal(raw)
-                  const n = parseInt(raw, 10)
-                  if (n > 0 && n <= 300) setDuration(n)
-                }}
-                style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', color: 'var(--primary)', fontFamily: 'var(--fh)', fontWeight: 700, fontSize: 15, minWidth: 0 }}
-              />
-              <span style={{ color: 'var(--primary)', fontFamily: 'var(--fh)', fontWeight: 700, fontSize: 13, flexShrink: 0 }}>min</span>
+      <div className="glass-card" style={{ padding: '36px 44px', maxWidth: 800 }}>
+        <div className="row" style={{ alignItems: 'flex-start', gap: 24 }}>
+          <div className="flex-1" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            <div className="form-row">
+              <label className="text-micro">Subject</label>
+              <select className="form-select" value={subject} onChange={e => setSubject(e.target.value)}>
+                {SUBJECTS.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
             </div>
-          )}
+
+            <div className="form-row">
+              <label className="text-micro">Chapter (optional)</label>
+              <select className="form-select" value={chapter} onChange={e => setChapter(e.target.value)} disabled={chaptersLoading}>
+                <option value="">{chaptersLoading ? 'Loading…' : 'Whole subject'}</option>
+                {chapters.map(c => <option key={c.slug} value={c.slug}>{slugToTitle(c.slug)} ({c.count})</option>)}
+              </select>
+            </div>
+
+            <div className="form-row">
+              <label className="text-micro">Number of questions</label>
+              <div className="row gap-8">
+                {SIZES.map(n => (
+                  <button
+                    key={n}
+                    type="button"
+                    className={`filter-pill ${size === n ? 'active' : ''}`}
+                    onClick={() => setSize(n)}
+                  >
+                    {n}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="form-row">
+              <label className="text-micro">Difficulty</label>
+              <div className="row gap-8">
+                {MOCK_DIFFICULTIES.map(d => (
+                  <button
+                    key={d.value}
+                    type="button"
+                    className={`filter-pill ${difficulty === d.value ? 'active' : ''}`}
+                    onClick={() => setDifficulty(d.value)}
+                  >
+                    {d.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex-1" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            <div className="form-row">
+              <label className="text-micro">
+                Time Limit
+                <span style={{ marginLeft: 8, color: 'var(--on-sv)', fontWeight: 400, fontSize: 11 }}>
+                  {customActive ? (customVal ? `${customVal} min` : '—') : `${duration} min`}
+                </span>
+              </label>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6 }}>
+                {DURATION_OPTIONS.map(d => (
+                  <button
+                    key={d.value}
+                    type="button"
+                    style={{
+                      padding: '9px 4px',
+                      borderRadius: 8,
+                      border: `1.5px solid ${!customActive && duration === d.value ? 'var(--primary)' : 'var(--outline)'}`,
+                      background: !customActive && duration === d.value ? 'var(--primary-faint)' : 'transparent',
+                      color: !customActive && duration === d.value ? 'var(--primary)' : 'var(--on-sv)',
+                      fontFamily: 'var(--fh)',
+                      fontWeight: 700,
+                      fontSize: 12,
+                      cursor: 'pointer',
+                      transition: 'border-color 150ms, background 150ms, color 150ms',
+                    }}
+                    onClick={() => { setDuration(d.value); setDurationManual(true); setCustomActive(false); setCustomVal('') }}
+                  >
+                    {d.label}
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  style={{
+                    padding: '9px 4px',
+                    borderRadius: 8,
+                    border: `1.5px solid ${customActive ? 'var(--primary)' : 'var(--outline)'}`,
+                    background: customActive ? 'var(--primary-faint)' : 'transparent',
+                    color: customActive ? 'var(--primary)' : 'var(--on-sv)',
+                    fontFamily: 'var(--fh)',
+                    fontWeight: 700,
+                    fontSize: 12,
+                    cursor: 'pointer',
+                    transition: 'border-color 150ms, background 150ms, color 150ms',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3,
+                  }}
+                  onClick={() => { setCustomActive(true); setDurationManual(true); setCustomVal('') }}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: 13 }}>edit</span>
+                  Custom
+                </button>
+              </div>
+              {customActive && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', borderRadius: 8, border: '1.5px solid var(--primary)', background: 'var(--primary-faint)' }}>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="e.g. 25"
+                    value={customVal}
+                    autoFocus
+                    onChange={e => {
+                      const raw = e.target.value.replace(/\D/g, '')
+                      setCustomVal(raw)
+                      const n = parseInt(raw, 10)
+                      if (n > 0 && n <= 300) setDuration(n)
+                    }}
+                    style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', color: 'var(--primary)', fontFamily: 'var(--fh)', fontWeight: 700, fontSize: 15, minWidth: 0 }}
+                  />
+                  <span style={{ color: 'var(--primary)', fontFamily: 'var(--fh)', fontWeight: 700, fontSize: 13, flexShrink: 0 }}>min</span>
+                </div>
+              )}
+            </div>
+
+            <div className="form-row" style={{ marginTop: 'auto' }}>
+              <label className="text-micro">Summary</label>
+              <div className="glass-card" style={{ padding: 16, borderRadius: 12, background: 'var(--sc-high)' }}>
+                <div className="row gap-16" style={{ justifyContent: 'space-around' }}>
+                  <div className="text-center">
+                    <div className="text-black" style={{ fontFamily: 'var(--fh)', fontSize: 20, color: 'var(--primary)' }}>{size}</div>
+                    <div className="text-micro" style={{ fontSize: 9 }}>Questions</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-black" style={{ fontFamily: 'var(--fh)', fontSize: 20, color: 'var(--primary)' }}>{duration}min</div>
+                    <div className="text-micro" style={{ fontSize: 9 }}>Duration</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-black" style={{ fontFamily: 'var(--fh)', fontSize: 20, color: 'var(--primary)' }}>{subject.slice(0, 4)}</div>
+                    <div className="text-micro" style={{ fontSize: 9 }}>Subject</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         {error && <p className="form-error" style={{ marginTop: 16 }}>{error.message}</p>}

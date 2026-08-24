@@ -68,10 +68,10 @@ function AppLayout() {
       <a href="#main-content" className="sr-only">Skip to content</a>
       <ScrollToTop />
       {!hideNav && <TopNav theme={theme} toggleTheme={toggleTheme} />}
-      <Sidebar />
-      <div className="main-area" id="main-content" style={hideNav ? { marginTop: 0, paddingTop: 24 } : undefined}>
+      {!hideNav && <Sidebar />}
+      <div className={`main-area ${hideNav ? 'focus-mode' : ''}`} id="main-content">
         <Routes>
-          <Route index element={<Navigate to="/dashboard" replace />} />
+          <Route index element={<Navigate to="/practice" replace />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/tests" element={<MockTests />} />
@@ -90,7 +90,7 @@ function AppLayout() {
           <Route path="/notes" element={<Notes />} />
         </Routes>
       </div>
-      <BottomNav />
+      {!hideNav && <BottomNav />}
     </div>
   )
 }

@@ -67,8 +67,8 @@ export default function TopNav({ theme, toggleTheme }) {
             </header>
             <div style={{ padding: '24px 20px', textAlign: 'center' }}>
               <span className="material-symbols-outlined" style={{ fontSize: 28, color: 'var(--muted)' }}>notifications_off</span>
-              <p className="text-sm" style={{ marginTop: 8 }}>
-                Streak alerts and test reminders will show up here.
+              <p className="text-sm" style={{ marginTop: 8, lineHeight: 1.5 }}>
+                No notifications yet. We will alert you when your streak is at risk, new PYQs are added, or a topic needs attention.
               </p>
             </div>
             <footer className="topnav-panel-foot">

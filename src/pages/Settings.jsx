@@ -6,12 +6,12 @@ import { SkeletonToggleRow } from '../components/Skeleton'
 import { cacheGet, cacheSet, cacheIsStale, cacheClear } from '../lib/cache'
 
 const PREF_FIELDS = [
-  { key: 'email_daily_summary',     label: 'Daily summary',           sub: 'Yesterday\'s practice and accuracy at 8 AM.', channel: 'email' },
-  { key: 'email_streak_reminder',   label: 'Streak reminder',         sub: 'Email when your streak is about to break.',   channel: 'email' },
-  { key: 'email_weak_topic_alerts', label: 'Weak-topic alerts',       sub: 'When accuracy drops below 60% on a topic.',   channel: 'email' },
-  { key: 'email_new_pyqs',          label: 'Question-bank updates',   sub: 'When new questions are available.',           channel: 'email' },
-  { key: 'push_streak_reminder',    label: 'Push: streak reminder',   sub: 'In-app reminder when your streak is at risk.', channel: 'push' },
-  { key: 'push_test_reminders',     label: 'Push: test reminders',    sub: 'Notify before scheduled custom tests.',       channel: 'push' },
+  { key: 'email_daily_summary',     label: 'Daily summary',           sub: 'Yesterday\'s practice and accuracy at 8 AM.', channel: 'email', soon: true },
+  { key: 'email_streak_reminder',   label: 'Streak reminder',         sub: 'Email when your streak is about to break.',   channel: 'email', soon: true },
+  { key: 'email_weak_topic_alerts', label: 'Weak-topic alerts',       sub: 'When accuracy drops below 60% on a topic.',   channel: 'email', soon: true },
+  { key: 'email_new_pyqs',          label: 'Question-bank updates',   sub: 'When new questions are available.',           channel: 'email', soon: true },
+  { key: 'push_streak_reminder',    label: 'Push: streak reminder',   sub: 'In-app reminder when your streak is at risk.', channel: 'push', soon: true },
+  { key: 'push_test_reminders',     label: 'Push: test reminders',    sub: 'Notify before scheduled custom tests.',       channel: 'push', soon: true },
 ]
 
 const DEFAULT_PREFS = {
@@ -162,17 +162,23 @@ export default function Settings() {
 }
 
 function ToggleRow({ field, value, onToggle }) {
+  const soon = !!field.soon
   return (
-    <div className="toggle-row">
+    <div className="toggle-row" style={soon ? { opacity: 0.55 } : undefined}>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div className="toggle-label">{field.label}</div>
+        <div className="toggle-label">
+          {field.label}
+          {soon && <span className="chip" style={{ marginLeft: 8, fontSize: 9, color: 'var(--primary)', borderColor: 'var(--primary-mid)' }}>coming soon</span>}
+        </div>
         <div className="toggle-sub">{field.sub}</div>
       </div>
       <button
         className={`toggle-switch ${value ? 'on' : ''}`}
-        onClick={onToggle}
+        onClick={soon ? undefined : onToggle}
+        disabled={soon}
         aria-pressed={value}
         aria-label={field.label}
+        style={soon ? { cursor: 'default' } : undefined}
       />
     </div>
   )

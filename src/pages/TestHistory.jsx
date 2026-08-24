@@ -55,10 +55,6 @@ export default function TestHistory() {
           <span className="material-symbols-outlined" style={{ fontSize: 16 }}>arrow_back</span>
           Tests
         </button>
-        <div className="editorial-tag">
-          <div className="line" />
-          <span>Performance Log</span>
-        </div>
         <h1 className="page-title">Test History</h1>
         <p className="page-sub">Every completed test, with its full performance breakdown.</p>
       </header>

@@ -26,10 +26,6 @@ export default function Subjects() {
   return (
     <div className="page-canvas">
       <header className="editorial-header">
-        <div className="editorial-tag">
-          <div className="line" />
-          <span>Curriculum 2026</span>
-        </div>
         <h1 className="page-title">
           Select Your <span style={{ color: 'var(--primary)' }}>Subject.</span>
         </h1>
@@ -42,19 +38,18 @@ export default function Subjects() {
         {subjects.map(s => <SubjectCard key={s.slug} subject={s} />)}
       </div>
 
-      <section style={{ marginTop: 40, position: 'relative', borderRadius: 12, overflow: 'hidden', height: 200, display: 'flex', alignItems: 'center', background: 'linear-gradient(135deg, var(--sc-high), var(--sc-low))' }}>
-        <div style={{ position: 'relative', zIndex: 2, padding: '0 24px' }}>
-          <h4 style={{ fontFamily: 'var(--fh)', fontWeight: 800, fontSize: 20, color: 'var(--primary)', marginBottom: 8, letterSpacing: '-0.01em' }}>Diagnostic Test</h4>
-          <p className="text-micro" style={{ maxWidth: 380, textTransform: 'none', letterSpacing: '0', opacity: 0.7 }}>15-minute cross-subject assessment. We build your study plan from the results.</p>
-          <button
-            className="btn-ghost"
-            style={{ marginTop: 16, display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, padding: '6px 12px' }}
-            onClick={() => navigate('/practice?diagnostic=1')}
-          >
-            Start
-            <span className="material-symbols-outlined" style={{ fontSize: 14 }}>arrow_forward</span>
-          </button>
+      <section className="glass-card" style={{ marginTop: 24, padding: '20px 24px', display: 'flex', alignItems: 'center', gap: 20 }}>
+        <div className="curriculum-icon" style={{ marginBottom: 0, flexShrink: 0 }}>
+          <span className="material-symbols-outlined">troubleshoot</span>
         </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <h4 style={{ fontFamily: 'var(--fh)', fontWeight: 700, fontSize: 15, marginBottom: 2 }}>Diagnostic Test</h4>
+          <p style={{ fontSize: 12.5, color: 'var(--on-sv)', margin: 0 }}>15 min cross-subject assessment, builds your study plan from the results</p>
+        </div>
+        <button className="btn-start" style={{ flexShrink: 0 }} onClick={() => navigate('/practice?diagnostic=1')}>
+          Start
+          <span className="material-symbols-outlined" style={{ fontSize: 14 }}>arrow_forward</span>
+        </button>
       </section>
     </div>
   )

@@ -506,10 +506,6 @@ export default function Notes() {
 
       <div className="page-canvas">
         <header className="editorial-header">
-          <div className="editorial-tag">
-            <div className="line" />
-            <span>Study Notes</span>
-          </div>
           <h1 className="page-title">Notes</h1>
           <p className="page-sub">Capture ideas, formulas, and concepts as you study.</p>
         </header>

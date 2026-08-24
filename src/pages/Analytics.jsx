@@ -234,10 +234,6 @@ export default function Analytics() {
   return (
     <div className="page-canvas">
       <header className="editorial-header">
-        <div className="editorial-tag">
-          <div className="line" />
-          <span>Deep Analytics</span>
-        </div>
         <h1 className="page-title">Analysis</h1>
         <p className="page-sub">Accuracy, speed, consistency, and subject breakdown.</p>
       </header>

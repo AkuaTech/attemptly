@@ -601,9 +601,61 @@ export default function Practice() {
         </>
       )}
 
-      <div className="practice-meta">
-        {headerLabel}
-        {mode !== 'mock' && q.difficulty && <span style={{ marginLeft: 12, color: 'var(--primary)' }}>· {displayDifficulty(q.difficulty)}</span>}
+      {(headerLabel || (mode !== 'mock' && q.difficulty)) && (
+        <div className="practice-meta">
+          {headerLabel}
+          {mode !== 'mock' && q.difficulty && <span style={{ marginLeft: 12, color: 'var(--primary)' }}>· {displayDifficulty(q.difficulty)}</span>}
+        </div>
+      )}
+
+      <div className="practice-actions">
+        {mode === 'mock' ? (
+          <>
+            <button
+              className="btn-outline practice-nav-btn"
+              disabled={idx === 0 || submitting}
+              onClick={() => gotoQuestion(idx - 1)}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_back</span>
+              Prev
+            </button>
+            <button
+              className={`btn-outline practice-nav-btn ${marked.has(q.id) ? 'is-marked' : ''}`}
+              disabled={submitting}
+              onClick={toggleMarked}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: 18 }}>flag</span>
+              {marked.has(q.id) ? 'Marked' : 'Mark'}
+            </button>
+            <div className="flex-1" />
+            {isLast ? (
+              <button className="submit-btn" disabled={submitting} onClick={() => setConfirmOpen(true)}>
+                {submitting ? 'Submitting…' : 'Submit Test'}
+              </button>
+            ) : (
+              <button className="submit-btn" disabled={submitting} onClick={() => gotoQuestion(idx + 1)}>
+                Save & Next
+                <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_forward</span>
+              </button>
+            )}
+          </>
+        ) : !submitted ? (
+          <>
+            <div className="flex-1" />
+            <button className="btn-outline practice-nav-btn" disabled={submitting} onClick={handleSkip}>
+              Skip
+              <span className="material-symbols-outlined" style={{ fontSize: 18 }}>skip_next</span>
+            </button>
+            <button className="submit-btn" disabled={!selected || submitting} onClick={handleSubmit}>
+              {submitting ? 'Saving…' : 'Submit'}
+            </button>
+          </>
+        ) : (
+          <button className="submit-btn" onClick={handleNext}>
+            {isLast ? 'Finish' : 'Next Question'}
+            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_forward</span>
+          </button>
+        )}
       </div>
 
       <div className="question-card">
@@ -650,54 +702,6 @@ export default function Practice() {
             <h4>Explanation</h4>
             <MathText>{q.explanation}</MathText>
           </div>
-        )}
-      </div>
-
-      <div className="practice-actions">
-        {mode === 'mock' ? (
-          <>
-            <button
-              className="btn-outline practice-nav-btn"
-              disabled={idx === 0 || submitting}
-              onClick={() => gotoQuestion(idx - 1)}
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_back</span>
-              Prev
-            </button>
-            <button
-              className={`btn-outline practice-nav-btn ${marked.has(q.id) ? 'is-marked' : ''}`}
-              disabled={submitting}
-              onClick={toggleMarked}
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: 18 }}>flag</span>
-              {marked.has(q.id) ? 'Marked' : 'Mark'}
-            </button>
-            {isLast ? (
-              <button className="submit-btn" disabled={submitting} onClick={() => setConfirmOpen(true)}>
-                {submitting ? 'Submitting…' : 'Submit Test'}
-              </button>
-            ) : (
-              <button className="submit-btn" disabled={submitting} onClick={() => gotoQuestion(idx + 1)}>
-                Save & Next
-                <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_forward</span>
-              </button>
-            )}
-          </>
-        ) : !submitted ? (
-          <>
-            <button className="btn-outline practice-nav-btn" disabled={submitting} onClick={handleSkip}>
-              Skip
-              <span className="material-symbols-outlined" style={{ fontSize: 18 }}>skip_next</span>
-            </button>
-            <button className="submit-btn" disabled={!selected || submitting} onClick={handleSubmit}>
-              {submitting ? 'Saving…' : 'Submit'}
-            </button>
-          </>
-        ) : (
-          <button className="submit-btn" onClick={handleNext}>
-            {isLast ? 'Finish' : 'Next Question'}
-            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_forward</span>
-          </button>
         )}
       </div>
 

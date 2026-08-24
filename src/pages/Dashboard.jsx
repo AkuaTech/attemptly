@@ -140,10 +140,6 @@ export default function Dashboard() {
   return (
     <div className="page-canvas">
       <header className="editorial-header">
-        <div className="editorial-tag">
-          <div className="line" />
-          <span>Performance Overview</span>
-        </div>
         <h1 className="page-title">Dashboard</h1>
         <p className="page-sub">Questions solved, accuracy trends, and what to work on next.</p>
       </header>

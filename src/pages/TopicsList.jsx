@@ -39,8 +39,8 @@ export default function TopicsList() {
         </p>
         {!loading && !error && topics.length > 0 && (
           <button
-            className="btn-ghost"
-            style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 14, padding: '8px 16px', cursor: 'pointer', background: 'none' }}
+            className="btn-start"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 14, padding: '10px 20px' }}
             onClick={() => navigate(practiceAllHref)}
           >
             Practice whole chapter
