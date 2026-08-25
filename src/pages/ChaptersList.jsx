@@ -1,3 +1,4 @@
+import { ArrowLeft, BookOpenText } from '@phosphor-icons/react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useChapters } from '../hooks/useTaxonomy'
 import { slugToTitle } from '../lib/slug'
@@ -16,7 +17,7 @@ export default function ChaptersList() {
           style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, padding: '6px 12px', marginBottom: 20 }}
           onClick={() => navigate('/subjects')}
         >
-          <span className="material-symbols-outlined" style={{ fontSize: 16 }}>arrow_back</span>
+          <ArrowLeft size={16} />
           Subjects
         </button>
         <div className="editorial-tag">
@@ -67,7 +68,7 @@ export default function ChaptersList() {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
               <div className="curriculum-icon">
-                <span className="material-symbols-outlined" style={{ fontSize: 24 }}>menu_book</span>
+                <BookOpenText size={24} />
               </div>
               <span className="text-micro">{String(i + 1).padStart(2, '0')}</span>
             </div>

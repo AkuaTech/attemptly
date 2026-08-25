@@ -1,3 +1,4 @@
+import { ArrowLeft, Headset, CaretDown } from '@phosphor-icons/react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -36,9 +37,7 @@ function FaqItem({ q, a, open, onToggle }) {
         className="faq-button"
       >
         <span className="faq-question">{q}</span>
-        <span className="material-symbols-outlined" style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 150ms ease' }}>
-          expand_more
-        </span>
+        <CaretDown size={18} style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 150ms ease' }} />
       </button>
       {open && (
         <div className="faq-answer">
@@ -61,7 +60,7 @@ export default function Help() {
           style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, padding: '6px 12px', marginBottom: 20 }}
           onClick={() => navigate(-1)}
         >
-          <span className="material-symbols-outlined" style={{ fontSize: 16 }}>arrow_back</span>
+          <ArrowLeft size={16} />
           Back
         </button>
         <h1 className="page-title">How can we <span style={{ color: 'var(--primary)' }}>help?</span></h1>
@@ -81,7 +80,7 @@ export default function Help() {
       </div>
 
       <div className="glass-card editorial-card help-contact-card">
-        <span className="material-symbols-outlined" style={{ color: 'var(--primary)', fontSize: 32 }}>support_agent</span>
+        <Headset size={32} color="var(--primary)" />
         <div style={{ flex: 1 }}>
           <h3 className="section-title" style={{ marginBottom: 4 }}>Still stuck?</h3>
           <p className="text-sm" style={{ color: 'var(--on-sv)' }}>

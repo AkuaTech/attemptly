@@ -1,3 +1,4 @@
+import { ArrowLeft, BookOpenText, PencilSimple, Tag, Trash, X } from '@phosphor-icons/react'
 import { useCallback, useMemo, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { useEditor, EditorContent } from '@tiptap/react'
@@ -119,7 +120,7 @@ function FileChip({ name, type, onRemove, pending }) {
         style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, lineHeight: 1, color: '#ef4444' }}
         aria-label="Remove"
       >
-        <span className="material-symbols-outlined" style={{ fontSize: 13 }}>close</span>
+        <X size={13} />
       </button>
     </span>
   )
@@ -132,10 +133,10 @@ function NoteCard({ note, onEdit, onDelete }) {
         <h3 style={{ margin: 0, fontSize: 15, fontWeight: 600, lineHeight: 1.4 }}>{note.title}</h3>
         <div style={{ display: 'flex', gap: 2, flexShrink: 0 }}>
           <button className="btn-ghost" style={{ padding: '4px 6px', borderRadius: 6 }} onClick={() => onEdit(note)} aria-label="Edit note">
-            <span className="material-symbols-outlined" style={{ fontSize: 17 }}>edit</span>
+            <PencilSimple size={17} />
           </button>
           <button className="btn-ghost" style={{ padding: '4px 6px', borderRadius: 6, color: '#ef4444' }} onClick={() => onDelete(note.id)} aria-label="Delete note">
-            <span className="material-symbols-outlined" style={{ fontSize: 17 }}>delete</span>
+            <Trash size={17} />
           </button>
         </div>
       </div>
@@ -603,7 +604,7 @@ export default function Notes() {
                     else setStudySubject(null)
                   }}
                 >
-                  <span className="material-symbols-outlined" style={{ fontSize: 16 }}>arrow_back</span>
+                  <ArrowLeft size={16} />
                   Back
                 </button>
                 <span className="breadcrumb-sep">/</span>
@@ -686,7 +687,7 @@ export default function Notes() {
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
                       <div className="curriculum-icon">
-                        <span className="material-symbols-outlined" style={{ fontSize: 24 }}>menu_book</span>
+                        <BookOpenText size={24} />
                       </div>
                       <span className="text-micro">{String(i + 1).padStart(2, '0')}</span>
                     </div>
@@ -716,7 +717,7 @@ export default function Notes() {
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 32 }}>
                       <div className="curriculum-icon curriculum-icon-lg">
-                        <span className="material-symbols-outlined" style={{ fontSize: 36 }}>label</span>
+                        <Tag size={36} />
                       </div>
                       <span className="text-sm">{String(i + 1).padStart(2, '0')}</span>
                     </div>

@@ -1,3 +1,4 @@
+import { X } from '@phosphor-icons/react'
 import { useEffect, useRef } from 'react'
 
 const FOCUSABLE = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
@@ -43,7 +44,7 @@ export default function Modal({ open, onClose, title, children, footer }) {
         <header className="modal-head">
           <h3 className="modal-title">{title}</h3>
           <button className="modal-close" onClick={onClose} aria-label="Close">
-            <span className="material-symbols-outlined">close</span>
+            <X size={20} />
           </button>
         </header>
         <div className="modal-body">{children}</div>

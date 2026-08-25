@@ -1,3 +1,4 @@
+import { ArrowLeft } from '@phosphor-icons/react'
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { supabase } from '../supabase'
@@ -106,7 +107,7 @@ export default function TestReview() {
     <div className="practice-wrap">
       <div className="practice-bar">
         <button className="practice-close" onClick={() => navigate('/tests')} aria-label="Back">
-          <span className="material-symbols-outlined">arrow_back</span>
+          <ArrowLeft size={20} />
         </button>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div className="text-bold" style={{ fontFamily: 'var(--fh)', fontSize: 16 }}>{data.mock?.title}</div>

@@ -1,3 +1,4 @@
+import { ArrowRight, Plus, X, Exam, CheckCircle } from '@phosphor-icons/react'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../supabase'
@@ -123,7 +124,7 @@ export default function MockTests() {
       <p className="page-sub">Build focused practice tests from the question bank.</p>
       </header>
 
-      <div className="row mb-16 flex-wrap gap-8">
+      <div className="row mb-16 flex-wrap gap-8 tests-view-tabs">
         <button className="filter-pill active" style={{ fontSize: 11, padding: '4px 12px' }}>
           Browse
         </button>
@@ -153,7 +154,7 @@ export default function MockTests() {
           style={{ padding: '6px 12px', borderRadius: 8 }}
           onClick={handleCustom}
         >
-          <span className="material-symbols-outlined" style={{ fontSize: 14 }}>add</span>
+          <Plus size={14} />
           Custom Test
         </button>
       </div>
@@ -179,13 +180,13 @@ export default function MockTests() {
           {shown.map(test => (
             <div key={test.id} className="glass-card glass-card-hover test-row" onClick={() => test.score == null ? handleStart(test) : handleReview(test)}>
               <div className="test-row-icon" style={{ background: test.score == null ? 'rgba(231,249,92,0.08)' : 'var(--fill-faint)' }}>
-                <span className="material-symbols-outlined" style={{ color: test.score == null ? 'var(--primary)' : 'var(--muted)', fontSize: 22 }}>
-                  {test.score == null ? 'quiz' : 'task_alt'}
-                </span>
+                {test.score == null
+                  ? <Exam size={22} color="var(--primary)" />
+                  : <CheckCircle size={22} color="var(--muted)" />}
               </div>
 
               <div className="test-row-body">
-                <div className="text-bold" style={{ fontFamily: 'var(--fh)', fontSize: 15, marginBottom: 4 }}>{test.title}</div>
+                <div className="test-title">{test.title}</div>
                 <div className="test-row-chips">
                   <span className="chip" style={{ fontSize: 9 }}>{test.pattern}</span>
                   <span className="chip" style={{ fontSize: 9 }}>{test.num_questions} Qs</span>
@@ -208,7 +209,7 @@ export default function MockTests() {
                 ) : (
                   <button className="btn-start" style={{ padding: '8px 16px', fontSize: 12, whiteSpace: 'nowrap' }} onClick={e => { e.stopPropagation(); handleStart(test); }}>
                     {test.inProgress ? 'Resume' : 'Start'}
-                    <span className="material-symbols-outlined" style={{ fontSize: 14 }}>arrow_forward</span>
+                    <ArrowRight size={14} />
                   </button>
                 )}
               </div>
@@ -223,7 +224,7 @@ export default function MockTests() {
             <div className="modal-head">
               <h3 className="modal-title">Start Test?</h3>
               <button className="modal-close" onClick={() => setConfirmTest(null)}>
-                <span className="material-symbols-outlined">close</span>
+                <X size={20} />
               </button>
             </div>
             <div className="modal-body">

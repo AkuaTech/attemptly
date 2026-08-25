@@ -1,3 +1,4 @@
+import { ArrowLeft, ArrowRight, Flag, SkipForward, X } from '@phosphor-icons/react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '../supabase'
@@ -545,7 +546,7 @@ export default function Practice() {
     <div className="practice-wrap">
       <div className="practice-bar">
         <button className="practice-close" onClick={() => navigate(-1)} aria-label="Close">
-          <span className="material-symbols-outlined">close</span>
+          <X size={20} />
         </button>
         <div className="practice-progress" aria-label={`Question ${idx + 1} of ${questions.length}`}>
           <div className="practice-progress-fill" style={{ width: `${progressRatio * 100}%` }} />
@@ -616,7 +617,7 @@ export default function Practice() {
               disabled={idx === 0 || submitting}
               onClick={() => gotoQuestion(idx - 1)}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_back</span>
+              <ArrowLeft size={18} />
               Prev
             </button>
             <button
@@ -624,7 +625,7 @@ export default function Practice() {
               disabled={submitting}
               onClick={toggleMarked}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: 18 }}>flag</span>
+              <Flag size={18} />
               {marked.has(q.id) ? 'Marked' : 'Mark'}
             </button>
             <div className="flex-1" />
@@ -635,7 +636,7 @@ export default function Practice() {
             ) : (
               <button className="submit-btn" disabled={submitting} onClick={() => gotoQuestion(idx + 1)}>
                 Save & Next
-                <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_forward</span>
+                <ArrowRight size={18} />
               </button>
             )}
           </>
@@ -644,7 +645,7 @@ export default function Practice() {
             <div className="flex-1" />
             <button className="btn-outline practice-nav-btn" disabled={submitting} onClick={handleSkip}>
               Skip
-              <span className="material-symbols-outlined" style={{ fontSize: 18 }}>skip_next</span>
+              <SkipForward size={18} />
             </button>
             <button className="submit-btn" disabled={!selected || submitting} onClick={handleSubmit}>
               {submitting ? 'Saving…' : 'Submit'}
@@ -653,7 +654,7 @@ export default function Practice() {
         ) : (
           <button className="submit-btn" onClick={handleNext}>
             {isLast ? 'Finish' : 'Next Question'}
-            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_forward</span>
+            <ArrowRight size={18} />
           </button>
         )}
       </div>

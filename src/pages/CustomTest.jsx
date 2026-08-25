@@ -1,3 +1,4 @@
+import { ArrowLeft, PencilSimple, X } from '@phosphor-icons/react'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../supabase'
@@ -91,7 +92,7 @@ export default function CustomTest() {
           style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, padding: '6px 12px', marginBottom: 20 }}
           onClick={() => navigate('/tests')}
         >
-          <span className="material-symbols-outlined" style={{ fontSize: 16 }}>arrow_back</span>
+          <ArrowLeft size={16} />
           Tests
         </button>
         <h1 className="page-title">Custom <span style={{ color: 'var(--primary)' }}>Test.</span></h1>
@@ -99,7 +100,7 @@ export default function CustomTest() {
       </header>
 
       <div className="glass-card" style={{ padding: '36px 44px', maxWidth: 800 }}>
-        <div className="row" style={{ alignItems: 'flex-start', gap: 24 }}>
+        <div className="custom-grid">
           <div className="flex-1" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
             <div className="form-row">
               <label className="text-micro">Subject</label>
@@ -196,7 +197,7 @@ export default function CustomTest() {
                   }}
                   onClick={() => { setCustomActive(true); setDurationManual(true); setCustomVal('') }}
                 >
-                  <span className="material-symbols-outlined" style={{ fontSize: 13 }}>edit</span>
+                  <PencilSimple size={13} />
                   Custom
                 </button>
               </div>
@@ -262,7 +263,7 @@ export default function CustomTest() {
             <div className="modal-head">
               <h3 className="modal-title">Start Test?</h3>
               <button className="modal-close" onClick={() => setShowConfirm(false)}>
-                <span className="material-symbols-outlined">close</span>
+                <X size={20} />
               </button>
             </div>
             <div className="modal-body">

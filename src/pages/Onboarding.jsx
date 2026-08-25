@@ -1,17 +1,18 @@
+import { ArrowRight, Stack, ArrowClockwise, BookOpenText, ChartDonut, Exam, Brain, Sigma, NotePencil, CalendarBlank, Rocket, Flask, GraduationCap, SealCheck, TrendUp, Lightning } from '@phosphor-icons/react'
 import { useEffect, useRef, useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { supabase } from '../supabase'
 
 const features = [
-  { icon: 'menu_book', title: 'Real PYQs', desc: 'Every question is pulled from an actual previous-year paper, with a fully worked solution. No filler, no AI-invented problems.', size: 'xl' },
-  { icon: 'insights', title: 'Deep Analytics', desc: 'Accuracy trends, a consistency heatmap, subject split and speed tracking, so you always know what to fix next.', size: 'wide' },
-  { icon: 'quiz', title: 'Custom Mock Tests', desc: 'Pick subject, chapter, difficulty and length. The test builds itself.' },
-  { icon: 'psychology', title: 'Diagnostic Test', desc: 'A 15-minute cross-subject check that maps your starting point.' },
-  { icon: 'functions', title: 'LaTeX Rendering', desc: 'Crisp KaTeX equations. Never a blurry screenshot.' },
-  { icon: 'note_alt', title: 'Study Notes', desc: 'Rich-text notes with attachments, tagged by chapter.' },
-  { icon: 'event', title: 'Daily Schedule', desc: 'A plan generated from your weak topics and resume queue.' },
-  { icon: 'replay', title: 'Test Review', desc: 'Replay any test question-by-question with explanations.' },
+  { icon: BookOpenText, title: 'Real PYQs', desc: 'Every question is pulled from an actual previous-year paper, with a fully worked solution. No filler, no AI-invented problems.', size: 'xl' },
+  { icon: ChartDonut, title: 'Deep Analytics', desc: 'Accuracy trends, a consistency heatmap, subject split and speed tracking, so you always know what to fix next.', size: 'wide' },
+  { icon: Exam, title: 'Custom Mock Tests', desc: 'Pick subject, chapter, difficulty and length. The test builds itself.' },
+  { icon: Brain, title: 'Diagnostic Test', desc: 'A 15-minute cross-subject check that maps your starting point.' },
+  { icon: Sigma, title: 'LaTeX Rendering', desc: 'Crisp KaTeX equations. Never a blurry screenshot.' },
+  { icon: NotePencil, title: 'Study Notes', desc: 'Rich-text notes with attachments, tagged by chapter.' },
+  { icon: CalendarBlank, title: 'Daily Schedule', desc: 'A plan generated from your weak topics and resume queue.' },
+  { icon: ArrowClockwise, title: 'Test Review', desc: 'Replay any test question-by-question with explanations.' },
 ]
 
 const steps = [
@@ -28,9 +29,9 @@ function formatPyqCount(n) {
 }
 
 const subjects = [
-  { icon: 'rocket_launch', label: 'Physics' },
-  { icon: 'science', label: 'Chemistry' },
-  { icon: 'functions', label: 'Mathematics' },
+  { icon: Rocket, label: 'Physics' },
+  { icon: Flask, label: 'Chemistry' },
+  { icon: Sigma, label: 'Mathematics' },
 ]
 
 const glyphs = [
@@ -116,7 +117,7 @@ export default function Onboarding() {
         <div className="lp-nav-inner">
           <div className="lp-brand">
             <div className="lp-brand-mark">
-              <span className="material-symbols-outlined">layers</span>
+              <Stack size={20} className="lp-brand-mark-svg" color="var(--on-primary)" />
             </div>
             <span className="lp-brand-text">Attemptly</span>
           </div>
@@ -144,7 +145,7 @@ export default function Onboarding() {
             <div className="lp-hero-cta" data-reveal>
               <button className="lp-btn-action" onClick={() => navigate('/signup')}>
                 Get Started
-                <span className="material-symbols-outlined">arrow_forward</span>
+                <ArrowRight size={20} />
               </button>
               <button className="lp-btn-ghost" onClick={() => navigate('/login')}>
                 I have an account
@@ -216,19 +217,19 @@ export default function Onboarding() {
             </h2>
           </div>
           <div className="lp-bento">
-            {features.map((f, i) => (
+            {features.map(({ icon: Icon, title, desc, size }, i) => (
               <article
-                key={f.title}
-                className={`lp-feat lp-feat-${f.size || 'sm'} glass-veil tilt-module`}
+                key={title}
+                className={`lp-feat lp-feat-${size || 'sm'} glass-veil tilt-module`}
                 data-reveal
                 style={{ transitionDelay: `${Math.min(i, 6) * 60}ms` }}
               >
                 <div className="lp-feat-icon">
-                  <span className="material-symbols-outlined">{f.icon}</span>
+                  <Icon size={22} />
                 </div>
                 <div className="lp-feat-body">
-                  <h3>{f.title}</h3>
-                  <p>{f.desc}</p>
+                  <h3>{title}</h3>
+                  <p>{desc}</p>
                 </div>
               </article>
             ))}
@@ -296,10 +297,10 @@ export default function Onboarding() {
               <span className="lp-soon">More exams coming soon</span>
             </div>
             <div className="lp-subjects">
-              {subjects.map(s => (
-                <div key={s.label} className="lp-subject">
-                  <span className="material-symbols-outlined">{s.icon}</span>
-                  <span className="lp-subject-label">{s.label}</span>
+              {subjects.map(({ icon: Icon, label }) => (
+                <div key={label} className="lp-subject">
+                  <Icon size={20} />
+                  <span className="lp-subject-label">{label}</span>
                 </div>
               ))}
             </div>
@@ -315,7 +316,7 @@ export default function Onboarding() {
             <p className="lp-final-sub">Free account. No credit card, no ads, no premium tier, ever.</p>
             <button className="lp-btn-action lp-btn-lg" onClick={() => navigate('/signup')}>
               Create free account
-              <span className="material-symbols-outlined">arrow_forward</span>
+              <ArrowRight size={20} />
             </button>
           </div>
         </section>
@@ -324,7 +325,7 @@ export default function Onboarding() {
           <div className="lp-footer-brand">
             <div className="lp-brand">
               <div className="lp-brand-mark lp-brand-mark-sm">
-                <span className="material-symbols-outlined">layers</span>
+                <Stack size={18} className="lp-brand-mark-svg" color="var(--on-primary)" />
               </div>
               <span className="lp-brand-text lp-brand-text-sm">Attemptly</span>
             </div>

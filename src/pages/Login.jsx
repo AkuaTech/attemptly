@@ -1,3 +1,4 @@
+import { Stack, Eye, EyeSlash } from '@phosphor-icons/react'
 import { useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
@@ -51,7 +52,7 @@ export default function Login() {
         <div style={{ position: 'relative', zIndex: 1 }}>
           <button onClick={() => navigate('/')} style={{ display: 'flex', alignItems: 'center', gap: 14, cursor: 'pointer', background: 'none', marginBottom: 56, padding: '8px 12px', borderRadius: 12, transition: 'background 200ms ease' }} className="lp-nav-link">
             <div style={{ width: 44, height: 44, background: 'var(--primary)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 6px 24px rgba(231,249,92,0.25)' }}>
-              <span className="material-symbols-outlined" style={{ color: 'var(--on-primary)', fontWeight: 700, fontSize: 24 }}>layers</span>
+              <Stack size={24} color="var(--on-primary)" />
             </div>
             <span style={{ fontFamily: 'var(--lp-display)', fontWeight: 800, fontSize: 24, letterSpacing: '-0.01em', color: 'var(--on-surface)' }}>Attemptly</span>
           </button>
@@ -121,7 +122,7 @@ export default function Login() {
               <div style={{ position: 'relative' }}>
                 <input type={showPass ? 'text' : 'password'} className="login-input" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} required minLength={6} />
                 <button type="button" onClick={() => setShowPass(p => !p)} style={{ position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)', color: 'var(--on-sv)', background: 'none', cursor: 'pointer' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: 20 }}>{showPass ? 'visibility_off' : 'visibility'}</span>
+                  {showPass ? <EyeSlash size={20} /> : <Eye size={20} />}
                 </button>
               </div>
             </div>

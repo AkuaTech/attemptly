@@ -1,3 +1,4 @@
+import { EnvelopeOpen, Stack } from '@phosphor-icons/react'
 import { useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
@@ -54,7 +55,7 @@ export default function Signup() {
       <div className="auth-brand-link">
         <button onClick={() => navigate('/')} style={{ display: 'flex', alignItems: 'center', gap: 14, cursor: 'pointer', background: 'none', padding: '8px 12px', borderRadius: 12, transition: 'background 200ms ease' }} className="lp-nav-link">
           <div style={{ width: 44, height: 44, background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 12, boxShadow: '0 6px 24px rgba(231,249,92,0.25)' }}>
-            <span className="material-symbols-outlined" style={{ color: 'var(--on-primary)', fontWeight: 900, fontSize: 24 }}>layers</span>
+            <Stack size={24} color="var(--on-primary)" />
           </div>
           <span style={{ fontFamily: 'var(--lp-display)', fontWeight: 800, fontSize: 22, letterSpacing: '-0.01em', color: 'var(--on-surface)' }}>Attemptly</span>
         </button>
@@ -120,7 +121,7 @@ export default function Signup() {
       {step === 'confirm' && (
         <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: 480, textAlign: 'center' }}>
           <div style={{ width: 72, height: 72, borderRadius: 8, background: 'rgba(231,249,92,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: 36, color: 'var(--primary)' }}>mark_email_read</span>
+            <EnvelopeOpen size={36} color="var(--primary)" />
           </div>
           <h1 style={{ fontFamily: 'var(--fh)', fontWeight: 900, fontSize: 36, letterSpacing: '-0.03em', marginBottom: 16 }}>
             Check your email

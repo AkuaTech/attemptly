@@ -1,3 +1,4 @@
+import { ChartLineUp } from '@phosphor-icons/react'
 import { useEffect, useMemo, useState } from 'react'
 import { supabase } from '../supabase'
 import { useAuth } from '../contexts/AuthContext'
@@ -242,10 +243,10 @@ export default function Analytics() {
         <div className="glass-card editorial-card accent-card">
           <div className="row mb-12">
             <h3 className="section-label flex-1">Skill Breakdown</h3>
-            <span className="material-symbols-outlined" style={{ color: 'var(--primary)' }}>analytics</span>
+            <ChartLineUp size={20} color="var(--primary)" />
           </div>
-          <div className="flex items-center justify-center" style={{ height: 240 }}>
-            <svg width="240" height="240" viewBox="0 0 200 200" className="chart-svg overflow-visible">
+          <div className="flex items-center justify-center" style={{ height: 200 }}>
+            <svg width="200" height="200" viewBox="0 0 200 200" className="chart-svg overflow-visible">
               <polygon points="100,20 180,100 100,180 20,100" fill="none" stroke="var(--outline)" strokeWidth="1" strokeDasharray="2 2" />
               <polygon points="100,50 150,100 100,150 50,100" fill="none" stroke="var(--outline)" strokeWidth="1" />
               <circle cx="100" cy="100" r="2" fill="var(--outline)" />
@@ -275,7 +276,7 @@ export default function Analytics() {
         <div className="glass-card editorial-card accent-card analytics-subject-card">
           <h3 className="section-label mb-16">Subject Split</h3>
           <div className="analytics-subject-body">
-            <div className="relative" style={{ width: 160, height: 160 }}>
+            <div className="relative" style={{ width: 132, height: 132 }}>
               <svg className="absolute-inset-0" viewBox="0 0 160 160" style={{ transform: 'rotate(-90deg)' }}>
                 <circle cx="80" cy="80" r="70" fill="transparent" stroke="var(--sc-bright)" strokeWidth="12" />
                 {overallTotal > 0 && (() => {
@@ -300,7 +301,7 @@ export default function Analytics() {
                 })()}
               </svg>
               <div className="absolute-inset-0 flex-col items-center justify-center">
-                <span className="text-black" style={{ fontFamily: 'var(--fh)', fontSize: 24 }}>
+                <span className="text-black" style={{ fontFamily: 'var(--fh)', fontSize: 20 }}>
                   {overallTotal > 0 ? `${Math.round(masteryPct * 100)}%` : '—'}
                 </span>
                 <span className="text-micro">Mastered</span>

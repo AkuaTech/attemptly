@@ -1,12 +1,13 @@
+import { Bell, BellSlash, SignOut, Sun, Moon, User, Faders, Question } from '@phosphor-icons/react'
 import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { getUserDisplayName, getUserInitials } from '../lib/userProfile'
 
 const accountItems = [
-  { icon: 'person', label: 'My Profile', path: '/profile' },
-  { icon: 'tune', label: 'Preferences', path: '/settings' },
-  { icon: 'help', label: 'Help & Support', path: '/help' },
+  { icon: User, label: 'My Profile', path: '/profile' },
+  { icon: Faders, label: 'Preferences', path: '/settings' },
+  { icon: Question, label: 'Help & Support', path: '/help' },
 ]
 
 export default function TopNav({ theme, toggleTheme }) {
@@ -43,9 +44,7 @@ export default function TopNav({ theme, toggleTheme }) {
           onClick={toggleTheme}
           aria-label="Toggle theme"
         >
-          <span className="material-symbols-outlined">
-            {theme === 'dark' ? 'light_mode' : 'dark_mode'}
-          </span>
+          {theme === 'dark' ? <Sun size={22} /> : <Moon size={22} />}
         </button>
 
         <button
@@ -54,7 +53,7 @@ export default function TopNav({ theme, toggleTheme }) {
           aria-label="Notifications"
           aria-expanded={open === 'notif'}
         >
-          <span className="material-symbols-outlined">notifications</span>
+          <Bell size={20} />
         </button>
 
         {open === 'notif' && (
@@ -66,7 +65,7 @@ export default function TopNav({ theme, toggleTheme }) {
               </div>
             </header>
             <div style={{ padding: '24px 20px', textAlign: 'center' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: 28, color: 'var(--muted)' }}>notifications_off</span>
+              <BellSlash size={28} color="var(--muted)" />
               <p className="text-sm" style={{ marginTop: 8, lineHeight: 1.5 }}>
                 No notifications yet. We will alert you when your streak is at risk, new PYQs are added, or a topic needs attention.
               </p>
@@ -106,7 +105,7 @@ export default function TopNav({ theme, toggleTheme }) {
                     onClick={() => { setOpen(null); navigate(item.path) }}
                     role="menuitem"
                   >
-                    <span className="material-symbols-outlined">{item.icon}</span>
+                    <item.icon size={18} />
                     <span>{item.label}</span>
                   </button>
                 </li>
@@ -118,7 +117,7 @@ export default function TopNav({ theme, toggleTheme }) {
                   onClick={async () => { setOpen(null); await signOut(); navigate('/login') }}
                   role="menuitem"
                 >
-                  <span className="material-symbols-outlined">logout</span>
+                  <SignOut size={20} />
                   <span>Sign out</span>
                 </button>
               </li>

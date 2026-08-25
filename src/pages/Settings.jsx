@@ -1,3 +1,4 @@
+import { ArrowLeft } from '@phosphor-icons/react'
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '../supabase'
@@ -84,7 +85,7 @@ export default function Settings() {
           style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, padding: '6px 12px', marginBottom: 20 }}
           onClick={() => navigate(-1)}
         >
-          <span className="material-symbols-outlined" style={{ fontSize: 16 }}>arrow_back</span>
+          <ArrowLeft size={16} />
           Back
         </button>
         <h1 className="page-title">Settings</h1>

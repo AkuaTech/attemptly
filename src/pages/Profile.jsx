@@ -1,3 +1,4 @@
+import { ArrowLeft, CaretRight } from '@phosphor-icons/react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
@@ -79,7 +80,7 @@ export default function Profile() {
           style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, padding: '6px 12px', marginBottom: 20 }}
           onClick={() => navigate(-1)}
         >
-          <span className="material-symbols-outlined" style={{ fontSize: 16 }}>arrow_back</span>
+          <ArrowLeft size={16} />
           Back
         </button>
         <h1 className="page-title">
@@ -167,7 +168,7 @@ export default function Profile() {
                 onClick={() => { setPwErr(null); setPwOk(false); setNewPw(''); setConfirmPw(''); setPwOpen(true) }}
               >
                 <span style={{ fontSize: 14 }}>Change Password</span>
-                <span className="material-symbols-outlined" style={{ fontSize: 18 }}>chevron_right</span>
+                <CaretRight size={18} />
               </button>
               <button
                 type="button"
@@ -176,7 +177,7 @@ export default function Profile() {
                 onClick={() => navigate('/settings?tab=notifications')}
               >
                 <span style={{ fontSize: 14 }}>Notification Preferences</span>
-                <span className="material-symbols-outlined" style={{ fontSize: 18 }}>chevron_right</span>
+                <CaretRight size={18} />
               </button>
             </div>
           </div>

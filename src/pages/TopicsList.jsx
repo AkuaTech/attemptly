@@ -1,3 +1,4 @@
+import { ArrowLeft, ArrowRight, Tag } from '@phosphor-icons/react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useTopics } from '../hooks/useTaxonomy'
 import { slugToTitle } from '../lib/slug'
@@ -18,7 +19,7 @@ export default function TopicsList() {
           style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, padding: '6px 12px', marginBottom: 20 }}
           onClick={() => navigate(`/subjects/${encodeURIComponent(subject)}`)}
         >
-          <span className="material-symbols-outlined" style={{ fontSize: 16 }}>arrow_back</span>
+          <ArrowLeft size={16} />
           {subject}
         </button>
         <div className="editorial-tag">
@@ -44,7 +45,7 @@ export default function TopicsList() {
             onClick={() => navigate(practiceAllHref)}
           >
             Practice whole chapter
-            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_forward</span>
+            <ArrowRight size={18} />
           </button>
         )}
       </header>
@@ -87,7 +88,7 @@ export default function TopicsList() {
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 32 }}>
                 <div className="curriculum-icon curriculum-icon-lg">
-                  <span className="material-symbols-outlined" style={{ fontSize: 36 }}>label</span>
+                  <Tag size={36} />
                 </div>
                 <span className="text-sm">{String(i + 1).padStart(2, '0')}</span>
               </div>

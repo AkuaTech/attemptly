@@ -1,3 +1,4 @@
+import { ArrowLeft, ClockCounterClockwise } from '@phosphor-icons/react'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../supabase'
@@ -52,7 +53,7 @@ export default function TestHistory() {
           style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, padding: '6px 12px', marginBottom: 20 }}
           onClick={() => navigate('/tests')}
         >
-          <span className="material-symbols-outlined" style={{ fontSize: 16 }}>arrow_back</span>
+          <ArrowLeft size={16} />
           Tests
         </button>
         <h1 className="page-title">Test History</h1>
@@ -96,7 +97,7 @@ export default function TestHistory() {
                 onClick={() => navigate(`/tests/result/${a.id}`)}
               >
                 <div className="test-icon-box" style={{ background: 'var(--fill-faint)' }}>
-                  <span className="material-symbols-outlined" style={{ color: 'var(--muted)', fontSize: 20 }}>history</span>
+                  <ClockCounterClockwise size={20} color="var(--muted)" />
                 </div>
 
                 <div className="flex-1">

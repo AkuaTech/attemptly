@@ -1,11 +1,13 @@
 import { useLocation, useNavigate } from 'react-router-dom'
+import { SquaresFour, Exam, BookOpen, CalendarBlank, NotePencil, ChartLineUp } from '@phosphor-icons/react'
 
 const items = [
-  { icon: 'assignment', label: 'Tests', path: '/tests' },
-  { icon: 'auto_stories', label: 'Subjects', path: '/subjects' },
-  { icon: 'calendar_month', label: 'Planner', path: '/schedule' },
-  { icon: 'sticky_note_2', label: 'Notes', path: '/notes' },
-  { icon: 'analytics', label: 'Analysis', path: '/analytics' },
+  { icon: SquaresFour, label: 'Home', path: '/dashboard' },
+  { icon: Exam, label: 'Tests', path: '/tests' },
+  { icon: BookOpen, label: 'Subjects', path: '/subjects' },
+  { icon: CalendarBlank, label: 'Planner', path: '/schedule' },
+  { icon: NotePencil, label: 'Notes', path: '/notes' },
+  { icon: ChartLineUp, label: 'Analysis', path: '/analytics' },
 ]
 
 export default function BottomNav() {
@@ -21,7 +23,7 @@ export default function BottomNav() {
           onClick={() => navigate(item.path)}
           aria-label={item.label}
         >
-          <span className="material-symbols-outlined">{item.icon}</span>
+          <item.icon size={18} weight={location.pathname === item.path ? 'fill' : 'regular'} />
           <span>{item.label}</span>
         </button>
       ))}

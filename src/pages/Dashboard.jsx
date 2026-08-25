@@ -1,9 +1,10 @@
+import { Play, Compass, Lightning, Sigma, Flask, Brain, Barbell, Exam, BookOpenText } from '@phosphor-icons/react'
 import { useNavigate } from 'react-router-dom'
 import { useDashboardStats } from '../hooks/useUserStats'
 import { slugToTitle } from '../lib/slug'
 import { SkeletonStatCard, SkeletonRow } from '../components/Skeleton'
 
-const SUBJECT_ICON = { Physics: 'bolt', Mathematics: 'functions', Chemistry: 'science' }
+const SUBJECT_ICON = { Physics: Lightning, Mathematics: Sigma, Chemistry: Flask }
 
 function StatCard({ stat }) {
   return (
@@ -144,7 +145,7 @@ export default function Dashboard() {
         <p className="page-sub">Questions solved, accuracy trends, and what to work on next.</p>
       </header>
 
-      <div className="bento-3">
+      <div className="stats-row">
         {loading ? (
           <>
             <SkeletonStatCard />
@@ -163,7 +164,7 @@ export default function Dashboard() {
 
         <div className="glass-card editorial-card dashboard-resume-card">
           <div className="dashboard-resume-icon">
-            <span className="material-symbols-outlined">{resume ? 'play_arrow' : 'explore'}</span>
+            {resume ? <Play size={22} /> : <Compass size={22} />}
           </div>
           <div>
             <span className="badge-resume">{resume ? 'Resume' : 'Get Started'}</span>
@@ -176,7 +177,7 @@ export default function Dashboard() {
           </div>
           <button className="submit-btn dashboard-resume-action" onClick={continueResume}>
             {resume ? 'Continue' : 'Browse'}
-            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>play_arrow</span>
+            <Play size={18} />
           </button>
         </div>
       </div>
@@ -202,7 +203,7 @@ export default function Dashboard() {
               <div key={`${w.subject}-${w.topic}`} className="weakness-row">
                 <div className="row">
                   <div className="weakness-icon">
-                    <span className="material-symbols-outlined">{SUBJECT_ICON[w.subject] || 'psychology'}</span>
+                    {(() => { const I = SUBJECT_ICON[w.subject] || Brain; return <I size={17} /> })()}
                   </div>
                   <div>
                     <div style={{ fontWeight: 700, fontSize: 14 }}>{slugToTitle(w.topic)}</div>
@@ -220,41 +221,33 @@ export default function Dashboard() {
         <div className="glass-card editorial-card">
           <div className="row mb-12">
             <h3 className="section-title flex-1">Today's Plan</h3>
-            {plan.length > 0 && <span className="text-micro text-primary">Next Up</span>}
+            <span className="text-micro text-muted">{dateNum} {monthLabel}</span>
           </div>
-          <div className="row items-start gap-24">
-            <div className="text-center flex-shrink-0" style={{ paddingTop: 8 }}>
-              <div className="text-primary text-black" style={{ fontFamily: 'var(--fh)', fontSize: 28, lineHeight: 1 }}>{dateNum}</div>
-              <div className="text-micro mt-4">{monthLabel}</div>
+          {plan.length === 0 ? (
+            <div className="text-micro text-muted" style={{ textTransform: 'none', letterSpacing: 0, fontSize: 13 }}>
+              Nothing on the plan. Pick a subject to start practicing.
             </div>
-            <div style={{ flex: 1 }}>
-              {plan.length === 0 ? (
-                <div className="text-micro text-muted" style={{ textTransform: 'none', letterSpacing: 0, fontSize: 13 }}>
-                  Nothing on the plan. Pick a subject to start practicing.
-                </div>
-              ) : plan.map((s, i) => (
+          ) : (
+            <div className="flex-col gap-8">
+              {plan.map((s, i) => (
                 <button
                   key={i}
                   onClick={() => s.onClick(navigate)}
                   className={`weakness-row dashboard-plan-row ${s.primary ? 'active' : ''}`}
-                  style={{ width: '100%', textAlign: 'left', cursor: 'pointer', marginBottom: i === plan.length - 1 ? 0 : 12 }}
+                  style={{ width: '100%', textAlign: 'left', cursor: 'pointer' }}
                 >
-                  <div className="row" style={{ flex: 1, minWidth: 0 }}>
-                    <div className="dashboard-plan-icon">
-                      <span className="material-symbols-outlined">
-                        {s.kind === 'drill' ? 'fitness_center' : s.kind === 'mock' ? 'quiz' : 'menu_book'}
-                      </span>
-                    </div>
-                    <div style={{ minWidth: 0 }}>
-                      <div className="text-bold" style={{ fontSize: 13 }}>{s.title}</div>
-                      <div className="text-micro text-on-sv" style={{ marginTop: 4 }}>{s.meta}</div>
-                    </div>
+                  <div className="dashboard-plan-icon">
+                    {s.kind === 'drill' ? <Barbell size={16} /> : s.kind === 'mock' ? <Exam size={16} /> : <BookOpenText size={16} />}
                   </div>
-                  <div className="text-micro text-muted">{s.time}</div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div className="text-bold" style={{ fontSize: 13.5 }}>{s.title}</div>
+                    <div style={{ fontSize: 11.5, color: 'var(--on-sv)', marginTop: 2 }}>{s.meta}</div>
+                  </div>
+                  <span className="chip" style={{ fontSize: 9.5, flexShrink: 0 }}>{s.time}</span>
                 </button>
               ))}
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

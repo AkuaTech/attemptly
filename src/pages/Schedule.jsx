@@ -1,3 +1,4 @@
+import { Barbell, Play, CheckCircle, Exam } from '@phosphor-icons/react'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../supabase'
@@ -96,7 +97,7 @@ export default function Schedule() {
                 >
                   <div className="row" style={{ flex: 1, minWidth: 0 }}>
                     <div className={`schedule-plan-icon ${it.kind === 'drill' ? 'drill' : 'resume'}`}>
-                      <span className="material-symbols-outlined">{it.kind === 'drill' ? 'fitness_center' : 'play_arrow'}</span>
+                      {it.kind === 'drill' ? <Barbell size={16} /> : <Play size={16} />}
                     </div>
                     <div style={{ minWidth: 0 }}>
                       <div style={{ fontWeight: 700, fontSize: 14 }}>{it.title}</div>
@@ -132,7 +133,7 @@ export default function Schedule() {
                 <div key={a.id} className="weakness-row">
                   <div className="row" style={{ flex: 1, minWidth: 0 }}>
                     <div className={`schedule-mock-icon ${a.status === 'completed' ? 'completed' : 'active'}`}>
-                      <span className="material-symbols-outlined">{a.status === 'completed' ? 'task_alt' : 'quiz'}</span>
+                      {a.status === 'completed' ? <CheckCircle size={16} /> : <Exam size={16} />}
                     </div>
                     <div style={{ minWidth: 0 }}>
                       <div style={{ fontWeight: 700, fontSize: 14 }}>{a.mock_tests?.title || 'Mock Test'}</div>

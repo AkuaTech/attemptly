@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 
 const steps = [
-  { title: 'welcome to attemptly', text: '30 second tour of the main spots, then you get to solving.' },
+  { title: 'welcome to attemptly', text: 'quick 30 second tour so nothing feels lost. skip anytime, you start solving right after.' },
   { mob: '.bnav-item:nth-child(1)', desk: '.sidebar-item:nth-child(2)', title: 'mock tests', text: 'timed full tests, plus custom ones you build yourself. your exam simulation.' },
   { mob: '.bnav-item:nth-child(2)', desk: '.sidebar-item:nth-child(4)', title: 'subjects', text: 'every chapter and topic from the syllabus. pick one and start solving.' },
   { mob: '.bnav-item:nth-child(3)', desk: '.sidebar-item:nth-child(5)', title: 'planner', text: 'builds a daily plan from your weak topics. open it and just follow along.' },
